@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { useAuth } from "../hooks";
+import { LAYOUT_CONSTANTS } from "../../../utils/constants";
 
 export const Login = (): JSX.Element => {
   const [email, setEmail] = useState("");
@@ -101,7 +102,7 @@ export const Login = (): JSX.Element => {
 
           <Button
             type="submit"
-            className="w-full h-11 bg-[#22a3eb] hover:bg-[#1a8ac9] text-white font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+            className={LAYOUT_CONSTANTS.BUTTON.PRIMARY_FULL_WIDTH}
           >
             Entrar
           </Button>
