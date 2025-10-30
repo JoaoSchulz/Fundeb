@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent } from "../../../../../../../components/ui/card";
 import { Separator } from "../../../../../../../components/ui/separator";
 import type { IndicatorRow, RevenueRow, SimulationRow, Tab } from "../../../../../../types";
@@ -19,9 +20,11 @@ interface SimulationTableCardProps {
   selectedSimulation?: { name: string };
   onSimulationChange?: (value: string) => void;
   currentSimulationId?: string;
+  simulationsList?: Array<{ id: number; name: string; createdAt: string }>;
   onOpenModal: () => void;
   isModalOpen: boolean;
   onCloseModal: () => void;
+  tableScrollRef?: React.RefObject<HTMLDivElement>;
 }
 
 export const SimulationTableCard = ({
@@ -35,9 +38,11 @@ export const SimulationTableCard = ({
   selectedSimulation,
   onSimulationChange,
   currentSimulationId,
+  simulationsList,
   onOpenModal,
   isModalOpen,
   onCloseModal,
+  tableScrollRef,
 }: SimulationTableCardProps): JSX.Element => (
   <Card className="flex flex-col items-start w-full max-w-full bg-[#fcfcfc] rounded-xl border border-solid border-[#e9e9eb] shadow-shadows-shadow-xs overflow-hidden">
     <CardContent className="flex flex-col items-start gap-5 w-full p-0 bg-white">
@@ -45,6 +50,7 @@ export const SimulationTableCard = ({
         selectedSimulation={selectedSimulation}
         onSimulationChange={onSimulationChange}
         currentSimulationId={currentSimulationId}
+        simulationsList={simulationsList}
       />
       <Separator className="w-full" />
     </CardContent>
@@ -58,7 +64,7 @@ export const SimulationTableCard = ({
         <SimulationTableActions />
       </div>
     </div>
-    <div className="max-h-[600px] overflow-y-auto scrollbar-modern w-full">
+    <div ref={tableScrollRef} className="max-h-[600px] overflow-y-auto scrollbar-modern w-full">
       <SimulationTableContent
         activeTab={activeTab}
         isLoading={isLoading}

@@ -25,7 +25,7 @@ export const SimulationProvider = ({
     useState<Simulation | null>({
       id: 1,
       name: "Simulação de exemplo 01",
-      createdAt: "22/03/2025",
+      createdAt: "2025-03-22T10:30:00",
       modifiedAt: "22/03/2025",
     });
 

@@ -13,25 +13,23 @@ export const StatsCards = ({ cards }: StatsCardsProps): JSX.Element => (
         key={index}
         className={`flex-col min-w-[280px] w-full md:min-w-[280px] lg:min-w-[320px] p-6 flex-1 rounded-xl border border-solid border-[#e9e9eb] shadow-shadows-shadow-xs ${card.gradient} hover:shadow-lg transition-shadow duration-200`}
       >
-        <CardContent className="flex flex-col items-start gap-3 w-full p-0 min-h-[100px]">
-          <p className="w-full font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-white text-[length:var(--text-sm-medium-font-size)] tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)] min-h-[40px]">
+        <CardContent className="flex flex-col items-start justify-between w-full p-0 min-h-[90px]">
+          <p className="w-full font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-white text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
             {card.title}
           </p>
-          <div className="flex flex-wrap items-baseline gap-[12px_12px] w-full">
-            <h2 className="font-display-sm-semibold font-[number:var(--display-sm-semibold-font-weight)] text-white text-[length:var(--display-sm-semibold-font-size)] tracking-[var(--display-sm-semibold-letter-spacing)] leading-[var(--display-sm-semibold-line-height)] [font-style:var(--display-sm-semibold-font-style)]">
-              {card.value}
-            </h2>
-            <div className="inline-flex items-center gap-2">
-              <div className="inline-flex items-center justify-center gap-1">
-                <TrendingUp className="w-4 h-4 text-white" />
-                <span className="font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-white text-[length:var(--text-sm-medium-font-size)] text-center tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)]">
-                  {card.trend}
-                </span>
-              </div>
-              <span className="font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-white text-[length:var(--text-sm-medium-font-size)] tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)]">
-                {card.trendLabel}
+          <h2 className="font-semibold text-white" style={{ fontSize: '26px', lineHeight: '32px', letterSpacing: '0px' }}>
+            {card.value}
+          </h2>
+          <div className="inline-flex items-center gap-2">
+            <div className="inline-flex items-center justify-center gap-1">
+              <TrendingUp className="w-4 h-4 text-white" />
+              <span className="font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-white text-[length:var(--text-sm-medium-font-size)] text-center tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)]">
+                {card.trend}
               </span>
             </div>
+            <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-white text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+              {card.trendLabel}
+            </span>
           </div>
         </CardContent>
       </Card>

@@ -47,22 +47,26 @@ export const MeuPerfil = (): JSX.Element => {
   return (
     <section className="flex flex-col items-start gap-8 pt-8 pb-12 px-0 w-full bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(239,246,255,1)_50%,rgba(236,238,243,1)_100%)] min-h-screen">
       <div className="flex flex-col items-start gap-6 w-full px-4 md:px-6 lg:px-8">
-        <ProfileHeader isEditing={isEditing} onEdit={handleEdit} />
+        <ProfileHeader />
 
         <div className="w-full max-w-[1400px] mx-auto bg-white rounded-xl border border-solid border-[#e9e9eb] shadow-sm overflow-hidden">
           <CardContent className="p-6 md:p-8">
-            <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+            <div className="flex flex-col gap-8">
+              {/* Avatar e Nome acima */}
               <ProfileAvatar
                 name={profile.name}
                 email={profile.email}
                 isEditing={isEditing}
               />
+              
+              {/* Informações Pessoais abaixo */}
               <ProfileForm
                 profile={isEditing ? editedProfile : profile}
                 isEditing={isEditing}
                 onChange={handleChange}
                 onSave={handleSave}
                 onCancel={handleCancel}
+                onEdit={handleEdit}
               />
             </div>
           </CardContent>

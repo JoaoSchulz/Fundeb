@@ -10,6 +10,7 @@ import { Login, ForgotPassword, MeuPerfil } from "./features/auth/components";
 import { DashboardPor } from "./features/simulation/components/DashboardPor/DashboardPor";
 import { MinhasSimulacoes } from "./features/simulation/components/MinhasSimulacoes/MinhasSimulacoes";
 import { NovaSimulacao } from "./features/simulation/components/NovaSimulacao/NovaSimulacao";
+import { EditarSimulacao } from "./features/simulation/components/EditarSimulacao";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -46,6 +47,16 @@ createRoot(document.getElementById("app") as HTMLElement).render(
               <PrivateRoute>
                 <Layout>
                   <NovaSimulacao />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/editar-simulacao/:id"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <EditarSimulacao />
                 </Layout>
               </PrivateRoute>
             }

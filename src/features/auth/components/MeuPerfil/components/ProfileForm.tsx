@@ -19,6 +19,7 @@ interface ProfileFormProps {
   onChange: (field: keyof UserProfile, value: string) => void;
   onSave: () => void;
   onCancel: () => void;
+  onEdit: () => void;
 }
 
 export const ProfileForm = ({
@@ -27,12 +28,24 @@ export const ProfileForm = ({
   onChange,
   onSave,
   onCancel,
+  onEdit,
 }: ProfileFormProps): JSX.Element => (
   <div className="flex-1 space-y-6">
-    <div>
-      <h2 className="font-['Inter',Helvetica] font-semibold text-[#181d27] text-lg mb-4">
-        Informações Pessoais
-      </h2>
+    <div className="relative">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-['Inter',Helvetica] font-semibold text-[#181d27] text-lg">
+          Informações Pessoais
+        </h2>
+        {!isEditing && (
+          <Button
+            onClick={onEdit}
+            variant="outline"
+            className={`${LAYOUT_CONSTANTS.BUTTON.HEIGHT} px-4 border-[#d0d3d9] text-[#181d27] hover:bg-[#f5f5f6]`}
+          >
+            Editar Perfil
+          </Button>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ProfileField
           label="Nome Completo"
@@ -69,17 +82,13 @@ export const ProfileForm = ({
             <label className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">
               Organização
             </label>
-            {isEditing ? (
-              <Input
-                type="text"
-                value={profile.organization}
-                onChange={(e) => onChange("organization", e.target.value)}
-              />
-            ) : (
-              <p className="font-['Inter',Helvetica] font-normal text-[#535861] text-sm py-2 px-3 bg-[#f9fafb] rounded-md">
-                {profile.organization}
-              </p>
-            )}
+            <Input
+              type="text"
+              value={profile.organization}
+              onChange={(e) => onChange("organization", e.target.value)}
+              disabled={!isEditing}
+              size="md"
+            />
           </div>
         </div>
       </div>

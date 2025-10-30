@@ -1,5 +1,6 @@
 import { HelpCircle } from "lucide-react";
 import { Input } from "../../../../../components/ui/input";
+import { Tooltip } from "../../../../../components/ui/tooltip";
 
 interface EnrollmentCategory {
   id: string;
@@ -24,19 +25,25 @@ export const EnrollmentForm = ({
         <span className="font-['Inter',Helvetica] font-medium text-[#535861] text-sm">
           Categoria
         </span>
-        <HelpCircle className="w-4 h-4 text-[#858d9d]" />
+        <Tooltip content="Selecione a categoria educacional para a simulação">
+          <HelpCircle className="w-4 h-4 text-[#858d9d]" />
+        </Tooltip>
       </div>
       <div className="flex items-center gap-2 justify-end w-[140px] md:w-[180px]">
         <span className="font-['Inter',Helvetica] font-medium text-[#535861] text-sm">
           Matrículas
         </span>
-        <HelpCircle className="w-4 h-4 text-[#858d9d]" />
+        <Tooltip content="Informe o número de matrículas para esta categoria">
+          <HelpCircle className="w-4 h-4 text-[#858d9d]" />
+        </Tooltip>
       </div>
       <div className="flex items-center gap-2 justify-end w-[160px] md:w-[200px]">
         <span className="font-['Inter',Helvetica] font-medium text-[#535861] text-sm">
           Repasse Simulado
         </span>
-        <HelpCircle className="w-4 h-4 text-[#858d9d]" />
+        <Tooltip content="Valor do repasse simulado calculado automaticamente">
+          <HelpCircle className="w-4 h-4 text-[#858d9d]" />
+        </Tooltip>
       </div>
     </div>
     {categories.map((category, index) => (

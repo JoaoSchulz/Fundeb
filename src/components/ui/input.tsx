@@ -56,21 +56,21 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             <Icon className={iconSizeClasses[size]} />
           </div>
         )}
-        <input
+      <input
           id={inputId}
-          type={type}
+        type={type}
           ref={ref}
           disabled={disabled}
-          className={cn(
-            "flex w-full rounded-md border bg-white text-[#181d27] ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
+        className={cn(
+            "flex w-full rounded-lg border bg-white text-[#181d27] ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-neutral-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0 disabled:cursor-not-allowed transition-colors",
             sizeClasses[size],
             Icon ? "pl-10" : "",
             isInvalid
               ? "border-[#d92c20] focus-visible:ring-[#d92c20]"
               : "border-[#d0d3d9] focus-visible:ring-[#22a3eb]",
-            disabled && "bg-[#f9fafb]",
-            className
-          )}
+            disabled && "bg-[#f9fafb] text-[#535861] border-[#e9e9eb]",
+          className
+        )}
           aria-invalid={isInvalid}
           aria-describedby={
             hint || errorMessage
@@ -80,8 +80,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               : undefined
           }
           aria-required={required}
-          {...props}
-        />
+        {...props}
+      />
         {isInvalid && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#d92c20] pointer-events-none">
             <AlertCircle className={iconSizeClasses[size]} />

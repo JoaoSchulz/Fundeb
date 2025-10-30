@@ -1,4 +1,4 @@
-import { Eye } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import { Button } from "../../../../../components/ui/button";
 
 type SimulationListItem = {
@@ -11,11 +11,13 @@ type SimulationListItem = {
 interface SimulationsTableProps {
   simulations: SimulationListItem[];
   onView: (simulation: SimulationListItem) => void;
+  onEdit: (simulation: SimulationListItem) => void;
 }
 
 export const SimulationsTable = ({
   simulations,
   onView,
+  onEdit,
 }: SimulationsTableProps): JSX.Element => (
   <div className="overflow-x-auto scrollbar-modern-horizontal">
     <table className="w-full">
@@ -30,7 +32,7 @@ export const SimulationsTable = ({
           <th className="text-left py-3 px-6 font-['Inter',Helvetica] font-medium text-[#535861] text-sm">
             Modificado em
           </th>
-          <th className="w-16"></th>
+          <th className="w-32 text-center">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -57,14 +59,26 @@ export const SimulationsTable = ({
               </span>
             </td>
             <td className="py-4 px-6">
+              <div className="flex items-center justify-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-md hover:bg-[#f5f5f6] transition-colors"
                 onClick={() => onView(simulation)}
+                  aria-label="Visualizar simulação"
               >
                 <Eye className="w-5 h-5 text-[#858d9d]" />
               </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-md hover:bg-[#f5f5f6] transition-colors"
+                  onClick={() => onEdit(simulation)}
+                  aria-label="Editar simulação"
+                >
+                  <Pencil className="w-5 h-5 text-[#858d9d]" />
+                </Button>
+              </div>
             </td>
           </tr>
         ))}

@@ -21,7 +21,8 @@ export const DashboardHeader = (): JSX.Element => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto max-w-full">
           <Button
             variant="outline"
-            className="h-auto inline-flex items-center justify-center gap-2 px-3 py-2 bg-white rounded-lg border border-solid border-[#d5d6d9] shadow-shadows-shadow-xs hover:bg-neutral-50 hover:border-[#b5b6b9] transition-all duration-200 w-full sm:w-auto"
+            disabled
+            className="h-auto inline-flex items-center justify-center gap-2 px-3 py-2 bg-white rounded-lg border border-solid border-[#d5d6d9] shadow-shadows-shadow-xs cursor-not-allowed opacity-100 transition-all duration-200 w-full sm:w-auto"
           >
             <MapPin className="w-5 h-5 text-[#414651]" />
             <div className="inline-flex items-center gap-2">

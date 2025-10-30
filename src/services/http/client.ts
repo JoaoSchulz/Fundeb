@@ -1,4 +1,5 @@
 import { getEnv } from "../../utils/env";
+import { AuthService } from "../../features/auth/services/authService";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -47,7 +48,7 @@ export class HttpClient {
     const qs = buildQueryString(query);
     const url = `${urlBase}${path}${qs}`;
 
-    const authToken = localStorage.getItem("auth_token"); // TODO: substituir por AuthService
+    const authToken = AuthService.getToken();
 
     const response = await fetch(url, {
       method,

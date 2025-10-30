@@ -21,7 +21,8 @@ export const SimulationsListHeader = (): JSX.Element => {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <Button
           variant="outline"
-          className="h-11 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white rounded-lg border border-solid border-[#d0d3d9] hover:bg-[#f5f5f6] transition-colors"
+          disabled
+          className="h-11 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white rounded-lg border border-solid border-[#d0d3d9] cursor-not-allowed opacity-100 transition-colors"
         >
           <MapPin className="w-5 h-5 text-[#414651]" />
           <span className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">

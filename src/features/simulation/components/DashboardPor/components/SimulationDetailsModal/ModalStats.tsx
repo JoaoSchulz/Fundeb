@@ -1,16 +1,16 @@
 export const ModalStats = (): JSX.Element => (
   <div className="grid grid-cols-2 gap-8">
-    <div>
-      <div className="text-[14px] font-semibold text-[#414651] mb-2">
+    <div className="flex flex-col gap-2">
+      <div className="text-sm font-semibold text-[#414651]">
         Matrículas
       </div>
-      <div className="text-[22px] font-normal text-[#181d27]">806</div>
+      <div className="text-xl font-normal text-[#181d27]">806</div>
     </div>
-    <div>
-      <div className="text-[14px] font-semibold text-[#414651] mb-2">
+    <div className="flex flex-col gap-2">
+      <div className="text-sm font-semibold text-[#414651]">
         Repasse por Matrícula
       </div>
-      <div className="text-[22px] font-normal text-[#181d27]">
+      <div className="text-xl font-normal text-[#181d27]">
         R$ 1.501,24
       </div>
     </div>
