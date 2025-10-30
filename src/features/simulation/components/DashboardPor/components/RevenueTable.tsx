@@ -1,5 +1,6 @@
 import React from "react";
 import { DataTable, type Column } from "../../../../../components/common";
+import { useHideValues } from "../../../../../hooks/useHideValues";
 import type { RevenueRow } from "../../../types";
 
 interface RevenueTableProps {
@@ -11,6 +12,8 @@ export const RevenueTable = ({
   data,
   onOpenModal,
 }: RevenueTableProps): JSX.Element => {
+  const { hideValues } = useHideValues();
+  
   const columns: Column<RevenueRow>[] = [
     {
       key: "imposto",
@@ -28,7 +31,7 @@ export const RevenueTable = ({
       tooltip:
         "Arrecadação registrada para esse imposto no período considerado.",
       render: (row) => (
-        <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+        <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
           {row.valorAtual}
         </span>
       ),
@@ -39,7 +42,7 @@ export const RevenueTable = ({
       tooltip:
         "Valor projetado pelo município para simular o impacto de aumento na arrecadação.",
       render: (row) => (
-        <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+        <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
           {row.valorSimulado}
         </span>
       ),
@@ -50,7 +53,7 @@ export const RevenueTable = ({
       tooltip:
         "Crescimento mínimo exigido para ampliar o repasse via complementação.",
       render: (row) => (
-        <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+        <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
           {row.metaFundeb}
         </span>
       ),
@@ -60,7 +63,7 @@ export const RevenueTable = ({
       label: "Meta da Rede",
       tooltip: "Crescimento estimado pela rede para cumprir ou superar a meta.",
       render: (row) => (
-        <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+        <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
           {row.metaRede}
         </span>
       ),
@@ -72,7 +75,7 @@ export const RevenueTable = ({
         "Valor adicional estimado no repasse com base no cenário simulado.",
       render: (row) => (
         <span
-          className={`font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)] ${row.diferencaColor}`}
+          className={`font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)] ${row.diferencaColor} ${hideValues ? 'select-none blur-sm' : ''}`}
         >
           {row.diferenca}
         </span>

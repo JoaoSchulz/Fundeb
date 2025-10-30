@@ -1,6 +1,7 @@
 import { HelpCircle } from "lucide-react";
 import { Input } from "../../../../../components/ui/input";
 import { Tooltip } from "../../../../../components/ui/tooltip";
+import { useHideValues } from "../../../../../hooks/useHideValues";
 
 interface RevenueItem {
   id: string;
@@ -21,7 +22,10 @@ interface RevenueFormProps {
 export const RevenueForm = ({
   items,
   onRevenueChange,
-}: RevenueFormProps): JSX.Element => (
+}: RevenueFormProps): JSX.Element => {
+  const { hideValues } = useHideValues();
+  
+  return (
   <div className="overflow-x-auto scrollbar-modern-horizontal">
     <div className="grid grid-cols-[1fr,auto,auto] gap-2 md:gap-4 mb-4 min-w-[600px]">
       <div className="flex items-center gap-2">
@@ -72,12 +76,13 @@ export const RevenueForm = ({
           />
         </div>
         <div className="w-[160px] md:w-[200px] flex items-center justify-end shrink-0">
-          <span className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">
+          <span className={`font-['Inter',Helvetica] font-medium text-[#181d27] text-sm ${hideValues ? 'select-none blur-sm' : ''}`}>
             {item.currentValue}
           </span>
         </div>
       </div>
     ))}
   </div>
-);
+  );
+};
 

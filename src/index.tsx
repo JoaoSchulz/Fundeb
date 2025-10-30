@@ -6,7 +6,8 @@ import { Layout } from "./components/layout";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./features/auth/hooks";
 import { SimulationProvider } from "./features/simulation/hooks";
-import { Login, ForgotPassword, MeuPerfil } from "./features/auth/components";
+import { HideValuesProvider } from "./hooks/useHideValues";
+import { Login, ForgotPassword, ForgotPasswordSuccess, MeuPerfil } from "./features/auth/components";
 import { DashboardPor } from "./features/simulation/components/DashboardPor/DashboardPor";
 import { MinhasSimulacoes } from "./features/simulation/components/MinhasSimulacoes/MinhasSimulacoes";
 import { NovaSimulacao } from "./features/simulation/components/NovaSimulacao/NovaSimulacao";
@@ -17,10 +18,12 @@ createRoot(document.getElementById("app") as HTMLElement).render(
     <BrowserRouter>
       <AuthProvider>
         <SimulationProvider>
-          <Toaster />
+          <HideValuesProvider>
+            <Toaster />
           <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/esqueci-senha" element={<ForgotPassword />} />
+          <Route path="/esqueci-senha/sucesso" element={<ForgotPasswordSuccess />} />
           <Route
             path="/"
             element={
@@ -72,6 +75,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             }
           />
         </Routes>
+          </HideValuesProvider>
         </SimulationProvider>
       </AuthProvider>
     </BrowserRouter>

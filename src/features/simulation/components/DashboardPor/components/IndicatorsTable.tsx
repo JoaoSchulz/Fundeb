@@ -1,5 +1,6 @@
 import React from "react";
 import { DataTable, type Column } from "../../../../../components/common";
+import { useHideValues } from "../../../../../hooks/useHideValues";
 import type { IndicatorRow } from "../../../types";
 
 interface IndicatorsTableProps {
@@ -11,6 +12,8 @@ export const IndicatorsTable = ({
   data,
   onOpenModal,
 }: IndicatorsTableProps): JSX.Element => {
+  const { hideValues } = useHideValues();
+  
   const columns: Column<IndicatorRow>[] = [
     {
       key: "indicador",
@@ -35,7 +38,7 @@ export const IndicatorsTable = ({
         "Índice real da rede para esse indicador, conforme dados oficiais.",
       render: (row) =>
         row.valorAtual ? (
-          <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+          <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
             {row.valorAtual}
           </span>
         ) : null,
@@ -47,7 +50,7 @@ export const IndicatorsTable = ({
         "Meta mínima exigida pelo FUNDEB para gerar complementação financeira.",
       render: (row) =>
         row.metaFundeb ? (
-          <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+          <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
             {row.metaFundeb}
           </span>
         ) : null,
@@ -58,7 +61,7 @@ export const IndicatorsTable = ({
       tooltip: "Meta simulada pela rede para atingir ou superar o exigido.",
       render: (row) =>
         row.metaRede ? (
-          <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+          <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
             {row.metaRede}
           </span>
         ) : null,
@@ -74,7 +77,7 @@ export const IndicatorsTable = ({
             row.isTotal
               ? "font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)]"
               : "font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)]"
-          } text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)] ${row.diferencaColor}`}
+          } text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)] ${row.diferencaColor} ${hideValues ? 'select-none blur-sm' : ''}`}
         >
           {row.diferenca}
         </span>

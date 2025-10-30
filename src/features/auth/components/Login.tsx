@@ -20,51 +20,40 @@ export const Login = (): JSX.Element => {
   return (
     <section className="flex flex-col items-center justify-center min-h-screen w-full bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(239,246,255,1)_50%,rgba(236,238,243,1)_100%)] px-4 py-12">
       <div className="flex flex-col items-center gap-8 max-w-md w-full">
-        <div className="flex flex-col items-center gap-6">
-          <img
-            className="w-[200px] h-auto object-contain"
-            alt="Logo FUNDEB"
-            src="/logo-fundeb.png"
-          />
-
-          <div className="flex flex-col items-center gap-2">
-            <h1 className="[font-family:'Inter',Helvetica] font-semibold text-[#181d27] text-3xl tracking-[0] leading-tight text-center">
-              Bem-vindo ao Sistema FUNDEB
-            </h1>
-            <p className="font-text-md-regular font-[number:var(--text-md-regular-font-weight)] text-[#535861] text-[length:var(--text-md-regular-font-size)] tracking-[var(--text-md-regular-letter-spacing)] leading-[var(--text-md-regular-line-height)] [font-style:var(--text-md-regular-font-style)] text-center">
-              Faça login para acessar o painel de simulações
-            </p>
-          </div>
-        </div>
-
         <form
           onSubmit={handleSubmit}
           className="flex flex-col gap-6 w-full bg-white rounded-lg shadow-lg p-8 border border-[#e9e9eb]"
         >
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="email"
-              className="font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[#181d27] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)]"
-            >
-              E-mail ou Usuário
-            </label>
+          <div className="flex flex-col items-center gap-4">
+            <img
+              className="w-[210px] h-auto object-contain"
+              alt="Logo FUNDEB"
+              src="/logo-fundeb.png"
+            />
+            <div className="flex flex-col items-center gap-2">
+              <h1 className="[font-family:'Inter',Helvetica] font-semibold text-[#181d27] text-2xl tracking-[0] leading-tight text-center">
+                Bem-vindo ao Sistema FUNDEB
+              </h1>
+              <p className="font-['Inter',Helvetica] font-normal text-[#535861] text-sm tracking-[0] leading-[20px] text-center">
+                Faça login para acessar o painel de simulações
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
             <Input
               id="email"
               type="text"
               placeholder="Digite seu e-mail ou usuário"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="h-[45.76px]"
+              size="md"
               required
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="password"
-              className="font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[#181d27] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)]"
-            >
-              Senha
-            </label>
+          <div className="flex flex-col gap-1.5">
             <div className="relative">
               <Input
                 id="password"
@@ -72,7 +61,8 @@ export const Login = (): JSX.Element => {
                 placeholder="Digite sua senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pr-10"
+                className="pr-10 h-[45.76px]"
+                size="md"
                 required
               />
               <button
@@ -90,7 +80,14 @@ export const Login = (): JSX.Element => {
             </div>
           </div>
 
-          <div className="flex justify-end">
+          <Button
+            type="submit"
+            className={LAYOUT_CONSTANTS.BUTTON.PRIMARY_FULL_WIDTH}
+          >
+            Entrar
+          </Button>
+
+          <div className="flex justify-center">
             <Link
               to="/esqueci-senha"
               className="font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-[#22a3eb] text-[length:var(--text-sm-medium-font-size)] tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)] hover:underline"
@@ -98,13 +95,6 @@ export const Login = (): JSX.Element => {
               Esqueci minha senha
             </Link>
           </div>
-
-          <Button
-            type="submit"
-            className={LAYOUT_CONSTANTS.BUTTON.PRIMARY_FULL_WIDTH}
-          >
-            Entrar
-          </Button>
         </form>
       </div>
     </section>

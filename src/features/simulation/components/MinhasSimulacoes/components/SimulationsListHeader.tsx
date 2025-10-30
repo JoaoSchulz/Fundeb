@@ -13,9 +13,8 @@ export const SimulationsListHeader = (): JSX.Element => {
           Olá, João
           <span className="text-2xl">👋</span>
         </h1>
-        <p className="font-['Inter',Helvetica] font-normal text-[#535861] text-sm tracking-[0] leading-[20px]">
-          Última atualização dos dados: Abril/2025 com base no Censo Escolar
-          2023 e projeções do FNDE
+        <p className="font-['Inter',Helvetica] font-normal text-[#535861] text-sm tracking-[0] leading-[20px] whitespace-nowrap">
+          Última atualização dos dados: Abril/2025 com base no Censo Escolar 2023 e projeções do FNDE
         </p>
       </div>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
