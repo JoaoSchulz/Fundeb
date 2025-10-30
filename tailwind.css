@@ -272,4 +272,57 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Scrollbar moderna e customizada */
+  .scrollbar-modern {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(34, 163, 235, 0.3) transparent;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-thumb {
+    background: rgba(34, 163, 235, 0.3);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+
+  .scrollbar-modern::-webkit-scrollbar-thumb:hover {
+    background: rgba(34, 163, 235, 0.5);
+  }
+
+  /* Para scroll horizontal específico (mobile) */
+  .scrollbar-modern-horizontal {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(34, 163, 235, 0.3) transparent;
+  }
+
+  .scrollbar-modern-horizontal::-webkit-scrollbar {
+    height: 8px;
+    width: auto;
+  }
+
+  .scrollbar-modern-horizontal::-webkit-scrollbar-track {
+    background: rgba(239, 246, 255, 0.5);
+    border-radius: 10px;
+    margin: 0 4px;
+  }
+
+  .scrollbar-modern-horizontal::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, rgba(34, 163, 235, 0.4), rgba(34, 163, 235, 0.6));
+    border-radius: 10px;
+    transition: background 0.2s ease;
+  }
+
+  .scrollbar-modern-horizontal::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, rgba(34, 163, 235, 0.6), rgba(34, 163, 235, 0.8));
+  }
 }
