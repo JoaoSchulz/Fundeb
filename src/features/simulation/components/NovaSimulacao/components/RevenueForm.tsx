@@ -60,7 +60,7 @@ export const RevenueForm = ({
             onChange={(e) =>
               onRevenueChange(item.id, "simulatedTransfer", e.target.value)
             }
-            className="h-10 border-[#d0d3d9] text-right"
+            className="h-10 text-right"
             type="text"
           />
         </div>

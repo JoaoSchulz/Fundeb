@@ -22,9 +22,9 @@ export const Login = (): JSX.Element => {
       <div className="flex flex-col items-center gap-8 max-w-md w-full">
         <div className="flex flex-col items-center gap-6">
           <img
-            className="w-[200px] h-auto"
+            className="w-[200px] h-auto object-contain"
             alt="Logo FUNDEB"
-            src="/chatgpt-image-5-de-mai--de-2025--09-32-20-1.png"
+            src="/logo-fundeb.png"
           />
 
           <div className="flex flex-col items-center gap-2">
@@ -54,7 +54,6 @@ export const Login = (): JSX.Element => {
               placeholder="Digite seu e-mail ou usuário"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-11 border-[#e9e9eb] focus-visible:ring-[#22a3eb] focus-visible:ring-offset-0"
               required
             />
           </div>
@@ -73,7 +72,7 @@ export const Login = (): JSX.Element => {
                 placeholder="Digite sua senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-11 pr-10 border-[#e9e9eb] focus-visible:ring-[#22a3eb] focus-visible:ring-offset-0"
+                className="pr-10"
                 required
               />
               <button

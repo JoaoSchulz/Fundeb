@@ -13,37 +13,65 @@ import type {
   SimulationSummary,
   TabType,
 } from "../types/simulation";
+import { http } from "../../../services/http/client";
 
 export class SimulationService {
   static async getSimulationsByTab(
     tabId: TabType
   ): Promise<SimulationRow[]> {
-    await this.simulateDelay();
-
-    switch (tabId) {
-      case "receita":
-        return MOCK_REVENUE;
-      case "indicadores":
-        return MOCK_INDICATORS;
-      case "matriculas":
-      default:
-        return MOCK_ENROLLMENTS;
+    // Tentativa de chamada real (se VITE_API_BASE_URL estiver configurado)
+    try {
+      await this.simulateDelay();
+      const endpoint =
+        tabId === "receita"
+          ? "/simulations/revenue"
+          : tabId === "indicadores"
+          ? "/simulations/indicators"
+          : "/simulations/enrollments";
+      const { data } = await http.get<SimulationRow[]>(endpoint);
+      return data;
+    } catch {
+      // Fallback para mocks
+      switch (tabId) {
+        case "receita":
+          return MOCK_REVENUE;
+        case "indicadores":
+          return MOCK_INDICATORS;
+        case "matriculas":
+        default:
+          return MOCK_ENROLLMENTS;
+      }
     }
   }
 
   static async getAllSimulations(): Promise<SimulationSummary[]> {
-    await this.simulateDelay();
-    return MOCK_SIMULATIONS;
+    try {
+      await this.simulateDelay();
+      const { data } = await http.get<SimulationSummary[]>("/simulations");
+      return data;
+    } catch {
+      return MOCK_SIMULATIONS;
+    }
   }
 
   static async getRevenueData(): Promise<RevenueRow[]> {
-    await this.simulateDelay();
-    return MOCK_REVENUE_TABLE;
+    try {
+      await this.simulateDelay();
+      const { data } = await http.get<RevenueRow[]>("/revenue/table");
+      return data;
+    } catch {
+      return MOCK_REVENUE_TABLE;
+    }
   }
 
   static async getIndicatorsData(): Promise<IndicatorRow[]> {
-    await this.simulateDelay();
-    return MOCK_INDICATORS_TABLE;
+    try {
+      await this.simulateDelay();
+      const { data } = await http.get<IndicatorRow[]>("/indicators/table");
+      return data;
+    } catch {
+      return MOCK_INDICATORS_TABLE;
+    }
   }
 
   private static simulateDelay(): Promise<void> {

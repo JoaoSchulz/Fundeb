@@ -1,12 +1,12 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { PrivateRoute, ComingSoon } from "./components/common";
+import { PrivateRoute } from "./components/common";
 import { Layout } from "./components/layout";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./features/auth/hooks";
 import { SimulationProvider } from "./features/simulation/hooks";
-import { Login, ForgotPassword } from "./features/auth/components";
+import { Login, ForgotPassword, MeuPerfil } from "./features/auth/components";
 import { DashboardPor } from "./features/simulation/components/DashboardPor/DashboardPor";
 import { MinhasSimulacoes } from "./features/simulation/components/MinhasSimulacoes/MinhasSimulacoes";
 import { NovaSimulacao } from "./features/simulation/components/NovaSimulacao/NovaSimulacao";
@@ -55,7 +55,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             element={
               <PrivateRoute>
                 <Layout>
-                  <ComingSoon />
+                  <MeuPerfil />
                 </Layout>
               </PrivateRoute>
             }

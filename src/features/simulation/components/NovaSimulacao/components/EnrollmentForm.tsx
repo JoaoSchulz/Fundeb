@@ -58,7 +58,7 @@ export const EnrollmentForm = ({
           <Input
             value={category.enrollments}
             onChange={(e) => onEnrollmentChange(category.id, e.target.value)}
-            className="h-10 border-[#d0d3d9] text-right"
+            className="h-10 text-right"
             type="text"
           />
         </div>

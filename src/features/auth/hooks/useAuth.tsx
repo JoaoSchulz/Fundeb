@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { AuthService } from "../services/authService";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -15,26 +16,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const authStatus = localStorage.getItem("isAuthenticated");
-    if (authStatus === "true") {
-      setIsAuthenticated(true);
-    }
+    setIsAuthenticated(AuthService.isAuthenticated());
   }, []);
 
   const login = (email: string, password: string) => {
-    if (email && password) {
-      setIsAuthenticated(true);
-      localStorage.setItem("isAuthenticated", "true");
-      toast.success("Login realizado com sucesso!");
-      navigate("/");
-    }
+    AuthService.login({ email, password })
+      .then(() => {
+        setIsAuthenticated(true);
+        toast.success("Login realizado com sucesso!");
+        navigate("/");
+      })
+      .catch(() => {
+        toast.error("Credenciais inválidas");
+      });
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem("isAuthenticated");
-    toast.success("Logout realizado com sucesso!");
-    navigate("/login");
+    AuthService.logout().finally(() => {
+      setIsAuthenticated(false);
+      toast.success("Logout realizado com sucesso!");
+      navigate("/login");
+    });
   };
 
   return (
