@@ -1,22 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
-import { SimulationService } from "../../../../services";
 import { MOCK_SIMULATIONS_LIST } from "../../../../../../data/mocks";
 import type {
-  IndicatorRow,
-  RevenueRow,
-  SimulationRow,
   StatsCard,
   Tab,
   TabType,
 } from "../../../../types";
-import { useSimulation } from "../../../../hooks";
+import { useSimulation, useFinancialData, useScrollPosition } from "../../../../hooks";
 import { SimulationDetailsModal } from "../../components";
 import {
   DashboardHeader,
   StatsCards,
   SimulationTableCard,
+  ExpandedViewModal,
 } from "./components";
 
 const statsCards: StatsCard[] = [
@@ -47,7 +44,8 @@ const statsCards: StatsCard[] = [
 ];
 
 const initialTabs: Tab[] = [
-  { id: "matriculas", label: "Por Matrículas", active: true },
+  { id: "todos", label: "Todos", active: true },
+  { id: "matriculas", label: "Por Matrículas", active: false },
   { id: "receita", label: "Por Receita", active: false },
   { id: "indicadores", label: "Por Indicadores VAAR", active: false },
 ];
@@ -56,26 +54,44 @@ export const FinancialOverviewSection = (): JSX.Element => {
   const location = useLocation();
   const tableRef = useRef<HTMLDivElement>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
+  const pageScrollContainerRef = useRef<HTMLDivElement>(null);
   const { selectedSimulation, setSelectedSimulation } = useSimulation();
   const [tabs, setTabs] = useState<Tab[]>(initialTabs);
-  const [tableData, setTableData] = useState<SimulationRow[]>([]);
-  const [revenueData, setRevenueData] = useState<RevenueRow[]>([]);
-  const [indicatorsData, setIndicatorsData] = useState<IndicatorRow[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSimulationId, setCurrentSimulationId] = useState(
     selectedSimulation?.id?.toString() || "1"
   );
   const [simulationsList] = useState(MOCK_SIMULATIONS_LIST);
-  const [savedScrollPosition, setSavedScrollPosition] = useState(0);
-  const [savedPageScrollPosition, setSavedPageScrollPosition] = useState(0);
-  const pageScrollContainerRef = useRef<HTMLDivElement>(null);
+  const [viewMode, setViewMode] = useState<"table" | "cards">("table");
+  const [isViewModeChanging, setIsViewModeChanging] = useState(false);
+  const [isExpandedModalOpen, setIsExpandedModalOpen] = useState(false);
 
-  const activeTab = tabs.find((tab) => tab.active)?.id || "matriculas";
+  const activeTab = tabs.find((tab) => tab.active)?.id || "todos";
 
+  // Hook para gerenciar dados financeiros
+  const {
+    tableData,
+    revenueData,
+    indicatorsData,
+    isLoading,
+    loadTableData,
+  } = useFinancialData(activeTab as TabType);
+
+  // Hook para gerenciar posição de scroll
+  const { saveScrollPosition } = useScrollPosition({
+    tableScrollRef,
+    pageScrollContainerRef,
+    isLoading,
+  });
+
+  // Forçar viewMode para "table" quando não estiver em "todos"
   useEffect(() => {
-    loadTableData(activeTab as TabType);
-  }, [activeTab]);
+    if (activeTab !== "todos" && viewMode === "cards") {
+      setViewMode("table");
+    }
+  }, [activeTab, viewMode]);
+
+  // loadTableData é chamado automaticamente pelo hook useFinancialData
 
   useEffect(() => {
     if (selectedSimulation?.id) {
@@ -104,6 +120,9 @@ export const FinancialOverviewSection = (): JSX.Element => {
               const [day, month, year] = selectedSim.createdAt.split("/");
               return `${year}-${month}-${day}T10:30:00`;
             })(),
+        referencePeriod: (selectedSim as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
+        city: (selectedSim as { city?: string }).city || "Campinas",
+        state: (selectedSim as { state?: string }).state || "SP",
       });
       toast.success("Simulação atualizada", {
         description: `Visualizando dados de "${selectedSim.name}"`,
@@ -113,104 +132,25 @@ export const FinancialOverviewSection = (): JSX.Element => {
     await loadTableData(activeTab as TabType);
   };
 
-  const loadTableData = async (tabId: TabType): Promise<void> => {
-    setIsLoading(true);
-    try {
-      // Simular delay de carregamento para mostrar o shimmer
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      if (tabId === "receita") {
-        const data = await SimulationService.getRevenueData();
-        setRevenueData(data);
-      } else if (tabId === "indicadores") {
-        const data = await SimulationService.getIndicatorsData();
-        setIndicatorsData(data);
-      } else {
-        const data = await SimulationService.getSimulationsByTab(tabId);
-        setTableData(data);
-      }
-    } catch (error) {
-      // TODO: Implementar sistema de logging de erros
-      if (error instanceof Error) {
-        // Erro será tratado pelo error boundary ou sistema de logging
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleTabChange = async (tabId: string): Promise<void> => {
-    // Salvar posição do scroll da tabela antes de trocar de aba
-    if (tableScrollRef.current) {
-      setSavedScrollPosition(tableScrollRef.current.scrollTop);
-    }
-    
-    // Salvar posição do scroll da página
-    // O Layout usa um container com overflow-y-auto que é o scroll principal
-    let scrollPosition = 0;
-    if (pageScrollContainerRef.current) {
-      // Procurar o container de scroll pai (do Layout)
-      let parent = pageScrollContainerRef.current.parentElement;
-      while (parent) {
-        const style = window.getComputedStyle(parent);
-        if (style.overflowY === "auto" || style.overflowY === "scroll") {
-          scrollPosition = parent.scrollTop;
-          break;
-        }
-        parent = parent.parentElement;
-      }
-      // Se não encontrou, usar window scroll como fallback
-      if (scrollPosition === 0) {
-        scrollPosition = window.scrollY;
-      }
+    // Se selecionar "Todos", fazer scroll para o início da div da tabela
+    if (tabId === "todos" && tableRef.current) {
+      setTimeout(() => {
+        tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     } else {
-      scrollPosition = window.scrollY;
+      // Salvar posição do scroll antes de trocar de aba
+      saveScrollPosition();
     }
-    setSavedPageScrollPosition(scrollPosition);
-    
+
     setTabs((prevTabs) =>
       prevTabs.map((tab) => ({
         ...tab,
         active: tab.id === tabId,
       }))
     );
-    // O useEffect vai detectar a mudança de activeTab e chamar loadTableData
-    // que já gerencia o isLoading
+    // O useEffect no hook useFinancialData vai detectar a mudança de activeTab e chamar loadTableData
   };
-
-  // Restaurar scroll após carregar dados
-  useEffect(() => {
-    if (!isLoading) {
-      // Usar setTimeout para garantir que o DOM esteja atualizado
-      setTimeout(() => {
-        // Restaurar scroll da tabela
-        if (tableScrollRef.current && savedScrollPosition > 0) {
-          tableScrollRef.current.scrollTop = savedScrollPosition;
-          setSavedScrollPosition(0);
-        }
-        
-        // Restaurar scroll da página
-        if (savedPageScrollPosition > 0 && pageScrollContainerRef.current) {
-          // Procurar o container de scroll pai (do Layout)
-          let parent = pageScrollContainerRef.current.parentElement;
-          let scrollRestored = false;
-          while (parent) {
-            const style = window.getComputedStyle(parent);
-            if (style.overflowY === "auto" || style.overflowY === "scroll") {
-              parent.scrollTop = savedPageScrollPosition;
-              scrollRestored = true;
-              break;
-            }
-            parent = parent.parentElement;
-          }
-          // Se não encontrou, usar window scroll como fallback
-          if (!scrollRestored) {
-            window.scrollTo(0, savedPageScrollPosition);
-          }
-          setSavedPageScrollPosition(0);
-        }
-      }, 50);
-    }
-  }, [isLoading, savedScrollPosition, savedPageScrollPosition]);
 
   return (
     <section ref={pageScrollContainerRef} className="flex flex-col items-start gap-8 pt-8 pb-12 w-full bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(239,246,255,1)_50%,rgba(236,238,243,1)_100%)] min-h-screen overflow-x-hidden">
@@ -245,6 +185,16 @@ export const FinancialOverviewSection = (): JSX.Element => {
               isModalOpen={isModalOpen}
               onCloseModal={() => setIsModalOpen(false)}
               tableScrollRef={tableScrollRef}
+              viewMode={viewMode}
+              onViewModeChange={(mode) => {
+                setIsViewModeChanging(true);
+                setViewMode(mode);
+                setTimeout(() => {
+                  setIsViewModeChanging(false);
+                }, 300);
+              }}
+              isViewModeChanging={isViewModeChanging}
+              onExpand={() => setIsExpandedModalOpen(true)}
             />
         </div>
       </div>
@@ -252,6 +202,26 @@ export const FinancialOverviewSection = (): JSX.Element => {
       <SimulationDetailsModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
+      />
+
+      <ExpandedViewModal
+        open={isExpandedModalOpen}
+        onOpenChange={setIsExpandedModalOpen}
+        isLoading={isLoading}
+        tableData={tableData}
+        revenueData={revenueData}
+        indicatorsData={indicatorsData}
+        viewMode={viewMode}
+        onViewModeChange={(mode) => {
+          setIsViewModeChanging(true);
+          setViewMode(mode);
+          setTimeout(() => {
+            setIsViewModeChanging(false);
+          }, 300);
+        }}
+        selectedSimulation={selectedSimulation}
+        simulationName={selectedSimulation?.name}
+        baseYear="2027"
       />
     </section>
   );
