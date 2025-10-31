@@ -22,7 +22,7 @@ src/
 │       │   ├── DashboardPor/
 │       │   ├── MinhasSimulacoes/
 │       │   └── NovaSimulacao/
-│       ├── hooks/     # useSimulation
+│       ├── hooks/     # useSimulation, useFinancialData, useScrollPosition
 │       ├── services/  # SimulationService
 │       └── types/     # Tipos TypeScript
 ├── services/          # Serviços globais
@@ -118,6 +118,42 @@ Componente genérico de tabela com suporte a:
 />
 ```
 
+### Skeleton Components
+
+#### TableSkeleton
+Componente de loading para tabelas durante carregamento de dados.
+
+**Localização:** `src/components/common/TableSkeleton.tsx`
+
+#### CardsSkeleton
+Componente de loading para visualização em cards durante transições de visualização.
+
+**Localização:** `src/components/common/CardsSkeleton.tsx`
+
+**Exemplo:**
+```typescript
+{isLoading ? <CardsSkeleton /> : <SimulationCards data={data} />}
+```
+
+### SimulationInfoCards
+Componente modular para exibir informações da simulação em cards:
+
+- **InfoCardsRow**: Exibe cards com informações básicas (ano-base, matrículas, receita própria, VAFF, VAAT+VAAR)
+- **CalculationCards**: Exibe cards de cálculo do ganho com operadores visuais (Original, Simulado, Ganho)
+
+**Localização:** `src/features/simulation/components/DashboardPor/components/SimulationInfoCards/`
+
+**Estrutura:**
+```
+SimulationInfoCards/
+├── SimulationInfoCards.tsx  # Componente principal
+├── components/
+│   ├── InfoCardsRow.tsx     # Cards de informações básicas
+│   ├── CalculationCards.tsx # Cards de cálculo do ganho
+│   └── index.ts
+└── index.ts
+```
+
 ## 🎨 Design System
 
 ### Breakpoints (Tailwind)
@@ -160,6 +196,44 @@ Hook para gerenciar simulação selecionada:
 ```typescript
 const { selectedSimulation, setSelectedSimulation } = useSimulation();
 ```
+
+### useFinancialData
+Hook para gerenciar carregamento de dados financeiros do dashboard:
+```typescript
+const {
+  tableData,
+  revenueData,
+  indicatorsData,
+  isLoading,
+  loadTableData,
+} = useFinancialData(activeTab as TabType);
+```
+
+**Características:**
+- Gerencia estado de dados para diferentes abas (matrículas, receita, indicadores)
+- Carrega dados automaticamente quando a aba muda
+- Gerencia estado de loading
+- Reutilizável em diferentes componentes do dashboard
+
+**Localização:** `src/features/simulation/hooks/useFinancialData.ts`
+
+### useScrollPosition
+Hook para gerenciar posição de scroll durante transições:
+```typescript
+const { saveScrollPosition, restoreScrollPosition } = useScrollPosition({
+  tableScrollRef,
+  pageScrollContainerRef,
+  isLoading,
+});
+```
+
+**Características:**
+- Salva posição de scroll antes de mudanças
+- Restaura posição após carregamento de dados
+- Funciona com scroll de tabela e página
+- Útil para manter contexto durante navegação entre abas
+
+**Localização:** `src/features/simulation/hooks/useScrollPosition.ts`
 
 ## 📝 Convenções de Código
 

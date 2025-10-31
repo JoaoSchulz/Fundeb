@@ -165,15 +165,68 @@ npm run lint
 npm run format
 ```
 
+### Criando um Novo Hook Customizado
+
+1. **Estrutura:**
+```
+src/features/seu-dominio/hooks/
+├── useSeuHook.ts
+└── index.ts
+```
+
+2. **Template:**
+```typescript
+import { useState, useEffect } from "react";
+
+interface UseSeuHookReturn {
+  data: DataType[];
+  isLoading: boolean;
+  loadData: () => Promise<void>;
+}
+
+export const useSeuHook = (param: string): UseSeuHookReturn => {
+  const [data, setData] = useState<DataType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadData = async (): Promise<void> => {
+    setIsLoading(true);
+    try {
+      // Lógica de carregamento
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [param]);
+
+  return { data, isLoading, loadData };
+};
+```
+
+3. **Exportar no index.ts:**
+```typescript
+export { useSeuHook } from "./useSeuHook";
+```
+
+**Exemplo de uso real:**
+- `useFinancialData` - Gerencia dados financeiros do dashboard
+- `useScrollPosition` - Gerencia posição de scroll durante transições
+
 ## 🔄 Processo de Refatoração
 
 Ao refatorar um componente grande:
 
 1. Identificar seções lógicas
-2. Extrair para subcomponentes (<30 linhas)
-3. Criar barrel export em `components/index.ts`
+2. Extrair para subcomponentes (<30 linhas) ou hooks customizados
+3. Criar barrel export em `components/index.ts` ou `hooks/index.ts`
 4. Atualizar componente principal
 5. Testar em diferentes breakpoints
+
+**Exemplo recente:**
+- `SimulationInfoCards` foi dividido em `InfoCardsRow` e `CalculationCards`
+- `FinancialOverviewSection` teve lógica extraída para `useFinancialData` e `useScrollPosition`
 
 ## 📝 Checklist de PR
 
