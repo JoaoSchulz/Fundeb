@@ -8,10 +8,12 @@ import { AuthProvider } from "./features/auth/hooks";
 import { SimulationProvider } from "./features/simulation/hooks";
 import { HideValuesProvider } from "./hooks/useHideValues";
 import { Login, ForgotPassword, ForgotPasswordSuccess, MeuPerfil } from "./features/auth/components";
+import { LandingPage } from "./landing";
 import { DashboardPor } from "./features/simulation/components/DashboardPor/DashboardPor";
 import { MinhasSimulacoes } from "./features/simulation/components/MinhasSimulacoes/MinhasSimulacoes";
 import { NovaSimulacao } from "./features/simulation/components/NovaSimulacao/NovaSimulacao";
 import { EditarSimulacao } from "./features/simulation/components/EditarSimulacao";
+import { NotFound } from "./pages/NotFound";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -21,11 +23,17 @@ createRoot(document.getElementById("app") as HTMLElement).render(
           <HideValuesProvider>
             <Toaster />
           <Routes>
+          {/* Landing Page - Pública */}
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Rotas de Autenticação - Públicas */}
           <Route path="/login" element={<Login />} />
           <Route path="/esqueci-senha" element={<ForgotPassword />} />
           <Route path="/esqueci-senha/sucesso" element={<ForgotPasswordSuccess />} />
+          
+          {/* Rotas do Simulador - Protegidas */}
           <Route
-            path="/"
+            path="/app"
             element={
               <PrivateRoute>
                 <Layout>
@@ -35,7 +43,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             }
           />
           <Route
-            path="/simulacoes"
+            path="/app/simulacoes"
             element={
               <PrivateRoute>
                 <Layout>
@@ -45,7 +53,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             }
           />
           <Route
-            path="/nova-simulacao"
+            path="/app/nova-simulacao"
             element={
               <PrivateRoute>
                 <Layout>
@@ -55,7 +63,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             }
           />
           <Route
-            path="/editar-simulacao/:id"
+            path="/app/editar-simulacao/:id"
             element={
               <PrivateRoute>
                 <Layout>
@@ -65,7 +73,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             }
           />
           <Route
-            path="/perfil"
+            path="/app/perfil"
             element={
               <PrivateRoute>
                 <Layout>
@@ -74,6 +82,9 @@ createRoot(document.getElementById("app") as HTMLElement).render(
               </PrivateRoute>
             }
           />
+          
+          {/* Rota 404 - Deve ser a última */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
           </HideValuesProvider>
         </SimulationProvider>

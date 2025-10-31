@@ -1,5 +1,7 @@
 import { Card, CardContent } from "../../../../../components/ui/card";
+import { EmptyState } from "../../../../../components/common";
 import { useHideValues } from "../../../../../hooks/useHideValues";
+import { FileX } from "lucide-react";
 import type { SimulationRow } from "../../../types";
 
 interface SimulationCardsProps {
@@ -15,11 +17,11 @@ export const SimulationCards = ({
 
   if (data.length === 0) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <span className="text-sm text-[#535861]">
-          Nenhum dado disponível
-        </span>
-      </div>
+      <EmptyState
+        icon={FileX}
+        title="Nenhum dado disponível"
+        description="Aguardando integração com backend para carregar os dados das simulações"
+      />
     );
   }
 

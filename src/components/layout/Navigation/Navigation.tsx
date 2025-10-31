@@ -20,19 +20,19 @@ const navigationItems = [
   {
     icon: Home,
     label: "Painel",
-    path: "/",
+    path: "/app",
     isLogout: false,
   },
   {
     icon: BarChart3,
     label: "Simulações",
-    path: "/simulacoes",
+    path: "/app/simulacoes",
     isLogout: false,
   },
   {
     icon: UserIcon,
     label: "Meu Perfil",
-    path: "/perfil",
+    path: "/app/perfil",
     isLogout: false,
   },
   {

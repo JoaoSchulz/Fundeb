@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .then(() => {
         setIsAuthenticated(true);
         toast.success("Login realizado com sucesso!");
-        navigate("/");
+        navigate("/app");
       })
       .catch(() => {
         toast.error("Credenciais inválidas");

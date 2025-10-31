@@ -13,7 +13,7 @@ export const ModalHeader = ({ onClose }: ModalHeaderProps): JSX.Element => {
 
   const handleEdit = (): void => {
     if (selectedSimulation?.id) {
-      navigate(`/editar-simulacao/${selectedSimulation.id}`);
+      navigate(`/app/editar-simulacao/${selectedSimulation.id}`);
       onClose?.();
     }
   };

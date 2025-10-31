@@ -25,12 +25,12 @@ export const NovaSimulacao = (): JSX.Element => {
   const handleSave = (): void => {
     toast.success("Simulação salva com sucesso!");
     setTimeout(() => {
-      navigate("/");
+      navigate("/app");
     }, 1000);
   };
 
   const handleCancel = (): void => {
-    navigate("/");
+    navigate("/app");
   };
 
   return (

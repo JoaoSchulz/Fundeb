@@ -134,7 +134,7 @@ export const SimulationTableHeader = ({
           ref={buttonRef}
           variant="ghost"
           size="icon"
-          onClick={() => navigate("/simulacoes")}
+          onClick={() => navigate("/app/simulacoes")}
           className="aspect-square rounded-lg border border-[#d5d6d9] hover:bg-neutral-50 hover:border-[#b5b6b9] transition-all duration-200 flex-shrink-0 flex items-center justify-center p-0 min-w-[44px]"
           style={{ width: 'auto' }}
           title="Ver todas as simulações"

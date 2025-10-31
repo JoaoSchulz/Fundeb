@@ -33,7 +33,7 @@ export const SimulationsListHeader = (): JSX.Element => {
           </span>
         </Button>
         <Button
-          onClick={() => navigate("/nova-simulacao")}
+          onClick={() => navigate("/app/nova-simulacao")}
           className={`${LAYOUT_CONSTANTS.BUTTON.PRIMARY_WITH_ICON}`}
         >
           <Plus className="w-5 h-5 text-white" />

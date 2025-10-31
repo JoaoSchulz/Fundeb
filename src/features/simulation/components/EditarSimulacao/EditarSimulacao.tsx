@@ -34,12 +34,12 @@ export const EditarSimulacao = (): JSX.Element => {
   const handleSave = (): void => {
     toast.success("Simulação atualizada com sucesso!");
     setTimeout(() => {
-      navigate("/simulacoes");
+      navigate("/app/simulacoes");
     }, 1000);
   };
 
   const handleCancel = (): void => {
-    navigate("/simulacoes");
+    navigate("/app/simulacoes");
   };
 
   return (

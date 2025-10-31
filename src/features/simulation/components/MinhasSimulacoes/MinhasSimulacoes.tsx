@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Search } from "lucide-react";
+import { Search, FileX } from "lucide-react";
+import { EmptyState } from "../../../../components/common";
 import { useSimulation } from "../../hooks";
 import { MOCK_SIMULATIONS_LIST } from "../../../../data/mocks";
 import { Input } from "../../../../components/ui/input";
@@ -106,11 +107,11 @@ export const MinhasSimulacoes = (): JSX.Element => {
     toast.success("Simulação atualizada", {
       description: `Visualizando: ${simulation.name}`,
     });
-    navigate("/", { state: { scrollToTable: true } });
+    navigate("/app", { state: { scrollToTable: true } });
   };
 
   const handleEditSimulation = (simulation: SimulationListItem) => {
-    navigate(`/editar-simulacao/${simulation.id}`);
+    navigate(`/app/editar-simulacao/${simulation.id}`);
   };
 
   const handleDeleteClick = (simulation: SimulationListItem) => {
@@ -238,10 +239,23 @@ export const MinhasSimulacoes = (): JSX.Element => {
               </div>
             )}
             {searchTerm.trim() && displayedSimulations.length === 0 && (
-              <div className="flex justify-center py-12">
-                <span className="font-['Inter',Helvetica] font-normal text-[#535861] text-sm">
-                  Nenhuma simulação encontrada para "{searchTerm}"
-                </span>
+              <div className="py-12">
+                <EmptyState
+                  icon={FileX}
+                  title="Nenhuma simulação encontrada"
+                  description={`Não encontramos resultados para "${searchTerm}". Tente buscar com outros termos.`}
+                />
+              </div>
+            )}
+            {!searchTerm.trim() && displayedSimulations.length === 0 && simulations.length === 0 && (
+              <div className="py-12">
+                <EmptyState
+                  icon={FileX}
+                  title="Nenhuma simulação criada"
+                  description="Aguardando integração com backend. Quando disponível, suas simulações aparecerão aqui."
+                  actionLabel="Nova Simulação"
+                  onAction={() => navigate("/app/nova-simulacao")}
+                />
               </div>
             )}
           </div>
