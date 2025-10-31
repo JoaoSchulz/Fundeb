@@ -23,7 +23,7 @@ export interface SimulationSummary {
 
 export type SimulationStatus = "Concluída" | "Em análise" | "Rascunho";
 
-export type TabType = "matriculas" | "receita" | "indicadores";
+export type TabType = "matriculas" | "receita" | "indicadores" | "todos";
 
 export interface Tab {
   id: TabType;

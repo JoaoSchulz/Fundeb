@@ -273,30 +273,31 @@
     display: none;
   }
 
-  /* Scrollbar moderna e customizada */
+  /* Scrollbar minimalista */
   .scrollbar-modern {
     scrollbar-width: thin;
-    scrollbar-color: rgba(34, 163, 235, 0.3) transparent;
+    scrollbar-color: rgba(181, 182, 185, 0.4) rgba(245, 245, 246, 0.5);
   }
 
   .scrollbar-modern::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
+    height: 8px;
+    width: 8px;
+    -webkit-appearance: none;
   }
 
   .scrollbar-modern::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 10px;
+    background: rgba(245, 245, 246, 0.5);
+    border-radius: 4px;
   }
 
   .scrollbar-modern::-webkit-scrollbar-thumb {
-    background: rgba(34, 163, 235, 0.3);
-    border-radius: 10px;
+    background: rgba(181, 182, 185, 0.4);
+    border-radius: 4px;
     transition: background 0.2s ease;
   }
 
   .scrollbar-modern::-webkit-scrollbar-thumb:hover {
-    background: rgba(34, 163, 235, 0.5);
+    background: rgba(181, 182, 185, 0.6);
   }
 
   /* Para scroll horizontal específico (mobile) */

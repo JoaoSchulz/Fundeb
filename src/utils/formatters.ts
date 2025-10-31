@@ -42,6 +42,33 @@ export const formatDateTime = (
   }).format(dateObj);
 };
 
+export const formatDateLong = (
+  date: Date | string,
+  locale: string = "pt-BR"
+): string => {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  const monthNames = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+  
+  const day = dateObj.getDate();
+  const month = monthNames[dateObj.getMonth()];
+  const year = dateObj.getFullYear();
+  
+  return `${day.toString().padStart(2, "0")} ${month} de ${year}`;
+};
+
 export const formatPercentage = (
   value: number,
   decimals: number = 1
