@@ -70,7 +70,7 @@ export const RevenueTable = ({
     },
     {
       key: "diferenca",
-      label: "Diferença",
+      label: "Ganho",
       tooltip:
         "Valor adicional estimado no repasse com base no cenário simulado.",
       render: (row) => (

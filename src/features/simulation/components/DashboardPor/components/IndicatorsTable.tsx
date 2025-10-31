@@ -68,7 +68,7 @@ export const IndicatorsTable = ({
     },
     {
       key: "diferenca",
-      label: "Diferença",
+      label: "Ganho",
       tooltip:
         "Valor adicional estimado com base no atingimento das metas simuladas.",
       render: (row) => (

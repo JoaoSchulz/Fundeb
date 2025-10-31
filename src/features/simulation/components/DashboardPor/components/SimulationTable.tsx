@@ -67,7 +67,7 @@ export const SimulationTable = ({
     },
     {
       key: "diferenca",
-      label: "Diferença",
+      label: "Ganho",
       tooltip:
         "Estimativa de ganho no repasse com base no valor simulado.",
       render: (row) => (
