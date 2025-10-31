@@ -12,7 +12,7 @@ export const StatsCards = ({ cards }: StatsCardsProps): JSX.Element => {
   const { hideValues } = useHideValues();
   
   return (
-    <div className="flex lg:flex-wrap gap-4 md:gap-6 w-full px-4 md:px-6 lg:px-8 pb-2 lg:pb-0">
+    <div className="flex lg:flex-wrap gap-2 w-full px-4 md:px-6 lg:px-8 pb-2 lg:pb-0">
       {cards.map((card, index) => (
         <Card
           key={index}
@@ -22,7 +22,7 @@ export const StatsCards = ({ cards }: StatsCardsProps): JSX.Element => {
             <p className="w-full font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-white text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
               {card.title}
             </p>
-            <h2 className={`font-semibold text-white ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '26px', lineHeight: '32px', letterSpacing: '0px' }}>
+            <h2 className={`font-semibold text-white ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '24px', lineHeight: '30px', letterSpacing: '0px' }}>
               {card.value}
             </h2>
             <div className="inline-flex items-center gap-2">
