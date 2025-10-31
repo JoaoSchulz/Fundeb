@@ -40,20 +40,16 @@ export const Login = (): JSX.Element => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-3">
             <Input
               id="email"
               type="text"
               placeholder="Digite seu e-mail ou usuário"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-[45.76px]"
-              size="md"
+              size="lg"
               required
             />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
             <div className="relative">
               <Input
                 id="password"
@@ -61,8 +57,8 @@ export const Login = (): JSX.Element => {
                 placeholder="Digite sua senha"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pr-10 h-[45.76px]"
-                size="md"
+                className="pr-10"
+                size="lg"
                 required
               />
               <button

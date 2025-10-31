@@ -9,7 +9,7 @@ export interface InputProps
   hint?: string;
   isInvalid?: boolean;
   errorMessage?: string;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   icon?: React.ComponentType<{ className?: string }>;
   tooltip?: string;
   required?: boolean;
@@ -41,11 +41,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const sizeClasses = {
       sm: "h-10 px-3 text-sm",
       md: "h-11 px-3 text-sm",
+      lg: "h-12 px-3 text-sm",
     };
 
     const iconSizeClasses = {
       sm: "w-4 h-4",
       md: "w-5 h-5",
+      lg: "w-5 h-5",
     };
 
     const hasLabelOrHint = label || hint || errorMessage;

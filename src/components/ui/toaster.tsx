@@ -28,6 +28,40 @@ export const Toaster = () => {
           order: 1 !important;
           margin-top: 4px !important;
         }
+        [data-sonner-toast] button[data-button] {
+          order: 2 !important;
+          margin-top: 8px !important;
+          background-color: #f5f5f6 !important;
+          color: #535861 !important;
+          border: 1px solid #e9e9eb !important;
+          padding: 6px 12px !important;
+          border-radius: 6px !important;
+          font-size: 14px !important;
+          font-weight: 500 !important;
+          transition: all 0.2s !important;
+        }
+        [data-sonner-toast] button[data-button]:hover {
+          background-color: #e9e9eb !important;
+          color: #181d27 !important;
+        }
+        [data-sonner-toast] [data-action] {
+          order: 2 !important;
+          margin-top: 8px !important;
+        }
+        [data-sonner-toast] [data-action] button {
+          background-color: #f5f5f6 !important;
+          color: #535861 !important;
+          border: 1px solid #e9e9eb !important;
+          padding: 6px 12px !important;
+          border-radius: 6px !important;
+          font-size: 14px !important;
+          font-weight: 500 !important;
+          transition: all 0.2s !important;
+        }
+        [data-sonner-toast] [data-action] button:hover {
+          background-color: #e9e9eb !important;
+          color: #181d27 !important;
+        }
       `}</style>
       <Sonner
         position="top-right"
@@ -38,7 +72,7 @@ export const Toaster = () => {
               "group toast group-[.toaster]:bg-white group-[.toaster]:text-[#181d27] group-[.toaster]:border-[#e9e9eb] group-[.toaster]:shadow-lg",
             description: "group-[.toast]:text-[#535861]",
             actionButton:
-              "group-[.toast]:bg-[#22a3eb] group-[.toast]:text-white",
+              "group-[.toast]:bg-[#f5f5f6] group-[.toast]:text-[#535861] group-[.toast]:border group-[.toast]:border-[#e9e9eb] group-[.toast]:hover:bg-[#e9e9eb] group-[.toast]:hover:text-[#181d27]",
             cancelButton:
               "group-[.toast]:bg-[#f5f5f6] group-[.toast]:text-[#535861]",
             closeButton:
