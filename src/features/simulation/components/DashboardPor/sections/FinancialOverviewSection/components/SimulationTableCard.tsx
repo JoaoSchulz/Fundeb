@@ -17,7 +17,7 @@ interface SimulationTableCardProps {
   tableData: SimulationRow[];
   revenueData: RevenueRow[];
   indicatorsData: IndicatorRow[];
-  selectedSimulation?: { name: string };
+  selectedSimulation?: { name: string; referencePeriod?: string; city?: string; state?: string; baseYear?: string };
   onSimulationChange?: (value: string) => void;
   currentSimulationId?: string;
   simulationsList?: Array<{ id: number; name: string; createdAt: string }>;
@@ -25,6 +25,10 @@ interface SimulationTableCardProps {
   isModalOpen: boolean;
   onCloseModal: () => void;
   tableScrollRef?: React.RefObject<HTMLDivElement>;
+  viewMode?: "table" | "cards";
+  onViewModeChange?: (mode: "table" | "cards") => void;
+  isViewModeChanging?: boolean;
+  onExpand?: () => void;
 }
 
 export const SimulationTableCard = ({
@@ -43,6 +47,10 @@ export const SimulationTableCard = ({
   isModalOpen,
   onCloseModal,
   tableScrollRef,
+  viewMode = "table",
+  onViewModeChange,
+  isViewModeChanging = false,
+  onExpand,
 }: SimulationTableCardProps): JSX.Element => (
   <Card className="flex flex-col items-start w-full max-w-full bg-[#fcfcfc] rounded-xl border border-solid border-[#e9e9eb] shadow-shadows-shadow-xs overflow-hidden">
     <CardContent className="flex flex-col items-start gap-5 w-full p-0 bg-white">
@@ -61,19 +69,32 @@ export const SimulationTableCard = ({
           onTabChange={onTabChange}
           isLoading={isLoading}
         />
-        <SimulationTableActions />
+        {activeTab === "todos" && onViewModeChange && (
+          <SimulationTableActions
+            viewMode={viewMode}
+            onViewModeChange={onViewModeChange}
+            onExpand={onExpand || (() => {})}
+          />
+        )}
       </div>
     </div>
-    <div ref={tableScrollRef} className="max-h-[600px] overflow-y-auto scrollbar-modern w-full">
+    <div 
+      ref={tableScrollRef} 
+      className="w-full"
+    >
       <SimulationTableContent
         activeTab={activeTab}
-        isLoading={isLoading}
+        isLoading={isLoading || isViewModeChanging}
         tableData={tableData}
         revenueData={revenueData}
         indicatorsData={indicatorsData}
         isModalOpen={isModalOpen}
         onOpenModal={onOpenModal}
         onCloseModal={onCloseModal}
+        viewMode={viewMode}
+        simulationName={selectedSimulation?.name}
+        baseYear={selectedSimulation?.baseYear || "2027"}
+        isViewModeChanging={isViewModeChanging}
       />
     </div>
   </Card>
