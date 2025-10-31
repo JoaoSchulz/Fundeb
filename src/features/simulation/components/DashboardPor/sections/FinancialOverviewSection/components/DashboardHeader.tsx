@@ -17,7 +17,8 @@ export const DashboardHeader = (): JSX.Element => {
             Olá, João 👋
           </h1>
           <p className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#535861] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
-            Última atualização dos dados: Abril/2025 com base no Censo Escolar<br />
+            Última atualização dos dados: Abril/2025 com base no Censo Escolar
+            <br />
             2023 e projeções do FNDE
           </p>
         </div>
@@ -77,4 +78,3 @@ export const DashboardHeader = (): JSX.Element => {
     </div>
   );
 };
-
