@@ -1,4 +1,4 @@
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../../../../../components/ui/button";
 
 type SimulationListItem = {
@@ -12,12 +12,14 @@ interface SimulationsTableProps {
   simulations: SimulationListItem[];
   onView: (simulation: SimulationListItem) => void;
   onEdit: (simulation: SimulationListItem) => void;
+  onDelete: (simulation: SimulationListItem) => void;
 }
 
 export const SimulationsTable = ({
   simulations,
   onView,
   onEdit,
+  onDelete,
 }: SimulationsTableProps): JSX.Element => (
   <div className="overflow-x-auto scrollbar-modern-horizontal">
     <table className="w-full">
@@ -32,7 +34,9 @@ export const SimulationsTable = ({
           <th className="text-left py-3 px-6 font-['Inter',Helvetica] font-medium text-[#535861] text-sm">
             Modificado em
           </th>
-          <th className="w-32 text-center">Ações</th>
+          <th className="w-40 text-center py-3 px-6 font-['Inter',Helvetica] font-medium text-[#535861] text-sm">
+            Ações
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -77,6 +81,15 @@ export const SimulationsTable = ({
                   aria-label="Editar simulação"
                 >
                   <Pencil className="w-5 h-5 text-[#858d9d]" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-md hover:bg-[#fef2f2] hover:text-[#d92c20] transition-colors"
+                  onClick={() => onDelete(simulation)}
+                  aria-label="Apagar simulação"
+                >
+                  <Trash2 className="w-5 h-5 text-[#858d9d]" />
                 </Button>
               </div>
             </td>
