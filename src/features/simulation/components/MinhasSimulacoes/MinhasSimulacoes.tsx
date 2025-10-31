@@ -8,6 +8,7 @@ import { Input } from "../../../../components/ui/input";
 import {
   SimulationsListHeader,
   SimulationsTable,
+  DeleteConfirmationModal,
 } from "./components";
 
 type SimulationListItem = (typeof MOCK_SIMULATIONS_LIST)[number];
@@ -22,6 +23,8 @@ export const MinhasSimulacoes = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [simulationToDelete, setSimulationToDelete] = useState<SimulationListItem | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -96,6 +99,9 @@ export const MinhasSimulacoes = (): JSX.Element => {
             const [day, month, year] = simulation.createdAt.split("/");
             return `${year}-${month}-${day}T10:30:00`;
           })(),
+      referencePeriod: (simulation as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
+      city: (simulation as { city?: string }).city || "Campinas",
+      state: (simulation as { state?: string }).state || "SP",
     });
     toast.success("Simulação atualizada", {
       description: `Visualizando: ${simulation.name}`,
@@ -105,6 +111,82 @@ export const MinhasSimulacoes = (): JSX.Element => {
 
   const handleEditSimulation = (simulation: SimulationListItem) => {
     navigate(`/editar-simulacao/${simulation.id}`);
+  };
+
+  const handleDeleteClick = (simulation: SimulationListItem) => {
+    setSimulationToDelete(simulation);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!simulationToDelete) return;
+
+    const deletedSimulation = { ...simulationToDelete };
+    const deletedIndex = simulations.findIndex((s) => s.id === deletedSimulation.id);
+    const previousDisplayedLength = displayedSimulations.length;
+
+    // Remover da lista
+    const updatedSimulations = simulations.filter((s) => s.id !== deletedSimulation.id);
+    setSimulations(updatedSimulations);
+
+    // Atualizar displayedSimulations
+    const updatedDisplayed = displayedSimulations.filter((s) => s.id !== deletedSimulation.id);
+    setDisplayedSimulations(updatedDisplayed);
+
+    // Verificar se precisa atualizar hasMore
+    if (searchTerm.trim()) {
+      const filtered = updatedSimulations.filter((simulation) => {
+        const term = searchTerm.toLowerCase().trim();
+        return (
+          simulation.name.toLowerCase().includes(term) ||
+          simulation.createdAt.toLowerCase().includes(term) ||
+          simulation.modifiedAt.toLowerCase().includes(term)
+        );
+      });
+      setDisplayedSimulations(filtered);
+      setHasMore(false);
+    } else {
+      setHasMore(updatedSimulations.length > updatedDisplayed.length);
+    }
+
+    // Toast com opção de desfazer
+    toast.success("Simulação excluída", {
+      description: `"${deletedSimulation.name}" foi removida com sucesso`,
+      action: {
+        label: "Desfazer",
+        onClick: () => {
+          // Restaurar simulação na posição original
+          const restoredSimulations = [...updatedSimulations];
+          restoredSimulations.splice(deletedIndex, 0, deletedSimulation);
+          setSimulations(restoredSimulations);
+
+          // Atualizar displayedSimulations
+          if (searchTerm.trim()) {
+            const filtered = restoredSimulations.filter((simulation) => {
+              const term = searchTerm.toLowerCase().trim();
+              return (
+                simulation.name.toLowerCase().includes(term) ||
+                simulation.createdAt.toLowerCase().includes(term) ||
+                simulation.modifiedAt.toLowerCase().includes(term)
+              );
+            });
+            setDisplayedSimulations(filtered);
+            setHasMore(false);
+          } else {
+            // Restaurar até o tamanho anterior + 1 (a simulação restaurada)
+            const newDisplayed = restoredSimulations.slice(0, previousDisplayedLength);
+            setDisplayedSimulations(newDisplayed);
+            setHasMore(restoredSimulations.length > newDisplayed.length);
+          }
+
+          toast.success("Simulação restaurada", {
+            description: `"${deletedSimulation.name}" foi restaurada`,
+          });
+        },
+      },
+    });
+
+    setSimulationToDelete(null);
   };
 
   return (
@@ -133,12 +215,13 @@ export const MinhasSimulacoes = (): JSX.Element => {
 
           <div
             ref={scrollContainerRef}
-            className="max-h-[600px] overflow-y-auto scrollbar-modern"
+            className="overflow-y-auto scrollbar-modern"
           >
             <SimulationsTable
               simulations={displayedSimulations}
               onView={handleViewSimulation}
               onEdit={handleEditSimulation}
+              onDelete={handleDeleteClick}
             />
             {isLoading && (
               <div className="flex justify-center py-4">
@@ -163,6 +246,13 @@ export const MinhasSimulacoes = (): JSX.Element => {
             )}
           </div>
         </div>
+
+        <DeleteConfirmationModal
+          open={deleteModalOpen}
+          onOpenChange={setDeleteModalOpen}
+          simulation={simulationToDelete}
+          onConfirm={handleDeleteConfirm}
+        />
       </div>
     </section>
   );
