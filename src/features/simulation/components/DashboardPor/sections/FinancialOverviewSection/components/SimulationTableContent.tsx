@@ -1,4 +1,4 @@
-import { TableSkeleton, CardsSkeleton } from "../../../../../../../components/common";
+import { TableSkeleton } from "../../../../../../../components/common";
 import type { IndicatorRow, RevenueRow, SimulationRow } from "../../../../../types";
 import { IndicatorsTable, RevenueTable, SimulationTable, SimulationCards } from "../../../components";
 import { AllTablesView } from "./AllTablesView";

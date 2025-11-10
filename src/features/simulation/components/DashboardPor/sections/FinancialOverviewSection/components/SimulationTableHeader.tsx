@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../../../../../../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../../../components/ui/select";
 import { formatDateLong } from "../../../../../../../utils/formatters";
-import type { Tab } from "../../../../../types";
+// Tab type not used in this file
 
 interface SimulationTableHeaderProps {
   selectedSimulation?: { id?: number; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string };

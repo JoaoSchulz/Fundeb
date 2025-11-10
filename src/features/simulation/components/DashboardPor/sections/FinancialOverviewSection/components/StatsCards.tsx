@@ -1,6 +1,5 @@
 import { TrendingUp } from "lucide-react";
 import { Card, CardContent } from "../../../../../../../components/ui/card";
-import { MaskedValue } from "../../../../../../../components/common";
 import { useHideValues } from "../../../../../../../hooks/useHideValues";
 import type { StatsCard } from "../../../../../types";
 
