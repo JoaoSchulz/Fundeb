@@ -1,0 +1,39 @@
+{
+  "version": "1.0.0",
+  "source": "./index.html",
+  "type": "module",
+  "name": "fundeb-simulacao",
+  "description": "Sistema de Simulação de Repasse FUNDEB - Front-end desenvolvido com React, TypeScript e Tailwind CSS",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-separator": "^1.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.2.6",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "2.1.1",
+    "lucide-react": "^0.453.0",
+    "react": "^18.3.1",
+    "react-aria-components": "^1.13.0",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.8.1",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "2.5.4",
+    "tailwindcss-animate": "1.0.7"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "tailwindcss": "3.4.16",
+    "typescript": "^5.9.3",
+    "vite": "6.0.4"
+  },
+  "alias": {
+    "@/*": "./src/components/ui/$1"
+  }
+}

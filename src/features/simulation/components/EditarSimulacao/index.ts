@@ -1,0 +1,2 @@
+export { EditarSimulacao } from "./EditarSimulacao";
+
