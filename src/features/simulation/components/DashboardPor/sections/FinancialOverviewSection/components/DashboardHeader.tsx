@@ -1,14 +1,12 @@
-import { Eye, EyeOff, MapPin, Plus } from "lucide-react";
+import { MapPin, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../../../../../../components/ui/button";
-import { Switch } from "../../../../../../../components/ui/switch";
-import { useHideValues } from "../../../../../../../hooks/useHideValues";
 import { useAuth } from "../../../../../../../features/auth/hooks";
 import { LAYOUT_CONSTANTS } from "../../../../../../../utils/constants";
 
 export const DashboardHeader = (): JSX.Element => {
   const navigate = useNavigate();
-  const { hideValues, toggleHideValues } = useHideValues();
+  // hide-values feature removed; keep layout simple
 
   return (
     <div className="flex flex-col items-start gap-5 px-4 md:px-6 lg:px-8 py-0 w-full max-w-full">
@@ -44,27 +42,7 @@ export const DashboardHeader = (): JSX.Element => {
               </span>
             </div>
           </Button>
-          {/* Componente de controle para ocultar valores sensíveis */}
-          {/* Aplica blur em todos os valores monetários e numéricos do sistema */}
-          <div className="h-11 inline-flex items-center justify-center gap-2 px-3 py-2 bg-white rounded-lg border border-solid border-[#d5d6d9] shadow-shadows-shadow-xs hover:shadow-md transition-all duration-200 w-full sm:w-auto">
-            {hideValues ? (
-              <EyeOff className="w-4 h-4 text-[#535861]" />
-            ) : (
-              <Eye className="w-4 h-4 text-[#535861]" />
-            )}
-            <label
-              htmlFor="hide-values"
-              className="font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-[#535861] text-[length:var(--text-sm-medium-font-size)] tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)] cursor-pointer whitespace-nowrap select-none"
-            >
-              Ocultar valores
-            </label>
-            <Switch
-              checked={hideValues}
-              onCheckedChange={toggleHideValues}
-              id="hide-values"
-              className="shrink-0"
-            />
-          </div>
+          {/* hide-values toggle removed */}
           <Button
             onClick={() => navigate("/app/nova-simulacao")}
             className={`${LAYOUT_CONSTANTS.BUTTON.PRIMARY_WITH_ICON} whitespace-nowrap`}

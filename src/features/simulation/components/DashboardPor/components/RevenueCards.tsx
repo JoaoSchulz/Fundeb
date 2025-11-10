@@ -1,7 +1,7 @@
 import { TrendingUp, TrendingDown, Minus, FileX } from "lucide-react";
 import { Card, CardContent } from "../../../../../components/ui/card";
 import { EmptyState } from "../../../../../components/common";
-import { useHideValues } from "../../../../../hooks/useHideValues";
+// hide-values feature removed
 import type { RevenueRow } from "../../../types";
 
 interface RevenueCardsProps {
@@ -11,9 +11,9 @@ interface RevenueCardsProps {
 
 export const RevenueCards = ({
   data,
-  onOpenModal,
+  onOpenModal: _onOpenModal,
 }: RevenueCardsProps): JSX.Element => {
-  const { hideValues } = useHideValues();
+  
 
   if (data.length === 0) {
     return (
@@ -56,7 +56,7 @@ export const RevenueCards = ({
                 <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                   Valor Atual
                 </span>
-                <span className={`text-sm font-bold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                <span className={`text-sm font-bold text-[#181d27]`}>
                   {row.valorAtual}
                 </span>
               </div>
@@ -65,7 +65,7 @@ export const RevenueCards = ({
                 <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                   Simulado
                 </span>
-                <span className={`text-sm font-semibold text-[#22a3eb] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                <span className={`text-sm font-semibold text-[#22a3eb]`}>
                   {row.valorSimulado}
                 </span>
               </div>
@@ -77,7 +77,7 @@ export const RevenueCards = ({
                 <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                   Meta FUNDEB
                 </span>
-                <span className={`text-xs font-semibold text-[#535861] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                <span className={`text-xs font-semibold text-[#535861]`}>
                   {row.metaFundeb}
                 </span>
               </div>
@@ -86,7 +86,7 @@ export const RevenueCards = ({
                 <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                   Meta da Rede
                 </span>
-                <span className={`text-xs font-semibold text-[#535861] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                <span className={`text-xs font-semibold text-[#535861]`}>
                   {row.metaRede}
                 </span>
               </div>
@@ -100,7 +100,7 @@ export const RevenueCards = ({
                   Ganho
                 </span>
               </div>
-              <span className={`text-sm font-semibold ${row.diferencaColor} ${hideValues ? 'select-none blur-sm' : ''}`}>
+              <span className={`text-sm font-semibold ${row.diferencaColor}`}>
                 {row.diferenca}
               </span>
             </div>

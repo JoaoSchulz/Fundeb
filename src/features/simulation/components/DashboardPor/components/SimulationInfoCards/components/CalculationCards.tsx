@@ -1,8 +1,6 @@
 import { Card, CardContent } from "../../../../../../../components/ui/card";
-import { useHideValues } from "../../../../../../../hooks/useHideValues";
 
 export const CalculationCards = (): JSX.Element => {
-  const { hideValues } = useHideValues();
 
   return (
     <div className="flex flex-col w-full" style={{ marginTop: '8px', marginBottom: '8px' }}>
@@ -16,7 +14,7 @@ export const CalculationCards = (): JSX.Element => {
             <div className="text-[10px] font-medium text-[#717680] mb-2 text-center">
               Original
             </div>
-            <div className={`text-xl font-semibold text-[#181d27] text-center ${hideValues ? 'select-none blur-sm' : ''}`}>
+            <div className={`text-xl font-semibold text-[#181d27] text-center`}>
               R$ 1.000.000
             </div>
           </CardContent>
@@ -33,7 +31,7 @@ export const CalculationCards = (): JSX.Element => {
             <div className="text-[10px] font-medium text-[#717680] mb-2 text-center">
               Simulado
             </div>
-            <div className={`text-xl font-semibold text-[#22a3eb] text-center ${hideValues ? 'select-none blur-sm' : ''}`}>
+            <div className={`text-xl font-semibold text-[#22a3eb] text-center`}>
               R$ 1.210.000
             </div>
           </CardContent>
@@ -50,7 +48,7 @@ export const CalculationCards = (): JSX.Element => {
             <div className="text-[10px] font-medium text-[#717680] mb-2 text-center">
               Ganho
             </div>
-            <div className={`text-xl font-semibold text-[#069454] text-center ${hideValues ? 'select-none blur-sm' : ''}`}>
+            <div className={`text-xl font-semibold text-[#069454] text-center`}>
               + R$ 210.000
             </div>
           </CardContent>

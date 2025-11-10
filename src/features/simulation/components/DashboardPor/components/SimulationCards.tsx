@@ -1,6 +1,6 @@
 import { Card, CardContent } from "../../../../../components/ui/card";
 import { EmptyState } from "../../../../../components/common";
-import { useHideValues } from "../../../../../hooks/useHideValues";
+// hide-values feature removed
 import { FileX } from "lucide-react";
 import type { SimulationRow } from "../../../types";
 
@@ -11,9 +11,9 @@ interface SimulationCardsProps {
 
 export const SimulationCards = ({
   data,
-  onOpenModal,
+  onOpenModal: _onOpenModal,
 }: SimulationCardsProps): JSX.Element => {
-  const { hideValues } = useHideValues();
+  
 
   if (data.length === 0) {
     return (
@@ -49,7 +49,7 @@ export const SimulationCards = ({
                 <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                   Matrículas
                 </span>
-                <span className={`text-sm font-bold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                <span className={`text-sm font-bold text-[#181d27]`}>
                   {row.matriculas}
                 </span>
               </div>
@@ -58,7 +58,7 @@ export const SimulationCards = ({
                 <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                   Original
                 </span>
-                <span className={`text-sm font-semibold text-[#535861] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                <span className={`text-sm font-semibold text-[#535861]`}>
                   {row.repasseOriginal}
                 </span>
               </div>
@@ -67,7 +67,7 @@ export const SimulationCards = ({
                 <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                   Simulado
                 </span>
-                <span className={`text-sm font-semibold text-[#22a3eb] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                <span className={`text-sm font-semibold text-[#22a3eb]`}>
                   {row.repasseSimulado}
                 </span>
               </div>
@@ -78,7 +78,7 @@ export const SimulationCards = ({
               <span className="text-xs font-medium text-[#717680]">
                 Ganho
               </span>
-              <span className={`text-sm font-semibold ${row.diferencaColor} ${hideValues ? 'select-none blur-sm' : ''}`}>
+              <span className={`text-sm font-semibold ${row.diferencaColor}`}>
                 {row.diferenca}
               </span>
             </div>

@@ -1,6 +1,6 @@
 import { TrendingUp } from "lucide-react";
 import { Card, CardContent } from "../../../../../../../components/ui/card";
-import { useHideValues } from "../../../../../../../hooks/useHideValues";
+// hide-values feature removed
 import type { StatsCard } from "../../../../../types";
 
 interface StatsCardsProps {
@@ -8,7 +8,6 @@ interface StatsCardsProps {
 }
 
 export const StatsCards = ({ cards }: StatsCardsProps): JSX.Element => {
-  const { hideValues } = useHideValues();
   
   return (
     <div className="flex lg:flex-wrap gap-2 w-full px-4 md:px-6 lg:px-8 pb-2 lg:pb-0">
@@ -21,13 +20,13 @@ export const StatsCards = ({ cards }: StatsCardsProps): JSX.Element => {
             <p className="w-full font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-white text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
               {card.title}
             </p>
-            <h2 className={`font-semibold text-white ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '24px', lineHeight: '30px', letterSpacing: '0px' }}>
+            <h2 className={`font-semibold text-white`} style={{ fontSize: '24px', lineHeight: '30px', letterSpacing: '0px' }}>
               {card.value}
             </h2>
             <div className="inline-flex items-center gap-2">
               <div className="inline-flex items-center justify-center gap-1">
                 <TrendingUp className="w-4 h-4 text-white" />
-                <span className={`font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-white text-[length:var(--text-sm-medium-font-size)] text-center tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                <span className={`font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-white text-[length:var(--text-sm-medium-font-size)] text-center tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)]`}>
                   {card.trend}
                 </span>
               </div>

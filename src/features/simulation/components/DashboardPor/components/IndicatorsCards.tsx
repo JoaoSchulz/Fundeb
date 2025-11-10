@@ -1,7 +1,7 @@
 import { TrendingUp, TrendingDown, Minus, FileX } from "lucide-react";
 import { Card, CardContent } from "../../../../../components/ui/card";
 import { EmptyState } from "../../../../../components/common";
-import { useHideValues } from "../../../../../hooks/useHideValues";
+// hide-values feature removed
 import type { IndicatorRow } from "../../../types";
 
 interface IndicatorsCardsProps {
@@ -11,9 +11,9 @@ interface IndicatorsCardsProps {
 
 export const IndicatorsCards = ({
   data,
-  onOpenModal,
+  onOpenModal: _onOpenModal,
 }: IndicatorsCardsProps): JSX.Element => {
-  const { hideValues } = useHideValues();
+  
 
   if (data.length === 0) {
     return (
@@ -60,7 +60,7 @@ export const IndicatorsCards = ({
                   <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                     Valor Atual
                   </span>
-                  <span className={`text-sm font-bold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                  <span className={`text-sm font-bold text-[#181d27]`}>
                     {row.valorAtual}
                   </span>
                 </div>
@@ -71,7 +71,7 @@ export const IndicatorsCards = ({
                   <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                     Meta FUNDEB
                   </span>
-                  <span className={`text-xs font-semibold text-[#535861] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                  <span className={`text-xs font-semibold text-[#535861]`}>
                     {row.metaFundeb}
                   </span>
                 </div>
@@ -82,7 +82,7 @@ export const IndicatorsCards = ({
                   <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">
                     Meta da Rede
                   </span>
-                  <span className={`text-xs font-semibold text-[#535861] ${hideValues ? 'select-none blur-sm' : ''}`}>
+                  <span className={`text-xs font-semibold text-[#535861]`}>
                     {row.metaRede}
                   </span>
                 </div>
@@ -97,7 +97,7 @@ export const IndicatorsCards = ({
                     Ganho
                   </span>
                 </div>
-              <span className={`text-sm font-semibold ${row.diferencaColor} ${hideValues ? 'select-none blur-sm' : ''}`}>
+              <span className={`text-sm font-semibold ${row.diferencaColor}`}>
                 {row.diferenca}
               </span>
             </div>

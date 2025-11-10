@@ -1,7 +1,4 @@
-import { useHideValues } from "../../../../../../hooks/useHideValues";
-
 export const ModalComposition = (): JSX.Element => {
-  const { hideValues } = useHideValues();
   
   return (
     <div className="flex flex-col gap-4">
@@ -14,7 +11,7 @@ export const ModalComposition = (): JSX.Element => {
           <div className="text-sm font-medium text-[#535861]">
             Receita própria
           </div>
-          <div className={`text-base font-semibold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '16px', lineHeight: '20px' }}>
+          <div className={`text-base font-semibold text-[#181d27]`} style={{ fontSize: '16px', lineHeight: '20px' }}>
             R$ 140.000,00
           </div>
         </div>
@@ -22,7 +19,7 @@ export const ModalComposition = (): JSX.Element => {
           <div className="text-sm font-medium text-[#535861]">
             Complementação VAFF
           </div>
-          <div className={`text-base font-semibold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '16px', lineHeight: '20px' }}>
+          <div className={`text-base font-semibold text-[#181d27]`} style={{ fontSize: '16px', lineHeight: '20px' }}>
             R$ 30.000,00
           </div>
         </div>
@@ -30,7 +27,7 @@ export const ModalComposition = (): JSX.Element => {
           <div className="text-sm font-medium text-[#535861]">
             Complementação VAAT
           </div>
-          <div className={`text-base font-semibold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '16px', lineHeight: '20px' }}>
+          <div className={`text-base font-semibold text-[#181d27]`} style={{ fontSize: '16px', lineHeight: '20px' }}>
             R$ 25.000,00
           </div>
         </div>
@@ -38,7 +35,7 @@ export const ModalComposition = (): JSX.Element => {
           <div className="text-sm font-medium text-[#535861]">
             Complementação VAAR
           </div>
-          <div className={`text-base font-semibold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '16px', lineHeight: '20px' }}>
+          <div className={`text-base font-semibold text-[#181d27]`} style={{ fontSize: '16px', lineHeight: '20px' }}>
             R$ 15.000,00
           </div>
         </div>

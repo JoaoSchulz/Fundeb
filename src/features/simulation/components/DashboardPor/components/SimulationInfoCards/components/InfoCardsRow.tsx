@@ -1,12 +1,10 @@
 import { Card, CardContent } from "../../../../../../../components/ui/card";
-import { useHideValues } from "../../../../../../../hooks/useHideValues";
 
 interface InfoCardsRowProps {
   baseYear: string;
 }
 
 export const InfoCardsRow = ({ baseYear }: InfoCardsRowProps): JSX.Element => {
-  const { hideValues } = useHideValues();
 
   return (
     <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
@@ -26,7 +24,7 @@ export const InfoCardsRow = ({ baseYear }: InfoCardsRowProps): JSX.Element => {
           <div className="text-[9px] font-medium text-[#717680] uppercase tracking-wide mb-1 leading-tight">
             Matrículas
           </div>
-          <div className={`text-sm font-bold text-[#181d27] leading-tight ${hideValues ? 'select-none blur-sm' : ''}`}>
+          <div className={`text-sm font-bold text-[#181d27] leading-tight`}>
             806
           </div>
         </CardContent>
@@ -37,7 +35,7 @@ export const InfoCardsRow = ({ baseYear }: InfoCardsRowProps): JSX.Element => {
           <div className="text-[9px] font-medium text-[#717680] uppercase tracking-wide mb-1 leading-tight">
             R$ por Matrícula
           </div>
-          <div className={`text-sm font-bold text-[#181d27] leading-tight ${hideValues ? 'select-none blur-sm' : ''}`}>
+          <div className={`text-sm font-bold text-[#181d27] leading-tight`}>
             R$ 1.501
           </div>
         </CardContent>
@@ -48,7 +46,7 @@ export const InfoCardsRow = ({ baseYear }: InfoCardsRowProps): JSX.Element => {
           <div className="text-[9px] font-medium text-[#717680] uppercase tracking-wide mb-1 leading-tight">
             Receita Própria
           </div>
-          <div className={`text-sm font-bold text-[#181d27] leading-tight ${hideValues ? 'select-none blur-sm' : ''}`}>
+          <div className={`text-sm font-bold text-[#181d27] leading-tight`}>
             R$ 140.000
           </div>
         </CardContent>
@@ -59,7 +57,7 @@ export const InfoCardsRow = ({ baseYear }: InfoCardsRowProps): JSX.Element => {
           <div className="text-[9px] font-medium text-[#717680] uppercase tracking-wide mb-1 leading-tight">
             VAFF
           </div>
-          <div className={`text-sm font-bold text-[#181d27] leading-tight ${hideValues ? 'select-none blur-sm' : ''}`}>
+          <div className={`text-sm font-bold text-[#181d27] leading-tight`}>
             R$ 30.000
           </div>
         </CardContent>
@@ -70,7 +68,7 @@ export const InfoCardsRow = ({ baseYear }: InfoCardsRowProps): JSX.Element => {
           <div className="text-[9px] font-medium text-[#717680] uppercase tracking-wide mb-1 leading-tight">
             VAAT + VAAR
           </div>
-          <div className={`text-sm font-bold text-[#181d27] leading-tight ${hideValues ? 'select-none blur-sm' : ''}`}>
+          <div className={`text-sm font-bold text-[#181d27] leading-tight`}>
             R$ 40.000
           </div>
         </CardContent>

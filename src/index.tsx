@@ -6,7 +6,6 @@ import { Layout } from "./components/layout";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./features/auth/hooks";
 import { SimulationProvider } from "./features/simulation/hooks";
-import { HideValuesProvider } from "./hooks/useHideValues";
 import { Login, ForgotPassword, ForgotPasswordSuccess, MeuPerfil } from "./features/auth/components";
 import { LandingPage } from "./landing";
 import { DashboardPor } from "./features/simulation/components/DashboardPor/DashboardPor";
@@ -20,7 +19,6 @@ createRoot(document.getElementById("app") as HTMLElement).render(
     <BrowserRouter>
       <AuthProvider>
         <SimulationProvider>
-          <HideValuesProvider>
             <Toaster />
           <Routes>
           {/* Landing Page - Pública */}
@@ -88,7 +86,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
           {/* Rota 404 - Deve ser a última */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-          </HideValuesProvider>
+          
         </SimulationProvider>
       </AuthProvider>
     </BrowserRouter>

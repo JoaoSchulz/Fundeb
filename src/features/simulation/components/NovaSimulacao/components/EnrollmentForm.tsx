@@ -1,7 +1,7 @@
 import { HelpCircle } from "lucide-react";
 import { Input } from "../../../../../components/ui/input";
 import { Tooltip } from "../../../../../components/ui/tooltip";
-import { useHideValues } from "../../../../../hooks/useHideValues";
+// hide-values feature removed
 
 interface EnrollmentCategory {
   id: string;
@@ -20,7 +20,7 @@ export const EnrollmentForm = ({
   categories,
   onEnrollmentChange,
 }: EnrollmentFormProps): JSX.Element => {
-  const { hideValues } = useHideValues();
+  
   
   return (
   <div className="overflow-x-auto scrollbar-modern-horizontal">
@@ -74,7 +74,7 @@ export const EnrollmentForm = ({
           />
         </div>
         <div className="w-[160px] md:w-[200px] flex items-center justify-end shrink-0">
-          <span className={`font-['Inter',Helvetica] font-medium text-[#181d27] text-sm ${hideValues ? 'select-none blur-sm' : ''}`}>
+          <span className={`font-['Inter',Helvetica] font-medium text-[#181d27] text-sm`}>
             {category.simulatedTransfer}
           </span>
         </div>
