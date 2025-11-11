@@ -82,28 +82,103 @@ export const transformEnrollmentData = (data: EnrollmentData[]): SimulationRow[]
  * Transforma os dados brutos de receita no formato esperado pela tabela
  */
 export const transformRevenueData = (data: RevenueData[]): RevenueRow[] => {
-  return data.map(item => ({
-    imposto: item.imposto,
-    valorAtual: item.valorAtual,
-    valorSimulado: item.valorSimulado || 0,
-    metaFundeb: item.metaFundeb || 0,
-    metaRede: item.metaRede || 0,
-    diferenca: item.diferenca || 0,
-    diferencaColor: calculateDifference(item.valorAtual, item.valorSimulado || 0).color
-  }));
+  // The backend may return either "tax-row" shaped items (with `imposto`, `valorAtual`, etc.)
+  // or municipio-level revenue objects (with `icms`, `ipva`, `receita_total`).
+  // Handle both cases without parsing strings (backend already returns numbers).
+
+  // Detect tax-row shape
+  if (data.length > 0 && (data[0] as any).imposto !== undefined) {
+    return (data as unknown as any[]).map((item) => ({
+      imposto: item.imposto,
+      valorAtual: item.valorAtual,
+      valorSimulado: item.valorSimulado ?? 0,
+      metaFundeb: item.metaFundeb ?? 0,
+      metaRede: item.metaRede ?? 0,
+      diferenca: item.diferenca ?? 0,
+      diferencaColor: calculateDifference(item.valorAtual, item.valorSimulado ?? 0).color,
+    }));
+  }
+
+  // Otherwise, aggregate municipio-level revenue into tax rows (ICMS, IPVA, etc.)
+  const totals = data.reduce(
+    (acc, cur) => {
+      acc.icms += (cur as any).icms ?? 0;
+      acc.ipva += (cur as any).ipva ?? 0;
+      acc.receita_total += (cur as any).receita_total ?? 0;
+      return acc;
+    },
+    { icms: 0, ipva: 0, receita_total: 0 }
+  );
+
+  const icmsRow: RevenueRow = {
+    imposto: "ICMS",
+    valorAtual: totals.icms,
+    valorSimulado: 0,
+    metaFundeb: 0,
+    metaRede: 0,
+    diferenca: 0,
+    diferencaColor: calculateDifference(totals.icms, 0).color,
+  };
+
+  const ipvaRow: RevenueRow = {
+    imposto: "IPVA",
+    valorAtual: totals.ipva,
+    valorSimulado: 0,
+    metaFundeb: 0,
+    metaRede: 0,
+    diferenca: 0,
+    diferencaColor: calculateDifference(totals.ipva, 0).color,
+  };
+
+  return [icmsRow, ipvaRow];
 };
 
 /**
  * Transforma os dados brutos de indicadores no formato esperado pela tabela
  */
 export const transformIndicatorData = (data: IndicatorData[]): IndicatorRow[] => {
-  return data.map(item => ({
-    indicador: item.nome,
-    valorAtual: item.valorAtual,
-    metaFundeb: item.metaFundeb || 0,
-    metaRede: item.metaRede || 0,
-    diferenca: item.diferenca || 0,
-    diferencaColor: calculateDifference(item.valorAtual, item.valorAtual + (item.diferenca || 0)).color,
-    isTotal: item.isTotal || false
-  }));
+  // If backend returns indicator rows shaped with `nome`/`valorAtual`, map directly.
+  if (data.length > 0 && (data[0] as any).nome !== undefined) {
+    return (data as unknown as any[]).map((item) => ({
+      indicador: item.nome,
+      valorAtual: item.valorAtual,
+      metaFundeb: item.metaFundeb ?? 0,
+      metaRede: item.metaRede ?? 0,
+      diferenca: item.diferenca ?? 0,
+      diferencaColor: calculateDifference(item.valorAtual, item.valorAtual + (item.diferenca ?? 0)).color,
+      isTotal: item.isTotal ?? false,
+    }));
+  }
+
+  // Otherwise, aggregate municipio-level indicators into VAAT/VAAR rows
+  const totals = data.reduce(
+    (acc, cur) => {
+      acc.vaat += (cur as any).indicadores_vaat ?? 0;
+      acc.vaar += (cur as any).indicadores_vaar ?? 0;
+      return acc;
+    },
+    { vaat: 0, vaar: 0 }
+  );
+
+  const vaatRow: IndicatorRow = {
+    indicador: "VAAT",
+    valorAtual: totals.vaat,
+    metaFundeb: 0,
+    metaRede: 0,
+    diferenca: 0,
+    diferencaColor: calculateDifference(totals.vaat, 0).color,
+    isTotal: false,
+  };
+
+  const vaarRow: IndicatorRow = {
+    indicador: "VAAR",
+    valorAtual: totals.vaar,
+    metaFundeb: 0,
+    metaRede: 0,
+    diferenca: 0,
+    diferencaColor: calculateDifference(totals.vaar, 0).color,
+    isTotal: false,
+  };
+
+    return [vaatRow, vaarRow];
 };

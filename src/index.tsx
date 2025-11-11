@@ -5,6 +5,7 @@ import { PrivateRoute } from "./components/common";
 import { Layout } from "./components/layout";
 import { Toaster } from "./components/ui/toaster";
 import { AuthProvider } from "./features/auth/hooks";
+import { HideValuesProvider } from "./hooks/useHideValues";
 import { SimulationProvider } from "./features/simulation/hooks";
 import { Login, ForgotPassword, ForgotPasswordSuccess, MeuPerfil } from "./features/auth/components";
 import { LandingPage } from "./landing";
@@ -18,6 +19,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
+        <HideValuesProvider>
         <SimulationProvider>
             <Toaster />
           <Routes>
@@ -88,6 +90,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
         </Routes>
           
         </SimulationProvider>
+        </HideValuesProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

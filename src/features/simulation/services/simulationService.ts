@@ -32,9 +32,10 @@ export class SimulationService {
     return transformEnrollmentData(data);
   }
 
-  static async getRevenueData(): Promise<RevenueData[]> {
+  static async getRevenueData(): Promise<RevenueRow[]> {
     const { data } = await http.get<RevenueData[]>("/simulations/revenue");
-    return data;
+    // Normalize/transform backend revenue shape into UI-friendly RevenueRow[]
+    return transformRevenueData(data);
   }
 
   static async getIndicatorsData(): Promise<IndicatorData[]> {

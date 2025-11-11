@@ -30,22 +30,23 @@ export interface EnrollmentData {
   receita_total: number;
 }
 
+// Backend: /simulations/revenue returns municipio-level data like
+// { municipio, uf, icms, ipva, receita_total }
 export interface RevenueData {
-  imposto: string;
-  valorAtual: number;
-  valorSimulado: number | null;
-  metaFundeb: number | null;
-  metaRede: number | null;
-  diferenca: number | null;
+  municipio: string;
+  uf: string;
+  icms: number;
+  ipva: number;
+  receita_total: number;
 }
 
+// Backend: /simulations/indicators returns municipio-level data like
+// { municipio, uf, indicadores_vaat, indicadores_vaar }
 export interface IndicatorData {
-  nome: string;
-  valorAtual: number;
-  metaFundeb: number | null;
-  metaRede: number | null;
-  diferenca: number | null;
-  isTotal?: boolean;
+  municipio: string;
+  uf: string;
+  indicadores_vaat: number;
+  indicadores_vaar: number;
 }
 
 // Tipos para Localidades
