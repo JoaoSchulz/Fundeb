@@ -1,6 +1,7 @@
 import { EnrollmentData, IndicatorData, RevenueData } from "../../../types/api";
 import { IndicatorRow, RevenueRow, SimulationRow } from "../types/simulation";
 import { EDUCATION_CATEGORIES } from "../constants";
+import { normalizeCategoryKey } from "../../../utils/normalizers";
 
 // Função auxiliar para calcular a diferença e cor
 const calculateDifference = (original: number, simulated: number): { value: number; color: string } => {
@@ -181,4 +182,61 @@ export const transformIndicatorData = (data: IndicatorData[]): IndicatorRow[] =>
   };
 
     return [vaatRow, vaarRow];
+};
+
+/**
+ * Transforma um objeto de categorias (chaves normalizadas -> matrículas)
+ * em SimulationRow[] para exibir na tabela "Por Matrículas".
+ */
+export const transformMunicipioCategoriasToRows = (normalized: Record<string, number | null>): SimulationRow[] => {
+  const rows: SimulationRow[] = [];
+  // Work on a shallow copy so we can remove keys we consume
+  const remaining = { ...normalized } as Record<string, number | null>;
+
+  Object.entries(EDUCATION_CATEGORIES).forEach(([_, category]) => {
+    Object.entries(category.subcategories).forEach(([_, subcategory]) => {
+      const key = normalizeCategoryKey(subcategory);
+
+      const matriculas = remaining[key] ?? 0;
+      // Remove consumed key to track leftovers
+      if (remaining[key] !== undefined) delete remaining[key];
+
+      const factor = FUNDEB_FACTORS[subcategory as keyof typeof FUNDEB_FACTORS] || 1.0;
+      const repasseOriginal = (matriculas || 0) * VALOR_ALUNO_ANO * factor;
+      const repasseSimulado = repasseOriginal * 1.1;
+      const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
+
+      rows.push({
+        category: category.name,
+        subcategory,
+        matriculas: Math.round(matriculas || 0),
+        repasseOriginal,
+        repasseSimulado,
+        diferenca,
+        diferencaColor,
+      });
+    });
+  });
+
+  // Aggregate any remaining (unknown) keys into an "Outros" row
+  const leftoverValues = Object.values(remaining).map((v) => v ?? 0);
+  const leftoverTotalNum = leftoverValues.length > 0 ? leftoverValues.reduce((a, b) => a + b, 0) : 0;
+  if (leftoverTotalNum > 0) {
+    const factor = 1.0;
+    const repasseOriginal = leftoverTotalNum * VALOR_ALUNO_ANO * factor;
+    const repasseSimulado = repasseOriginal * 1.1;
+    const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
+
+    rows.push({
+      category: "Outros",
+      subcategory: "Outros",
+      matriculas: Math.round(leftoverTotalNum),
+      repasseOriginal,
+      repasseSimulado,
+      diferenca,
+      diferencaColor,
+    });
+  }
+
+  return rows;
 };

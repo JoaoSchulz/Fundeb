@@ -19,6 +19,12 @@ export interface SimulationSummary {
   diferenca: number;
   percentual: number;
   statusColor: string;
+  // Optional fields used in UI selections
+  createdAt?: string;
+  modifiedAt?: string;
+  referencePeriod?: string;
+  city?: string;
+  state?: string;
 }
 
 export type SimulationStatus = "Concluída" | "Em análise" | "Rascunho";

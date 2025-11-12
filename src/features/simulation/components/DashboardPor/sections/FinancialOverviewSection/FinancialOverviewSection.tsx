@@ -113,14 +113,25 @@ export const FinancialOverviewSection = (): JSX.Element => {
     setCurrentSimulationId(value);
     const selectedSim = simulationsList.find((sim) => sim.id.toString() === value);
     if (selectedSim) {
+      // Normalize selectedSim fields to match Simulation shape
+      const rawCreated = (selectedSim as any).createdAt ?? (selectedSim as any).date ?? new Date().toISOString();
+      const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
+        ? rawCreated
+        : ((): string => {
+            const parts = String(rawCreated).split("/");
+            if (parts.length === 3) {
+              const [day, month, year] = parts;
+              return `${year}-${month}-${day}T10:30:00`;
+            }
+            return new Date().toISOString();
+          })();
+
+      const modifiedAt = (selectedSim as any).modifiedAt ?? String((selectedSim as any).date ?? createdAt);
+
       setSelectedSimulation({
         ...selectedSim,
-        createdAt: selectedSim.createdAt.includes("T")
-          ? selectedSim.createdAt
-          : (() => {
-              const [day, month, year] = selectedSim.createdAt.split("/");
-              return `${year}-${month}-${day}T10:30:00`;
-            })(),
+        createdAt,
+        modifiedAt,
         referencePeriod: (selectedSim as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
         city: (selectedSim as { city?: string }).city || "Campinas",
         state: (selectedSim as { state?: string }).state || "SP",

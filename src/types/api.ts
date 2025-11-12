@@ -57,3 +57,11 @@ export interface Municipio {
   matriculas: number;
   receita_total: number;
 }
+
+// Detalhe de categorias por município (JSONB matriculas_por_categoria)
+export interface MunicipioCategorias {
+  id: string;
+  municipio: string;
+  uf: string;
+  matriculas_por_categoria: Record<string, number | null>;
+}

@@ -10,7 +10,7 @@ interface SimulationTableHeaderProps {
   selectedSimulation?: { id?: number; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string };
   onSimulationChange?: (value: string) => void;
   currentSimulationId?: string;
-  simulationsList?: Array<{ id: number; name: string; createdAt: string; referencePeriod?: string; city?: string; state?: string }>;
+  simulationsList?: Array<{ id: number; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string }>;
 }
 
 export const SimulationTableHeader = ({
@@ -19,7 +19,7 @@ export const SimulationTableHeader = ({
   currentSimulationId = "1",
   simulationsList = [],
 }: SimulationTableHeaderProps): JSX.Element => {
-  const formatSimulationDate = (createdAt: string): string => {
+  const formatSimulationDate = (createdAt?: string): string => {
     if (!createdAt) {
       return formatDateLong(new Date("2025-03-22T10:30:00"));
     }

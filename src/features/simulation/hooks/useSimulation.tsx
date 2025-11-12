@@ -3,11 +3,12 @@ import React, { createContext, useContext, useState } from "react";
 interface Simulation {
   id: number;
   name: string;
-  createdAt: string;
-  modifiedAt: string;
+  createdAt?: string;
+  modifiedAt?: string;
   referencePeriod?: string;
   city?: string;
   state?: string;
+  municipioId?: string | null;
 }
 
 interface SimulationContextType {
@@ -24,16 +25,9 @@ export const SimulationProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  // Início sem seleção — não usar dados mocados por padrão
   const [selectedSimulation, setSelectedSimulation] =
-    useState<Simulation | null>({
-      id: 1,
-      name: "Simulação de exemplo 01",
-      createdAt: "2025-03-22T10:30:00",
-      modifiedAt: "22/03/2025",
-      referencePeriod: "09/12/2024 a 09/12/2026",
-      city: "Campinas",
-      state: "SP",
-    });
+    useState<Simulation | null>(null);
 
   return (
     <SimulationContext.Provider

@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { SimulationService } from "../services";
+import { LocalidadesService } from "../../localidades/services/localidadesService";
 import type { IndicatorRow, RevenueRow, SimulationRow, TabType } from "../types";
 import { debugLog, measurePerformance } from "../../../utils/debug";
+import { useSimulation } from "./useSimulation";
+import { transformMunicipioCategoriasToRows } from "../utils/transformers";
 
 interface UseFinancialDataReturn {
   tableData: SimulationRow[];
@@ -13,6 +16,7 @@ interface UseFinancialDataReturn {
 }
 
 export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => {
+  const simulationContext = useSimulation();
   const [tableData, setTableData] = useState<SimulationRow[]>([]);
   const [revenueData, setRevenueData] = useState<RevenueRow[]>([]);
   const [indicatorsData, setIndicatorsData] = useState<IndicatorRow[]>([]);
@@ -29,8 +33,23 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
         
         if (tabId === "todos") {
           debugLog('Loading all tables data');
+          // Try to prefer municipio-specific categories when a municipality is selected
+          const matriculasPromise = (async () => {
+            try {
+              const sel = simulationContext.selectedSimulation;
+              if (sel?.municipioId) {
+                const mc = await LocalidadesService.getMunicipioCategorias(sel.municipioId);
+                const normalized = mc.matriculas_por_categoria ?? {};
+                return transformMunicipioCategoriasToRows(normalized);
+              }
+            } catch (e) {
+              debugLog('Error fetching municipio categorias, falling back to simulations endpoint', { data: e });
+            }
+            return SimulationService.getSimulationsByTab("matriculas") as Promise<SimulationRow[]>;
+          })();
+
           const [matriculasResult, receitaResult, indicadoresResult] = await Promise.all([
-            SimulationService.getSimulationsByTab("matriculas") as Promise<SimulationRow[]>,
+            matriculasPromise,
             SimulationService.getSimulationsByTab("receita") as Promise<RevenueRow[]>,
             SimulationService.getSimulationsByTab("indicadores") as Promise<IndicatorRow[]>,
           ]);
@@ -75,6 +94,17 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
   useEffect(() => {
     loadTableData(activeTab);
   }, [activeTab]);
+
+  // Listen to location changes (dispatched by LocationSelectorDialog) and refetch
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => {
+      debugLog('Received fundeb:locationChanged event, reloading table data');
+      loadTableData(activeTab);
+    };
+    window.addEventListener("fundeb:locationChanged", handler as EventListener);
+    return () => window.removeEventListener("fundeb:locationChanged", handler as EventListener);
+  }, [activeTab, loadTableData]);
 
   return {
     tableData,
