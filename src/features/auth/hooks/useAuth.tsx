@@ -39,8 +39,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         toast.success("Login realizado com sucesso!");
         navigate("/app");
       })
-      .catch(() => {
+      .catch((e) => {
+        console.error('Login error', e);
         toast.error("Credenciais inválidas");
+        // Re-throw so error is visible in console and can be handled by dev tooling
+        throw e;
       });
   };
 

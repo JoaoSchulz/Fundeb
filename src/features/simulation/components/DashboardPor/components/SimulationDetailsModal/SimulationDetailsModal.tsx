@@ -1,4 +1,4 @@
-import React from "react";
+// React import not required with the new JSX transform
 import { Dialog, DialogContent } from "../../../../../../components/ui/dialog";
 import { Separator } from "../../../../../../components/ui/separator";
 import { ModalHeader } from "./ModalHeader";
@@ -7,14 +7,20 @@ import { ModalStats } from "./ModalStats";
 import { ModalFinancialData } from "./ModalFinancialData";
 import { ModalComposition } from "./ModalComposition";
 
+import type { SimulationSummary } from "../../../../types/simulation";
+
 interface SimulationDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  selectedSimulation?: SimulationSummary | null;
+  baseYear?: string;
 }
 
 export const SimulationDetailsModal = ({
   open,
   onOpenChange,
+  selectedSimulation,
+  baseYear = "2027",
 }: SimulationDetailsModalProps): JSX.Element => (
   <Dialog open={open} onOpenChange={onOpenChange}>
     <DialogContent className="max-w-[900px] max-h-[90vh] p-0 overflow-hidden [&>button]:hidden">
@@ -32,7 +38,7 @@ export const SimulationDetailsModal = ({
               <h3 className="text-base font-semibold text-[#181d27]">
                 Informações da Simulação
               </h3>
-              <ModalFormFields />
+              <ModalFormFields selectedSimulation={selectedSimulation} baseYear={baseYear} />
             </div>
 
             <Separator className="bg-[#e9e9eb]" />
@@ -42,7 +48,7 @@ export const SimulationDetailsModal = ({
               <h3 className="text-base font-semibold text-[#181d27]">
                 Estatísticas
               </h3>
-              <ModalStats />
+              <ModalStats selectedSimulation={selectedSimulation} />
             </div>
 
             <Separator className="bg-[#e9e9eb]" />
@@ -52,7 +58,7 @@ export const SimulationDetailsModal = ({
               <h3 className="text-base font-semibold text-[#181d27]">
                 Dados Financeiros
               </h3>
-              <ModalFinancialData />
+              <ModalFinancialData selectedSimulation={selectedSimulation} />
             </div>
 
             <Separator className="bg-[#e9e9eb]" />

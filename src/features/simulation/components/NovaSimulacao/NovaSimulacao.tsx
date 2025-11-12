@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -10,6 +10,7 @@ import {
   FormActions,
 } from "./components";
 import { useEnrollmentForm, useRevenueForm } from "./hooks";
+import { parseBrazilianNumber, parseBrazilianInteger } from "../../../../utils/formatters";
 import type { TabType } from "./types/simulationForm";
 
 export const NovaSimulacao = (): JSX.Element => {
@@ -23,10 +24,48 @@ export const NovaSimulacao = (): JSX.Element => {
   const { items, handleChange: handleRevenueChange } = useRevenueForm();
 
   const handleSave = (): void => {
-    toast.success("Simulação salva com sucesso!");
-    setTimeout(() => {
-      navigate("/app");
-    }, 1000);
+    // Use parsing helpers that handle Brazilian formats (e.g. "1.200.000,50")
+    // parseBrazilianNumber returns a float; parseBrazilianInteger returns an integer
+
+    const categoriasPayload = (categories || []).map((c) => ({
+      id: c.id,
+      name: c.name,
+      subtitle: c.subtitle,
+      matriculas: parseBrazilianInteger(c.enrollments),
+      simulatedTransfer: parseBrazilianNumber(c.simulatedTransfer),
+    }));
+
+    const receitasPayload = (items || []).map((r) => ({
+      id: r.id,
+      name: r.name,
+      currentValue: parseBrazilianNumber(r.currentValue),
+      simulatedTransfer: parseBrazilianNumber(r.simulatedTransfer),
+    }));
+
+    const payload = {
+      nome: simulationName,
+      dadosEntrada: {
+        categorias: categoriasPayload,
+        receitas: receitasPayload,
+        baseYear,
+      },
+    };
+
+    // Chamar backend para criar simulação
+    import("../../services/simulationService").then(({ SimulationService }) => {
+      SimulationService.createSimulation(payload)
+        .then(() => {
+          toast.success("Simulação salva com sucesso!");
+          setTimeout(() => {
+            navigate("/app");
+          }, 1000);
+        })
+        .catch((e) => {
+          console.error('Error creating simulation', e);
+          toast.error("Erro ao salvar simulação");
+          throw e;
+        });
+    });
   };
 
   const handleCancel = (): void => {

@@ -109,9 +109,10 @@ export const FinancialOverviewSection = (): JSX.Element => {
         if (!mounted) return;
         setSimulationsList(list as SimulationSummary[]);
       })
-      .catch(() => {
+      .catch((e) => {
         if (!mounted) return;
-        setSimulationsList([]);
+        console.error('Error loading simulations list', e);
+        throw e;
       });
     return () => { mounted = false };
   }, []);
@@ -242,6 +243,8 @@ export const FinancialOverviewSection = (): JSX.Element => {
       <SimulationDetailsModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
+        selectedSimulation={selectedSimulation}
+        baseYear={"2027"}
       />
 
       <ExpandedViewModal

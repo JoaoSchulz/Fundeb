@@ -1,19 +1,9 @@
 import React, { createContext, useContext, useState } from "react";
-
-interface Simulation {
-  id: string;
-  name: string;
-  createdAt?: string;
-  modifiedAt?: string;
-  referencePeriod?: string;
-  city?: string;
-  state?: string;
-  municipioId?: string | null;
-}
+import type { SimulationSummary } from "../types/simulation";
 
 interface SimulationContextType {
-  selectedSimulation: Simulation | null;
-  setSelectedSimulation: (simulation: Simulation) => void;
+  selectedSimulation: SimulationSummary | null;
+  setSelectedSimulation: (simulation: SimulationSummary | null) => void;
 }
 
 const SimulationContext = createContext<SimulationContextType | undefined>(
@@ -27,7 +17,7 @@ export const SimulationProvider = ({
 }) => {
   // Início sem seleção — não usar dados mocados por padrão
   const [selectedSimulation, setSelectedSimulation] =
-    useState<Simulation | null>(null);
+    useState<SimulationSummary | null>(null);
 
   return (
     <SimulationContext.Provider

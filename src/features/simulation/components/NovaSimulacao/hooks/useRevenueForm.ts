@@ -56,6 +56,7 @@ export const useRevenueForm = () => {
   return {
     items,
     handleChange,
-  };
+    setItems,
+  } as const;
 };
 

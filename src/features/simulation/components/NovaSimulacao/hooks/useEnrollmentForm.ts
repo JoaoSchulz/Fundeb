@@ -46,9 +46,9 @@ const INITIAL_ENROLLMENTS: EnrollmentCategory[] = [
   },
 ];
 
-export const useEnrollmentForm = () => {
+export const useEnrollmentForm = (initial?: EnrollmentCategory[]) => {
   const [categories, setCategories] = useState<EnrollmentCategory[]>(
-    INITIAL_ENROLLMENTS
+    initial ?? INITIAL_ENROLLMENTS
   );
 
   const handleChange = (id: string, value: string): void => {
@@ -60,6 +60,7 @@ export const useEnrollmentForm = () => {
   return {
     categories,
     handleChange,
-  };
+    setCategories,
+  } as const;
 };
 

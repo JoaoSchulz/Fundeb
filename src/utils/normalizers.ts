@@ -11,12 +11,17 @@ export const normalizeCategoryKey = (key: string): string => {
       .toLowerCase();
 };
 
-export const normalizeCategoriasObject = (raw: Record<string, number | null> | undefined) => {
-  const normalized: Record<string, number | null> = {};
+import { parseBrazilianNumber } from "./formatters";
+
+export const normalizeCategoriasObject = (raw: Record<string, any> | undefined) => {
+  const normalized: Record<string, number> = {};
   if (!raw) return normalized;
   Object.entries(raw).forEach(([k, v]) => {
     const nk = normalizeCategoryKey(k);
-    if (nk) normalized[nk] = v ?? 0;
+    if (!nk) return;
+    // valores vindos do backend podem ser number ou string com vírgula
+    const parsed = typeof v === "number" ? v : parseBrazilianNumber(v);
+    normalized[nk] = parsed ?? 0;
   });
   return normalized;
 };

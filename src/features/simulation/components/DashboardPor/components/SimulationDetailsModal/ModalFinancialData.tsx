@@ -1,9 +1,19 @@
 import { Card, CardContent } from "../../../../../../components/ui/card";
 import { useHideValues } from "../../../../../../hooks/useHideValues";
+import type { SimulationSummary } from "../../../../types/simulation";
 
-export const ModalFinancialData = (): JSX.Element => {
+interface Props {
+  selectedSimulation?: SimulationSummary | null;
+}
+
+export const ModalFinancialData = ({ selectedSimulation }: Props): JSX.Element => {
   const { hideValues } = useHideValues();
-  
+  const original = selectedSimulation?.repasseOriginal ?? 1000000;
+  const simulated = selectedSimulation?.repasseSimulado ?? 1210000;
+  const ganho = simulated - original;
+
+  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
   return (
     <div className="flex items-center justify-center gap-3 w-full">
       {/* Original */}
@@ -13,7 +23,7 @@ export const ModalFinancialData = (): JSX.Element => {
             Original
           </div>
           <div className={`text-xl font-semibold text-[#181d27] text-center ${hideValues ? 'select-none blur-sm' : ''}`}>
-            R$ 1.000.000
+            {fmt(original)}
           </div>
         </CardContent>
       </Card>
@@ -30,7 +40,7 @@ export const ModalFinancialData = (): JSX.Element => {
             Simulado
           </div>
           <div className={`text-xl font-semibold text-[#22a3eb] text-center ${hideValues ? 'select-none blur-sm' : ''}`}>
-            R$ 1.210.000
+            {fmt(simulated)}
           </div>
         </CardContent>
       </Card>
@@ -47,7 +57,7 @@ export const ModalFinancialData = (): JSX.Element => {
             Ganho
           </div>
           <div className={`text-xl font-semibold text-[#069454] text-center ${hideValues ? 'select-none blur-sm' : ''}`}>
-            + R$ 210.000
+            {`${ganho >= 0 ? '+' : '-'} ${fmt(Math.abs(ganho))}`}
           </div>
         </CardContent>
       </Card>

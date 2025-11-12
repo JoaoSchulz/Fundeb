@@ -39,11 +39,11 @@ export const MinhasSimulacoes = (): JSX.Element => {
         setDisplayedSimulations((list as any).slice(0, ITEMS_PER_PAGE));
         setHasMore((list as any).length > ITEMS_PER_PAGE);
       })
-      .catch(() => {
+      .catch((e) => {
         if (!mounted) return;
-        setSimulations([]);
-        setDisplayedSimulations([]);
-        setHasMore(false);
+        console.error('Error fetching simulations list', e);
+        // Re-throw so the error appears in the browser console and can be handled upstream
+        throw e;
       })
       .finally(() => {
         if (!mounted) return;

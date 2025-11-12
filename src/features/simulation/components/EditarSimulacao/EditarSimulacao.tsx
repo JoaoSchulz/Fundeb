@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { SimulationService } from "../../services/simulationService";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -10,6 +11,7 @@ import {
   FormActions,
 } from "./components";
 import { useEnrollmentForm, useRevenueForm } from "../NovaSimulacao/hooks";
+import { parseBrazilianNumber, parseBrazilianInteger } from "../../../../utils/formatters";
 import type { TabType } from "../NovaSimulacao/types/simulationForm";
 
 export const EditarSimulacao = (): JSX.Element => {
@@ -19,23 +21,115 @@ export const EditarSimulacao = (): JSX.Element => {
   const [simulationName, setSimulationName] = useState("Simulação 05/05/2025");
   const [baseYear, setBaseYear] = useState("2027");
 
-  const { categories, handleChange: handleEnrollmentChange } =
+  const { categories, handleChange: handleEnrollmentChange, setCategories } =
     useEnrollmentForm();
-  const { items, handleChange: handleRevenueChange } = useRevenueForm();
+  const { items, handleChange: handleRevenueChange, setItems } = useRevenueForm();
 
   useEffect(() => {
-    // TODO: Buscar dados da simulação pelo ID quando back-end estiver pronto
-    // const simulation = await SimulationService.getById(id);
-    // setSimulationName(simulation.name);
-    // setBaseYear(simulation.baseYear);
-    // etc...
+    if (!id) return;
+    let mounted = true;
+    import("../../services/simulationService").then(({ SimulationService }) => {
+      SimulationService.getSimulationById(id)
+        .then((simulation) => {
+          if (!mounted || !simulation) return;
+          setSimulationName(simulation.nome || simulation.name || "Simulação");
+          setBaseYear(simulation.baseYear || "2027");
+          // Prefill: map simulation.dadosEntrada into form hooks (categories/items)
+          try {
+            const entrada = (simulation.dadosEntrada ?? {}) as any;
+            // categorias: expect array of { id, name, subtitle, enrollments, simulatedTransfer }
+            if (entrada.categorias && Array.isArray(entrada.categorias) && setCategories) {
+              const mapped = entrada.categorias.map((c: any, idx: number) => ({
+                id: String(c.id ?? c.key ?? idx + 1),
+                name: c.name ?? c.nome ?? c.category ?? `Categoria ${idx + 1}`,
+                subtitle: c.subtitle ?? c.subtitulo ?? c.subcategory ?? "",
+                enrollments: c.enrollments != null ? String(c.enrollments) : (c.matriculas != null ? String(c.matriculas) : "0"),
+                simulatedTransfer: c.simulatedTransfer != null ? String(c.simulatedTransfer) : (c.repasseSimulado != null ? String(c.repasseSimulado) : "R$ 0"),
+              }));
+              setCategories(mapped);
+            }
+
+            // receitas: expect array of { id, name, simulatedTransfer, currentValue }
+            if (entrada.receitas && Array.isArray(entrada.receitas) && setItems) {
+              const mappedItems = entrada.receitas.map((r: any, idx: number) => ({
+                id: String(r.id ?? r.key ?? idx + 1),
+                name: r.name ?? r.nome ?? `Receita ${idx + 1}`,
+                simulatedTransfer: r.simulatedTransfer != null ? String(r.simulatedTransfer) : (r.repasseSimulado != null ? String(r.repasseSimulado) : "R$ 0"),
+                currentValue: r.currentValue != null ? String(r.currentValue) : (r.valorAtual != null ? String(r.valorAtual) : "R$ 0"),
+              }));
+              setItems(mappedItems);
+            }
+          } catch (err) {
+            // swallow mapping errors
+          }
+        })
+        .catch((e) => {
+          console.error('Error fetching simulation by id', e);
+          // Re-throw to surface the error to dev console
+          throw e;
+        });
+    });
+
+    return () => { mounted = false };
   }, [id]);
 
   const handleSave = (): void => {
-    toast.success("Simulação atualizada com sucesso!");
-    setTimeout(() => {
-      navigate("/app/simulacoes");
-    }, 1000);
+    // Helpers para conversão de strings para números
+    // Use centralized parsing helpers for Brazilian formatted numbers
+
+    // Montar payload a partir dos hooks de formulário — convertendo strings para numbers
+    const categoriasPayload = (categories || []).map((c) => ({
+      id: c.id,
+      name: c.name,
+      subtitle: c.subtitle,
+      matriculas: parseBrazilianInteger(c.enrollments),
+      simulatedTransfer: parseBrazilianNumber(c.simulatedTransfer),
+    }));
+
+    const receitasPayload = (items || []).map((r) => ({
+      id: r.id,
+      name: r.name,
+      currentValue: parseBrazilianNumber(r.currentValue),
+      simulatedTransfer: parseBrazilianNumber(r.simulatedTransfer),
+    }));
+
+    const payload = {
+      nome: simulationName,
+      dadosEntrada: {
+        categorias: categoriasPayload,
+        receitas: receitasPayload,
+        baseYear,
+      },
+    };
+
+    if (id) {
+      SimulationService.updateSimulation(id, payload)
+        .then(() => {
+          toast.success("Simulação atualizada com sucesso!");
+          setTimeout(() => {
+            navigate("/app/simulacoes");
+          }, 1000);
+        })
+        .catch((e) => {
+          console.error('Error updating simulation', e);
+          toast.error("Erro ao atualizar simulação");
+          throw e;
+        });
+    } else {
+      // Fallback: criar nova simulação se id não estiver presente
+      SimulationService.createSimulation(payload)
+        .then(() => {
+          toast.success("Simulação criada com sucesso!");
+          setTimeout(() => {
+            navigate("/app/simulacoes");
+          }, 1000);
+        })
+        .catch((e) => {
+          console.error('Error creating simulation (fallback)', e);
+          toast.error("Erro ao criar simulação");
+          throw e;
+        });
+    }
   };
 
   const handleCancel = (): void => {

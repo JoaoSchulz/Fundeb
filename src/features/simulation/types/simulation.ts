@@ -25,6 +25,8 @@ export interface SimulationSummary {
   referencePeriod?: string;
   city?: string;
   state?: string;
+  // Optional selected municipality id (when a user selects a municipality)
+  municipioId?: string | null;
 }
 
 export type SimulationStatus = "Concluída" | "Em análise" | "Rascunho";

@@ -16,7 +16,12 @@ export const LocationSelectorDialog = (): JSX.Element => {
   const { selectedSimulation, setSelectedSimulation } = useSimulation();
 
   useEffect(() => {
-    SimulationService.getUFs().then((data) => setUfs(data)).catch(() => setUfs([]));
+    SimulationService.getUFs()
+      .then((data) => setUfs(data))
+      .catch((e) => {
+        console.error('Error fetching UFs', e);
+        throw e;
+      });
   }, []);
 
   useEffect(() => {
@@ -29,7 +34,10 @@ export const LocationSelectorDialog = (): JSX.Element => {
     setMunicipiosLoading(true);
     LocalidadesService.getMunicipiosByUF(selectedUf)
       .then((data) => setMunicipios(data.map((d) => ({ id: d.id, municipio: d.municipio })) ))
-      .catch(() => setMunicipios([]))
+      .catch((e) => {
+        console.error('Error fetching municipios for UF', selectedUf, e);
+        throw e;
+      })
       .finally(() => setMunicipiosLoading(false));
   }, [selectedUf]);
 

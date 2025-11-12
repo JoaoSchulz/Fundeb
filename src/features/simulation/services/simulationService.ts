@@ -84,4 +84,19 @@ export class SimulationService {
   static async deleteSimulation(id: string): Promise<void> {
     await http.delete(`/simulations/${id}`);
   }
+
+  static async getSimulationById(id: string) {
+    const { data } = await http.get<any>(`/simulations/${id}`);
+    return data;
+  }
+
+  static async createSimulation(payload: { nome: string; dadosEntrada: any }) {
+    const { data } = await http.post<any>(`/simulations`, payload);
+    return data;
+  }
+
+  static async updateSimulation(id: string, payload: { nome?: string; dadosEntrada?: any }) {
+    const { data } = await http.put<any>(`/simulations/${id}`, payload);
+    return data;
+  }
 }

@@ -16,6 +16,21 @@ export const parseCurrency = (value: string): number => {
   return parseFloat(cleaned) || 0;
 };
 
+export const parseBrazilianNumber = (value: string | number | null | undefined): number => {
+  if (value == null) return 0;
+  if (typeof value === "number") return value;
+  // Remove all non-digit, non-comma, non-dot, non-minus characters
+  const s = String(value).replace(/[^0-9,.-]/g, "").replace(/\./g, "");
+  const normalized = s.replace(/,/g, ".");
+  const n = parseFloat(normalized);
+  return Number.isFinite(n) ? n : 0;
+};
+
+export const parseBrazilianInteger = (value: string | number | null | undefined): number => {
+  const n = parseBrazilianNumber(value);
+  return Math.round(n);
+};
+
 export const formatDate = (
   date: Date | string,
   locale: string = "pt-BR"
@@ -42,10 +57,7 @@ export const formatDateTime = (
   }).format(dateObj);
 };
 
-export const formatDateLong = (
-  date: Date | string,
-  locale: string = "pt-BR"
-): string => {
+export const formatDateLong = (date: Date | string): string => {
   const dateObj = typeof date === "string" ? new Date(date) : date;
   const monthNames = [
     "Janeiro",
