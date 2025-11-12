@@ -1,18 +1,12 @@
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../../../../../components/ui/button";
-
-type SimulationListItem = {
-  id: number;
-  name: string;
-  createdAt: string;
-  modifiedAt: string;
-};
+import type { SimulationSummary } from "../../../types/simulation";
 
 interface SimulationsTableProps {
-  simulations: SimulationListItem[];
-  onView: (simulation: SimulationListItem) => void;
-  onEdit: (simulation: SimulationListItem) => void;
-  onDelete: (simulation: SimulationListItem) => void;
+  simulations: SimulationSummary[];
+  onView: (simulation: SimulationSummary) => void;
+  onEdit: (simulation: SimulationSummary) => void;
+  onDelete: (simulation: SimulationSummary) => void;
 }
 
 export const SimulationsTable = ({

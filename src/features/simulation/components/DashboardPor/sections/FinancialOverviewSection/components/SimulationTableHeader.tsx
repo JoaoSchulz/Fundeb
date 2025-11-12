@@ -7,10 +7,10 @@ import { formatDateLong } from "../../../../../../../utils/formatters";
 // Tab type not used in this file
 
 interface SimulationTableHeaderProps {
-  selectedSimulation?: { id?: number; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string };
+  selectedSimulation?: { id?: string; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string };
   onSimulationChange?: (value: string) => void;
   currentSimulationId?: string;
-  simulationsList?: Array<{ id: number; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string }>;
+  simulationsList?: Array<{ id: string; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string }>;
 }
 
 export const SimulationTableHeader = ({

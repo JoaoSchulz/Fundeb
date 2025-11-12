@@ -2,6 +2,7 @@ import { http } from "../../../services/http/client";
 import { EnrollmentData, RevenueData, IndicatorData, Municipio } from "../../../types/api";
 import type { SimulationRow, RevenueRow, IndicatorRow, TabType } from "../types/simulation";
 import { transformEnrollmentData, transformRevenueData, transformIndicatorData } from "../utils/transformers";
+import type { SimulationSummary } from "../types/simulation";
 
 export class SimulationService {
   static async getSimulationsByTab(
@@ -38,9 +39,10 @@ export class SimulationService {
     return transformRevenueData(data);
   }
 
-  static async getIndicatorsData(): Promise<IndicatorData[]> {
+  static async getIndicatorsData(): Promise<IndicatorRow[]> {
     const { data } = await http.get<IndicatorData[]>("/simulations/indicators");
-    return data;
+    // Transform backend indicator data into UI-friendly rows
+    return transformIndicatorData(data);
   }
 
   // Endpoints de Localidades
@@ -54,5 +56,32 @@ export class SimulationService {
       query: { uf }
     });
     return data;
+  }
+
+  // Lista de simulações do usuário
+  static async getSimulations(): Promise<SimulationSummary[]> {
+    const { data } = await http.get<any[]>("/simulations");
+    // Mapear shape do backend para SimulationSummary usado pelo frontend
+    return data.map((s) => ({
+      id: String(s.id),
+      name: s.nome || s.name || "Simulação",
+      date: s.criadoEm || s.createdAt || new Date().toISOString(),
+      status: (s.status as any) || "Rascunho",
+      totalMatriculas: s.totalMatriculas ?? 0,
+      repasseOriginal: s.repasseOriginal ?? 0,
+      repasseSimulado: s.repasseSimulado ?? 0,
+      diferenca: (s.repasseSimulado ?? 0) - (s.repasseOriginal ?? 0),
+      percentual: s.percentual ?? 0,
+      statusColor: s.statusColor ?? "#000",
+      createdAt: s.criadoEm || s.createdAt,
+      modifiedAt: s.atualizadoEm || s.updatedAt,
+      referencePeriod: s.referencePeriod || s.periodoReferencia,
+      city: s.dadosEntrada?.city || s.city || s.cidade,
+      state: s.dadosEntrada?.state || s.state || s.uf,
+    }));
+  }
+
+  static async deleteSimulation(id: string): Promise<void> {
+    await http.delete(`/simulations/${id}`);
   }
 }

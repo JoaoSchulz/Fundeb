@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Search, FileX } from "lucide-react";
 import { EmptyState } from "../../../../components/common";
 import { useSimulation } from "../../hooks";
-import { MOCK_SIMULATIONS_LIST } from "../../../../data/mocks";
+import { SimulationService } from "../../services/simulationService";
+import type { SimulationSummary } from "../../types/simulation";
 import { Input } from "../../../../components/ui/input";
 import {
   SimulationsListHeader,
@@ -12,7 +13,7 @@ import {
   DeleteConfirmationModal,
 } from "./components";
 
-type SimulationListItem = (typeof MOCK_SIMULATIONS_LIST)[number];
+type SimulationListItem = SimulationSummary;
 
 const ITEMS_PER_PAGE = 10;
 
@@ -29,10 +30,28 @@ export const MinhasSimulacoes = (): JSX.Element => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Simular carregamento de todas as simulações (em produção viria do backend)
-    setSimulations(MOCK_SIMULATIONS_LIST);
-    setDisplayedSimulations(MOCK_SIMULATIONS_LIST.slice(0, ITEMS_PER_PAGE));
-    setHasMore(MOCK_SIMULATIONS_LIST.length > ITEMS_PER_PAGE);
+    let mounted = true;
+    setIsLoading(true);
+    SimulationService.getSimulations()
+      .then((list) => {
+        if (!mounted) return;
+        setSimulations(list as any);
+        setDisplayedSimulations((list as any).slice(0, ITEMS_PER_PAGE));
+        setHasMore((list as any).length > ITEMS_PER_PAGE);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setSimulations([]);
+        setDisplayedSimulations([]);
+        setHasMore(false);
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setIsLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Filtrar simulações baseado no termo de busca
@@ -43,8 +62,8 @@ export const MinhasSimulacoes = (): JSX.Element => {
     const term = searchTerm.toLowerCase().trim();
     return simulations.filter((simulation) =>
       simulation.name.toLowerCase().includes(term) ||
-      simulation.createdAt.toLowerCase().includes(term) ||
-      simulation.modifiedAt.toLowerCase().includes(term)
+      (simulation.createdAt ?? "").toLowerCase().includes(term) ||
+      (simulation.modifiedAt ?? "").toLowerCase().includes(term)
     );
   }, [simulations, searchTerm]);
 
@@ -92,14 +111,24 @@ export const MinhasSimulacoes = (): JSX.Element => {
   }, [loadMoreSimulations]);
 
   const handleViewSimulation = (simulation: SimulationListItem) => {
+    const rawCreated = simulation.createdAt ?? simulation.date ?? new Date().toISOString();
+    const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
+      ? rawCreated
+      : (() => {
+          const parts = String(rawCreated).split("/");
+          if (parts.length === 3) {
+            const [day, month, year] = parts;
+            return `${year}-${month}-${day}T10:30:00`;
+          }
+          return new Date().toISOString();
+        })();
+
+    const modifiedAt = simulation.modifiedAt ?? String(simulation.date ?? createdAt);
+
     setSelectedSimulation({
       ...simulation,
-      createdAt: simulation.createdAt.includes("T")
-        ? simulation.createdAt
-        : (() => {
-            const [day, month, year] = simulation.createdAt.split("/");
-            return `${year}-${month}-${day}T10:30:00`;
-          })(),
+      createdAt,
+      modifiedAt,
       referencePeriod: (simulation as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
       city: (simulation as { city?: string }).city || "Campinas",
       state: (simulation as { state?: string }).state || "SP",
@@ -126,68 +155,46 @@ export const MinhasSimulacoes = (): JSX.Element => {
     const deletedIndex = simulations.findIndex((s) => s.id === deletedSimulation.id);
     const previousDisplayedLength = displayedSimulations.length;
 
-    // Remover da lista
+    // Optimistic UI update
     const updatedSimulations = simulations.filter((s) => s.id !== deletedSimulation.id);
-    setSimulations(updatedSimulations);
-
-    // Atualizar displayedSimulations
     const updatedDisplayed = displayedSimulations.filter((s) => s.id !== deletedSimulation.id);
+    setSimulations(updatedSimulations);
     setDisplayedSimulations(updatedDisplayed);
+    setHasMore(searchTerm.trim() ? false : updatedSimulations.length > updatedDisplayed.length);
 
-    // Verificar se precisa atualizar hasMore
-    if (searchTerm.trim()) {
-      const filtered = updatedSimulations.filter((simulation) => {
-        const term = searchTerm.toLowerCase().trim();
-        return (
-          simulation.name.toLowerCase().includes(term) ||
-          simulation.createdAt.toLowerCase().includes(term) ||
-          simulation.modifiedAt.toLowerCase().includes(term)
-        );
-      });
-      setDisplayedSimulations(filtered);
-      setHasMore(false);
-    } else {
-      setHasMore(updatedSimulations.length > updatedDisplayed.length);
-    }
+    // Call backend to delete
+    SimulationService.deleteSimulation(deletedSimulation.id)
+      .then(() => {
+        toast.success("Simulação excluída", {
+          description: `"${deletedSimulation.name}" foi removida com sucesso`,
+        });
+      })
+      .catch((err) => {
+        // Revert optimistic update on error
+        const restoredSimulations = [...updatedSimulations];
+        restoredSimulations.splice(deletedIndex, 0, deletedSimulation);
+        setSimulations(restoredSimulations);
 
-    // Toast com opção de desfazer
-    toast.success("Simulação excluída", {
-      description: `"${deletedSimulation.name}" foi removida com sucesso`,
-      action: {
-        label: "Desfazer",
-        onClick: () => {
-          // Restaurar simulação na posição original
-          const restoredSimulations = [...updatedSimulations];
-          restoredSimulations.splice(deletedIndex, 0, deletedSimulation);
-          setSimulations(restoredSimulations);
-
-          // Atualizar displayedSimulations
-          if (searchTerm.trim()) {
-            const filtered = restoredSimulations.filter((simulation) => {
-              const term = searchTerm.toLowerCase().trim();
-              return (
-                simulation.name.toLowerCase().includes(term) ||
-                simulation.createdAt.toLowerCase().includes(term) ||
-                simulation.modifiedAt.toLowerCase().includes(term)
-              );
-            });
-            setDisplayedSimulations(filtered);
-            setHasMore(false);
-          } else {
-            // Restaurar até o tamanho anterior + 1 (a simulação restaurada)
-            const newDisplayed = restoredSimulations.slice(0, previousDisplayedLength);
-            setDisplayedSimulations(newDisplayed);
-            setHasMore(restoredSimulations.length > newDisplayed.length);
-          }
-
-          toast.success("Simulação restaurada", {
-            description: `"${deletedSimulation.name}" foi restaurada`,
+        if (searchTerm.trim()) {
+          const filtered = restoredSimulations.filter((simulation) => {
+            const term = searchTerm.toLowerCase().trim();
+            return (
+              simulation.name.toLowerCase().includes(term) ||
+              (simulation.createdAt ?? "").toLowerCase().includes(term) ||
+              (simulation.modifiedAt ?? "").toLowerCase().includes(term)
+            );
           });
-        },
-      },
-    });
+          setDisplayedSimulations(filtered);
+          setHasMore(false);
+        } else {
+          const newDisplayed = restoredSimulations.slice(0, previousDisplayedLength);
+          setDisplayedSimulations(newDisplayed);
+          setHasMore(restoredSimulations.length > newDisplayed.length);
+        }
 
-    setSimulationToDelete(null);
+        toast.error("Erro ao excluir simulação", { description: err?.message ?? "Tente novamente" });
+      })
+      .finally(() => setSimulationToDelete(null));
   };
 
   return (

@@ -10,17 +10,12 @@ import {
 import { Button } from "../../../../../components/ui/button";
 import { LAYOUT_CONSTANTS } from "../../../../../utils/constants";
 
-type SimulationListItem = {
-  id: number;
-  name: string;
-  createdAt: string;
-  modifiedAt: string;
-};
+import type { SimulationSummary } from "../../../types/simulation";
 
 interface DeleteConfirmationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  simulation: SimulationListItem | null;
+  simulation: SimulationSummary | null;
   onConfirm: () => void;
 }
 

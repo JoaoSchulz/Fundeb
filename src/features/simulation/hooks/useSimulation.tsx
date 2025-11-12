@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 
 interface Simulation {
-  id: number;
+  id: string;
   name: string;
   createdAt?: string;
   modifiedAt?: string;

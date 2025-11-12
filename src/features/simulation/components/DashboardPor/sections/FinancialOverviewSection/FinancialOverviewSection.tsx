@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
-import { MOCK_SIMULATIONS_LIST } from "../../../../../../data/mocks";
+import { SimulationService } from "../../../../services/simulationService";
+import type { SimulationSummary } from "../../../../types/simulation";
 import { debugLog } from "../../../../../../utils/debug";
 import type {
   StatsCard,
@@ -62,7 +63,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
   const [currentSimulationId, setCurrentSimulationId] = useState(
     selectedSimulation?.id?.toString() || "1"
   );
-  const [simulationsList] = useState(MOCK_SIMULATIONS_LIST);
+  const [simulationsList, setSimulationsList] = useState<SimulationSummary[]>([]);
   const [viewMode, setViewMode] = useState<"table" | "cards">("table");
   const [isViewModeChanging, setIsViewModeChanging] = useState(false);
   const [isExpandedModalOpen, setIsExpandedModalOpen] = useState(false);
@@ -99,6 +100,21 @@ export const FinancialOverviewSection = (): JSX.Element => {
       setCurrentSimulationId(selectedSimulation.id.toString());
     }
   }, [selectedSimulation?.id]);
+
+  // Load simulations list from backend
+  useEffect(() => {
+    let mounted = true;
+    SimulationService.getSimulations()
+      .then((list) => {
+        if (!mounted) return;
+        setSimulationsList(list as SimulationSummary[]);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setSimulationsList([]);
+      });
+    return () => { mounted = false };
+  }, []);
 
   useEffect(() => {
     if (location.state && (location.state as { scrollToTable?: boolean }).scrollToTable && tableRef.current) {

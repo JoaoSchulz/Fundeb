@@ -20,7 +20,7 @@ interface SimulationTableCardProps {
   selectedSimulation?: { name: string; referencePeriod?: string; city?: string; state?: string; baseYear?: string };
   onSimulationChange?: (value: string) => void;
   currentSimulationId?: string;
-  simulationsList?: Array<{ id: number; name: string; createdAt?: string }>;
+  simulationsList?: Array<{ id: string; name: string; createdAt?: string }>;
   onOpenModal: () => void;
   isModalOpen: boolean;
   onCloseModal: () => void;

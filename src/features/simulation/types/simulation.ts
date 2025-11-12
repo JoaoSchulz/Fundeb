@@ -9,7 +9,7 @@ export interface SimulationRow {
 }
 
 export interface SimulationSummary {
-  id: number;
+  id: string;
   name: string;
   date: string;
   status: SimulationStatus;
