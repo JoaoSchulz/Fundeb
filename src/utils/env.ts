@@ -2,16 +2,9 @@ export type Env = {
   apiBaseUrl: string | undefined;
 };
 
-interface ViteMeta {
-  env?: {
-    VITE_API_BASE_URL?: string;
-  };
-}
-
 export const getEnv = (): Env => {
   // Vite expõe variáveis com import.meta.env
-  const viteMeta = import.meta as unknown as ViteMeta;
-  const apiBaseUrl = viteMeta.env?.VITE_API_BASE_URL;
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
   return { apiBaseUrl };
 };

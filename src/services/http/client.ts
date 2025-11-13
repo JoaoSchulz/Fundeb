@@ -38,6 +38,8 @@ export class HttpClient {
 
   constructor(baseUrl?: string) {
     this.baseUrl = baseUrl ?? getEnv().apiBaseUrl;
+    // Debug: log the base URL being used
+    console.log('HttpClient initialized with baseUrl:', this.baseUrl);
   }
 
   async request<T = unknown>(
@@ -47,6 +49,9 @@ export class HttpClient {
     const urlBase = this.baseUrl ?? "";
     const qs = buildQueryString(query);
     const url = `${urlBase}${path}${qs}`;
+    
+    // Debug: log the full URL being requested
+    console.log(`HTTP ${method} request to:`, url);
 
     const authToken = AuthService.getToken();
 
@@ -110,5 +115,5 @@ export class HttpClient {
   }
 }
 
-// Sempre use a URL do backend para chamadas API
-export const http = new HttpClient("http://localhost:3000");
+// Use a variável de ambiente para a URL do backend
+export const http = new HttpClient();

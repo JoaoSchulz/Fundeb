@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Env</title>
+</head>
+<body>
+    <h1>Teste de Variáveis de Ambiente</h1>
+    <div id="result"></div>
+    <script type="module">
+        const apiUrl = import.meta.env.VITE_API_BASE_URL;
+        document.getElementById('result').innerHTML = `
+            <p>VITE_API_BASE_URL: <strong>${apiUrl || 'NÃO DEFINIDA'}</strong></p>
+            <p>Todas as variáveis: <pre>${JSON.stringify(import.meta.env, null, 2)}</pre></p>
+        `;
+        
+        // Testar requisição
+        if (apiUrl) {
+            fetch(`${apiUrl}/`)
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('result').innerHTML += `
+                        <p style="color: green;">✅ Backend respondeu: <pre>${JSON.stringify(data, null, 2)}</pre></p>
+                    `;
+                })
+                .catch(err => {
+                    document.getElementById('result').innerHTML += `
+                        <p style="color: red;">❌ Erro ao conectar: ${err.message}</p>
+                    `;
+                });
+        }
+    </script>
+</body>
+</html>

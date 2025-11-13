@@ -1,7 +1,7 @@
 import { EnrollmentData, IndicatorData, RevenueData } from "../../../types/api";
 import { IndicatorRow, RevenueRow, SimulationRow } from "../types/simulation";
 import { EDUCATION_CATEGORIES } from "../constants";
-import { normalizeCategoryKey } from "../../../utils/normalizers";
+import { normalizeCategoryKey, normalizeCategoriasObject } from "../../../utils/normalizers";
 
 // Função auxiliar para calcular a diferença e cor
 const calculateDifference = (original: number, simulated: number): { value: number; color: string } => {
@@ -31,50 +31,84 @@ const FUNDEB_FACTORS = {
 const VALOR_ALUNO_ANO = 4000;
 
 export const transformEnrollmentData = (data: EnrollmentData[]): SimulationRow[] => {
-  // Agrupa matrículas por categoria/subcategoria
-  const groupedData = new Map<string, Map<string, number>>();
-  
-  data.forEach(item => {
-    // Aqui você precisaria de uma lógica para determinar a categoria/subcategoria
-    // com base nos dados do município. Este é um exemplo simplificado:
-    Object.entries(EDUCATION_CATEGORIES).forEach(([_, category]) => {
-      Object.entries(category.subcategories).forEach(([_, subcategory]) => {
-        if (!groupedData.has(category.name)) {
-          groupedData.set(category.name, new Map());
-        }
-        const subMap = groupedData.get(category.name)!;
-        const currentValue = subMap.get(subcategory) || 0;
-        // Aqui você precisaria de uma lógica mais específica para distribuir
-        // as matrículas nas categorias corretas
-        subMap.set(subcategory, currentValue + (item.matriculas / 10));
+  // Primeiro: agregue (some) os dados de todos os municípios
+  const totalsCategorias: Record<string, number> = {};
+  let totalMatriculas = 0;
+
+  data.forEach((item) => {
+    // Some matrículas gerais
+    totalMatriculas += (item.matriculas || 0);
+
+    // Se o backend fornecer o objeto matriculas_por_categoria, normalize e agregue
+    const rawCategorias = (item as any).matriculas_por_categoria;
+    if (rawCategorias && typeof rawCategorias === "object") {
+      const normalized = normalizeCategoriasObject(rawCategorias);
+      Object.entries(normalized).forEach(([k, v]) => {
+        totalsCategorias[k] = (totalsCategorias[k] || 0) + (v || 0);
       });
-    });
+    }
   });
 
-  // Converte os dados agrupados para o formato SimulationRow
+  // Agora mapeie as colunas normalizadas para as linhas definidas em EDUCATION_CATEGORIES
   const rows: SimulationRow[] = [];
-  
-  groupedData.forEach((subMap, category) => {
-    subMap.forEach((matriculas, subcategory) => {
+
+  // Keep track of which normalized keys we've consumed
+  const consumedKeys = new Set<string>();
+
+  Object.entries(EDUCATION_CATEGORIES).forEach(([_, category]) => {
+    Object.entries(category.subcategories).forEach(([_, subcategory]) => {
+      const targetKey = normalizeCategoryKey(subcategory);
+
+      // Sum all totalsCategorias keys that include the targetKey (covers variations like
+      // 'creche_parcial_publica_urbano', 'creche_parcial_publica_campo', etc.)
+      let matchedSum = 0;
+      Object.entries(totalsCategorias).forEach(([k, v]) => {
+        if (k.includes(targetKey)) {
+          matchedSum += v || 0;
+          consumedKeys.add(k);
+        }
+      });
+
+      // If we didn't find category-specific breakdown, try to fallback: if totalMatriculas > 0,
+      // distribute proportionally (not ideal) — for now keep 0 to avoid duplications.
+
+      const matriculas = Math.round(matchedSum || 0);
       const factor = FUNDEB_FACTORS[subcategory as keyof typeof FUNDEB_FACTORS] || 1.0;
-      const repasseOriginal = matriculas * VALOR_ALUNO_ANO * factor;
-      // Aqui você pode implementar sua lógica de simulação
-      const repasseSimulado = repasseOriginal * 1.1; // Exemplo: aumento de 10%
+      const repasseOriginal = (matriculas || 0) * VALOR_ALUNO_ANO * factor;
+      const repasseSimulado = repasseOriginal * 1.1;
       const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
-      
-      // Formatação dos valores feita diretamente no componente que renderiza os dados
 
       rows.push({
-        category,
+        category: category.name,
         subcategory,
-        matriculas: Math.round(matriculas),
+        matriculas,
         repasseOriginal,
         repasseSimulado,
         diferenca,
-        diferencaColor
+        diferencaColor,
       });
     });
   });
+
+  // Aggregate any remaining normalized keys into an "Outros" row
+  const leftoverKeys = Object.keys(totalsCategorias).filter((k) => !consumedKeys.has(k));
+  const leftoverTotal = leftoverKeys.reduce((acc, k) => acc + (totalsCategorias[k] || 0), 0);
+  if (leftoverTotal > 0) {
+    const factor = 1.0;
+    const repasseOriginal = leftoverTotal * VALOR_ALUNO_ANO * factor;
+    const repasseSimulado = repasseOriginal * 1.1;
+    const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
+
+    rows.push({
+      category: "Outros",
+      subcategory: "Outros",
+      matriculas: Math.round(leftoverTotal),
+      repasseOriginal,
+      repasseSimulado,
+      diferenca,
+      diferencaColor,
+    });
+  }
 
   return rows;
 };

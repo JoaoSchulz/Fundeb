@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CardContent } from "../../../../components/ui/card";
 import { ProfileHeader, ProfileAvatar, ProfileForm } from "./components";
+import { useAuth } from "../../hooks";
 
 interface UserProfile {
   name: string;
@@ -11,18 +12,37 @@ interface UserProfile {
   organization: string;
 }
 
-const initialProfile: UserProfile = {
-  name: "João Silva",
-  email: "joao.silva@fundeb.gov.br",
-  phone: "(19) 99999-9999",
-  location: "Campinas - SP",
-  organization: "Secretaria Municipal de Educação",
+const emptyProfile: UserProfile = {
+  name: "",
+  email: "",
+  phone: "",
+  location: "",
+  organization: "",
+};
+
+const mapAuthUserToProfile = (user: any): UserProfile => {
+  if (!user) return emptyProfile;
+  const name = user.nome || user.name || "";
+  const email = user.email || "";
+  const phone = user.telefone || user.phone || "";
+  // location may come as cidade + uf or as a single field
+  const location = user.cidade && user.uf ? `${user.cidade} - ${user.uf}` : (user.location || user.localizacao || "");
+  const organization = user.organizacao || user.organização || user.organization || "";
+  return { name, email, phone, location, organization };
 };
 
 export const MeuPerfil = (): JSX.Element => {
-  const [profile, setProfile] = useState<UserProfile>(initialProfile);
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<UserProfile>(mapAuthUserToProfile(user));
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<UserProfile>(initialProfile);
+  const [editedProfile, setEditedProfile] = useState<UserProfile>(mapAuthUserToProfile(user));
+
+  useEffect(() => {
+    // Atualiza o estado do perfil sempre que o usuário autenticado mudar
+    const mapped = mapAuthUserToProfile(user);
+    setProfile(mapped);
+    setEditedProfile(mapped);
+  }, [user]);
 
   const handleEdit = (): void => {
     setEditedProfile(profile);
