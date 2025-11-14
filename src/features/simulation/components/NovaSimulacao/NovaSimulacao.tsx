@@ -14,26 +14,9 @@ import { parseBrazilianNumber, parseBrazilianInteger } from "../../../../utils/f
 import { SimulationService } from "../../services/simulationService";
 import { LocalidadesService } from "../../../localidades/services/localidadesService";
 import { normalizeCategoryKey } from "../../../../utils/normalizers";
+import { VALOR_ALUNO_ANO, CATEGORY_MAPPING, SIMULATION_DISPLAY_CATEGORIES } from "../../../../utils/constants/fundeb";
 import type { TabType } from "./types/simulationForm";
 import type { EnrollmentCategory } from "./types/simulationForm";
-
-const VALOR_ALUNO_ANO = 4000;
-
-const CATEGORY_MAPPING: Record<string, { name: string; subtitle: string; factor: number }> = {
-  creche_parcial: { name: "Educação Infantil", subtitle: "Creche Parcial", factor: 1.1 },
-  creche_integral: { name: "Educação Infantil", subtitle: "Creche Integral", factor: 1.3 },
-  pre_escola: { name: "Educação Infantil", subtitle: "Pré-escola", factor: 1.1 },
-  series_iniciais_urbano: { name: "Ensino Fundamental", subtitle: "Séries Iniciais Urbano", factor: 1.0 },
-  series_iniciais_rural: { name: "Ensino Fundamental", subtitle: "Séries Iniciais Rural", factor: 1.0 },
-  series_finais_urbano: { name: "Ensino Fundamental", subtitle: "Séries Finais Urbano", factor: 1.1 },
-  series_finais_rural: { name: "Ensino Fundamental", subtitle: "Séries Finais Rural", factor: 1.1 },
-  tempo_integral: { name: "Ensino Médio", subtitle: "Tempo Integral", factor: 1.3 },
-  tempo_parcial: { name: "Ensino Médio", subtitle: "Tempo Parcial", factor: 1.2 },
-  formacao_integrada: { name: "Educação Profissional", subtitle: "Formação Integrada", factor: 1.3 },
-  ensino_noturno: { name: "EJA - Anos Finais", subtitle: "Ensino Noturno", factor: 0.8 },
-  eja_anos_iniciais: { name: "EJA", subtitle: "Anos Iniciais", factor: 0.8 },
-  atendimento_educacional_especializado: { name: "Educação Especial", subtitle: "Atendimento Educacional Especializado", factor: 1.2 },
-};
 
 export const NovaSimulacao = (): JSX.Element => {
   const navigate = useNavigate();
@@ -52,15 +35,18 @@ export const NovaSimulacao = (): JSX.Element => {
   const { items, handleChange: handleRevenueChange } = useRevenueForm();
 
   const handleEnrollmentChangeWithCalculation = (id: string, value: string): void => {
-    handleEnrollmentChange(id, value);
     setCategories((prev) =>
       prev.map((cat) => {
-        if (cat.id !== id) return cat;
+        if (cat.id !== id) {
+          return cat;
+        }
+        
         const normalizedKey = normalizeCategoryKey(cat.subtitle);
         const mapping = CATEGORY_MAPPING[normalizedKey];
         const factor = mapping?.factor || 1.0;
         const matriculas = Number(value.replace(/\D/g, "")) || 0;
         const repasse = matriculas * VALOR_ALUNO_ANO * factor;
+        
         return {
           ...cat,
           enrollments: value,
@@ -114,48 +100,8 @@ export const NovaSimulacao = (): JSX.Element => {
       .then((data) => {
         const cats = data.matriculas_por_categoria || {};
         
-        // Definir apenas as 6 categorias específicas que devem aparecer
-        const categoriasEspecificas = [
-          {
-            name: 'Educação Infantil',
-            subtitle: 'Creche Parcial',
-            keywords: ['Creche Parcial'],
-            factor: 1.1
-          },
-          {
-            name: 'Ensino Fundamental',
-            subtitle: 'Séries Iniciais Urbano',
-            keywords: ['Anos Iniciais Fundamental Urbano'],
-            factor: 1.0
-          },
-          {
-            name: 'Ensino Médio',
-            subtitle: 'Tempo Integral',
-            keywords: ['Ensino Médio Integral'],
-            factor: 1.3
-          },
-          {
-            name: 'Educação Profissional',
-            subtitle: 'Formação Integrada',
-            keywords: ['Educação Profissional'],
-            factor: 1.3
-          },
-          {
-            name: 'EJA - Anos Finais',
-            subtitle: 'Ensino Noturno',
-            keywords: ['EJA'],
-            factor: 0.8
-          },
-          {
-            name: 'Educação Especial',
-            subtitle: 'Atendimento Educacional Especializado',
-            keywords: ['Atendimento Educacional Especializado', 'Educação Especial'],
-            factor: 1.2
-          }
-        ];
-        
-        // Mapear categorias do banco para as específicas
-        const mappedCategories: EnrollmentCategory[] = categoriasEspecificas
+        // Usar as categorias definidas em SIMULATION_DISPLAY_CATEGORIES
+        const mappedCategories: EnrollmentCategory[] = SIMULATION_DISPLAY_CATEGORIES
           .map((catConfig, idx) => {
             let totalMatriculas = 0;
             
@@ -172,9 +118,6 @@ export const NovaSimulacao = (): JSX.Element => {
               }
             });
             
-            // Só incluir se tiver matrículas
-            if (totalMatriculas === 0) return null;
-            
             const repasse = totalMatriculas * VALOR_ALUNO_ANO * catConfig.factor;
             
             return {
@@ -184,8 +127,7 @@ export const NovaSimulacao = (): JSX.Element => {
               enrollments: String(totalMatriculas),
               simulatedTransfer: new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(repasse),
             };
-          })
-          .filter((c): c is EnrollmentCategory => c !== null);
+          });
         
         setCategories(mappedCategories);
       })
@@ -210,16 +152,35 @@ export const NovaSimulacao = (): JSX.Element => {
     }
 
     const categoriasObj: Record<string, { matriculas: number; repasse: number }> = {};
+    let hasInvalidValues = false;
+    let hasSomeValue = false;
+
     categories.forEach((c) => {
       const normalizedKey = normalizeCategoryKey(c.subtitle);
       const matriculas = parseBrazilianInteger(c.enrollments) || 0;
       const repasse = parseBrazilianNumber(c.simulatedTransfer) || 0;
+      
       if (matriculas < 0 || repasse < 0) {
-        toast.error("Valores numéricos devem ser maiores ou iguais a zero");
+        hasInvalidValues = true;
         return;
       }
+      
+      if (matriculas > 0) {
+        hasSomeValue = true;
+      }
+      
       categoriasObj[normalizedKey] = { matriculas, repasse };
     });
+
+    if (hasInvalidValues) {
+      toast.error("Valores numéricos devem ser maiores ou iguais a zero");
+      return;
+    }
+
+    if (!hasSomeValue) {
+      toast.error("Ao menos uma categoria deve ter matrículas maior que zero");
+      return;
+    }
 
     const payload = {
       nome: simulationName,
