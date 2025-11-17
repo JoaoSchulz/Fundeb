@@ -2,6 +2,7 @@ import React from "react";
 import { DataTable, type Column } from "../../../../../components/common";
 import { useHideValues } from "../../../../../hooks/useHideValues";
 import type { RevenueRow } from "../../../types";
+import { formatCurrency } from "../../../../../utils/formatters";
 
 interface RevenueTableProps {
   data: RevenueRow[];
@@ -32,7 +33,7 @@ export const RevenueTable = ({
         "Arrecadação registrada para esse imposto no período considerado.",
       render: (row) => (
         <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
-          {row.valorAtual}
+          {formatCurrency(row.valorAtual)}
         </span>
       ),
     },
@@ -43,7 +44,7 @@ export const RevenueTable = ({
         "Valor projetado pelo município para simular o impacto de aumento na arrecadação.",
       render: (row) => (
         <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
-          {row.valorSimulado}
+          {formatCurrency(row.valorSimulado)}
         </span>
       ),
     },
@@ -54,7 +55,7 @@ export const RevenueTable = ({
         "Crescimento mínimo exigido para ampliar o repasse via complementação.",
       render: (row) => (
         <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
-          {row.metaFundeb}
+          {formatCurrency(row.metaFundeb)}
         </span>
       ),
     },
@@ -64,7 +65,7 @@ export const RevenueTable = ({
       tooltip: "Crescimento estimado pela rede para cumprir ou superar a meta.",
       render: (row) => (
         <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
-          {row.metaRede}
+          {formatCurrency(row.metaRede)}
         </span>
       ),
     },
@@ -77,7 +78,7 @@ export const RevenueTable = ({
         <span
           className={`font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)] ${row.diferencaColor} ${hideValues ? 'select-none blur-sm' : ''}`}
         >
-          {row.diferenca}
+          {formatCurrency(row.diferenca)}
         </span>
       ),
     },

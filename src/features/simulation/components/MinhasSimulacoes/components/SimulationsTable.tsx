@@ -1,6 +1,7 @@
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "../../../../../components/ui/button";
 import type { SimulationSummary } from "../../../types/simulation";
+import { formatDateTime } from "../../../../../utils/formatters";
 
 interface SimulationsTableProps {
   simulations: SimulationSummary[];
@@ -48,12 +49,12 @@ export const SimulationsTable = ({
             </td>
             <td className="py-4 px-6">
               <span className="font-['Inter',Helvetica] font-normal text-[#535861] text-sm">
-                {simulation.createdAt}
+                {simulation.createdAt ? formatDateTime(simulation.createdAt) : '-'}
               </span>
             </td>
             <td className="py-4 px-6">
               <span className="font-['Inter',Helvetica] font-normal text-[#535861] text-sm">
-                {simulation.modifiedAt}
+                {simulation.modifiedAt ? formatDateTime(simulation.modifiedAt) : '-'}
               </span>
             </td>
             <td className="py-4 px-6">

@@ -48,13 +48,17 @@ export const formatDateTime = (
   locale: string = "pt-BR"
 ): string => {
   const dateObj = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat(locale, {
+  const dateStr = new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+  }).format(dateObj);
+  const timeStr = new Intl.DateTimeFormat(locale, {
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   }).format(dateObj);
+  return `${dateStr} - ${timeStr}`;
 };
 
 export const formatDateLong = (date: Date | string): string => {

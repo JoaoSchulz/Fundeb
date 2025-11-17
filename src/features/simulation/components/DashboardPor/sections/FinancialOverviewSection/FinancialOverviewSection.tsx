@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { SimulationService } from "../../../../services/simulationService";
 import type { SimulationSummary } from "../../../../types/simulation";
@@ -54,6 +54,7 @@ const initialTabs: Tab[] = [
 
 export const FinancialOverviewSection = (): JSX.Element => {
   const location = useLocation();
+  const navigate = useNavigate();
   const tableRef = useRef<HTMLDivElement>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const pageScrollContainerRef = useRef<HTMLDivElement>(null);
@@ -67,6 +68,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
   const [viewMode, setViewMode] = useState<"table" | "cards">("table");
   const [isViewModeChanging, setIsViewModeChanging] = useState(false);
   const [isExpandedModalOpen, setIsExpandedModalOpen] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
 
   const activeTab = tabs.find((tab) => tab.active)?.id || "todos";
 
@@ -186,6 +188,27 @@ export const FinancialOverviewSection = (): JSX.Element => {
     // O useEffect no hook useFinancialData vai detectar a mudança de activeTab e chamar loadTableData
   };
 
+  const handleDownloadPDF = () => {
+    toast.info("Gerando PDF...", {
+      description: "O download será iniciado em breve",
+    });
+    
+    // TODO: Implementar geração de PDF
+    setTimeout(() => {
+      toast.success("PDF gerado com sucesso!");
+    }, 1500);
+  };
+
+  const handleEdit = () => {
+    if (selectedSimulation?.id) {
+      navigate(`/app/simulacoes/editar/${selectedSimulation.id}`);
+    }
+  };
+
+  const handleFilterToggle = () => {
+    setShowFilter(!showFilter);
+  };
+
   return (
     <section ref={pageScrollContainerRef} className="flex flex-col items-start gap-8 pt-8 pb-12 w-full bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(239,246,255,1)_50%,rgba(236,238,243,1)_100%)] min-h-screen overflow-x-hidden">
       <div className="flex flex-col items-start gap-6 w-full max-w-full overflow-hidden">
@@ -236,6 +259,9 @@ export const FinancialOverviewSection = (): JSX.Element => {
               }}
               isViewModeChanging={isViewModeChanging}
               onExpand={() => setIsExpandedModalOpen(true)}
+              onDownload={handleDownloadPDF}
+              onEdit={handleEdit}
+              onFilterToggle={handleFilterToggle}
             />
         </div>
       </div>

@@ -2,6 +2,7 @@ import React from "react";
 import { DataTable, type Column } from "../../../../../components/common";
 import { useHideValues } from "../../../../../hooks/useHideValues";
 import type { IndicatorRow } from "../../../types";
+import { formatCurrency } from "../../../../../utils/formatters";
 
 interface IndicatorsTableProps {
   data: IndicatorRow[];
@@ -39,7 +40,7 @@ export const IndicatorsTable = ({
       render: (row) =>
         row.valorAtual ? (
           <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
-            {row.valorAtual}
+            {formatCurrency(row.valorAtual)}
           </span>
         ) : null,
     },
@@ -51,7 +52,7 @@ export const IndicatorsTable = ({
       render: (row) =>
         row.metaFundeb ? (
           <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
-            {row.metaFundeb}
+            {formatCurrency(row.metaFundeb)}
           </span>
         ) : null,
     },
@@ -62,7 +63,7 @@ export const IndicatorsTable = ({
       render: (row) =>
         row.metaRede ? (
           <span className={`font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#414651] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)] ${hideValues ? 'select-none blur-sm' : ''}`}>
-            {row.metaRede}
+            {formatCurrency(row.metaRede)}
           </span>
         ) : null,
     },
@@ -79,7 +80,7 @@ export const IndicatorsTable = ({
               : "font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)]"
           } text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)] ${row.diferencaColor} ${hideValues ? 'select-none blur-sm' : ''}`}
         >
-          {row.diferenca}
+          {formatCurrency(row.diferenca)}
         </span>
       ),
     },

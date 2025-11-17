@@ -1,5 +1,5 @@
-import { LayoutGrid } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { LayoutGrid, Download, Edit, Filter } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../../../../../../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../../../components/ui/select";
@@ -11,6 +11,9 @@ interface SimulationTableHeaderProps {
   onSimulationChange?: (value: string) => void;
   currentSimulationId?: string;
   simulationsList?: Array<{ id: string; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string }>;
+  onDownload?: () => void;
+  onEdit?: () => void;
+  onFilterToggle?: () => void;
 }
 
 export const SimulationTableHeader = ({
@@ -18,6 +21,9 @@ export const SimulationTableHeader = ({
   onSimulationChange,
   currentSimulationId = "1",
   simulationsList = [],
+  onDownload,
+  onEdit,
+  onFilterToggle,
 }: SimulationTableHeaderProps): JSX.Element => {
   const formatSimulationDate = (createdAt?: string): string => {
     if (!createdAt) {
@@ -141,6 +147,36 @@ export const SimulationTableHeader = ({
           aria-label="Ver todas as simulações"
         >
           <LayoutGrid className="text-[#535861]" style={{ width: '18px', height: '18px' }} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onDownload}
+          className="aspect-square rounded-lg border border-[#d5d6d9] hover:bg-neutral-50 hover:border-[#b5b6b9] transition-all duration-200 flex-shrink-0 flex items-center justify-center p-0 min-w-[44px] h-[44px] w-[44px]"
+          title="Baixar PDF"
+          aria-label="Baixar simulação em PDF"
+        >
+          <Download className="text-[#535861]" style={{ width: '18px', height: '18px' }} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onEdit}
+          className="aspect-square rounded-lg border border-[#d5d6d9] hover:bg-neutral-50 hover:border-[#b5b6b9] transition-all duration-200 flex-shrink-0 flex items-center justify-center p-0 min-w-[44px] h-[44px] w-[44px]"
+          title="Editar"
+          aria-label="Editar simulação"
+        >
+          <Edit className="text-[#535861]" style={{ width: '18px', height: '18px' }} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onFilterToggle}
+          className="aspect-square rounded-lg border border-[#d5d6d9] hover:bg-neutral-50 hover:border-[#b5b6b9] transition-all duration-200 flex-shrink-0 flex items-center justify-center p-0 min-w-[44px] h-[44px] w-[44px]"
+          title="Filtrar"
+          aria-label="Filtrar categorias"
+        >
+          <Filter className="text-[#535861]" style={{ width: '18px', height: '18px' }} />
         </Button>
       </div>
     </div>

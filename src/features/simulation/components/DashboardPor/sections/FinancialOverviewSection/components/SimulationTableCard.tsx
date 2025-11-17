@@ -29,6 +29,9 @@ interface SimulationTableCardProps {
   onViewModeChange?: (mode: "table" | "cards") => void;
   isViewModeChanging?: boolean;
   onExpand?: () => void;
+  onDownload?: () => void;
+  onEdit?: () => void;
+  onFilterToggle?: () => void;
 }
 
 export const SimulationTableCard = ({
@@ -51,6 +54,9 @@ export const SimulationTableCard = ({
   onViewModeChange,
   isViewModeChanging = false,
   onExpand,
+  onDownload,
+  onEdit,
+  onFilterToggle,
 }: SimulationTableCardProps): JSX.Element => (
   <Card className="flex flex-col items-start w-full max-w-full bg-[#fcfcfc] rounded-xl border border-solid border-[#e9e9eb] shadow-shadows-shadow-xs overflow-hidden">
     <CardContent className="flex flex-col items-start gap-5 w-full p-0 bg-white">
@@ -59,6 +65,9 @@ export const SimulationTableCard = ({
         onSimulationChange={onSimulationChange}
         currentSimulationId={currentSimulationId}
         simulationsList={simulationsList}
+        onDownload={onDownload}
+        onEdit={onEdit}
+        onFilterToggle={onFilterToggle}
       />
       <Separator className="w-full" />
     </CardContent>
