@@ -8,6 +8,7 @@ interface ProfileFieldProps {
   value: string;
   isEditing: boolean;
   type?: string;
+  placeholder?: string;
   onChange?: (value: string) => void;
 }
 
@@ -17,6 +18,7 @@ export const ProfileField = ({
   value,
   isEditing,
   type = "text",
+  placeholder,
   onChange,
 }: ProfileFieldProps): JSX.Element => (
   <div className="flex flex-col gap-2">
@@ -30,6 +32,7 @@ export const ProfileField = ({
       onChange={(e) => onChange?.(e.target.value)}
       disabled={!isEditing}
       size="md"
+      placeholder={placeholder}
     />
   </div>
 );

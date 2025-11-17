@@ -3,12 +3,14 @@ import { toast } from "sonner";
 import { CardContent } from "../../../../components/ui/card";
 import { ProfileHeader, ProfileAvatar, ProfileForm } from "./components";
 import { useAuth } from "../../hooks";
+import { AuthService } from "../../services/authService";
 
 interface UserProfile {
   name: string;
   email: string;
   phone: string;
-  location: string;
+  cidade: string;
+  uf: string;
   organization: string;
 }
 
@@ -16,7 +18,8 @@ const emptyProfile: UserProfile = {
   name: "",
   email: "",
   phone: "",
-  location: "",
+  cidade: "",
+  uf: "",
   organization: "",
 };
 
@@ -25,17 +28,18 @@ const mapAuthUserToProfile = (user: any): UserProfile => {
   const name = user.nome || user.name || "";
   const email = user.email || "";
   const phone = user.telefone || user.phone || "";
-  // location may come as cidade + uf or as a single field
-  const location = user.cidade && user.uf ? `${user.cidade} - ${user.uf}` : (user.location || user.localizacao || "");
+  const cidade = user.cidade || "";
+  const uf = user.uf || "";
   const organization = user.organizacao || user.organização || user.organization || "";
-  return { name, email, phone, location, organization };
+  return { name, email, phone, cidade, uf, organization };
 };
 
 export const MeuPerfil = (): JSX.Element => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [profile, setProfile] = useState<UserProfile>(mapAuthUserToProfile(user));
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<UserProfile>(mapAuthUserToProfile(user));
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // Atualiza o estado do perfil sempre que o usuário autenticado mudar
@@ -54,10 +58,33 @@ export const MeuPerfil = (): JSX.Element => {
     setIsEditing(false);
   };
 
-  const handleSave = (): void => {
-    setProfile(editedProfile);
-    setIsEditing(false);
-    toast.success("Perfil atualizado com sucesso!");
+  const handleSave = async (): Promise<void> => {
+    setIsSaving(true);
+    try {
+      const payload = {
+        nome: editedProfile.name,
+        email: editedProfile.email,
+        telefone: editedProfile.phone,
+        cidade: editedProfile.cidade,
+        uf: editedProfile.uf,
+        organizacao: editedProfile.organization,
+      };
+
+      await AuthService.updateProfile(payload);
+      await refreshUser();
+      
+      // Atualizar estado local com dados atualizados
+      const mapped = mapAuthUserToProfile(await AuthService.getProfile());
+      setProfile(mapped);
+      setEditedProfile(mapped);
+      setIsEditing(false);
+      toast.success("Perfil atualizado com sucesso!");
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error);
+      toast.error("Erro ao atualizar perfil. Tente novamente.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleChange = (field: keyof UserProfile, value: string): void => {
@@ -83,6 +110,7 @@ export const MeuPerfil = (): JSX.Element => {
               <ProfileForm
                 profile={isEditing ? editedProfile : profile}
                 isEditing={isEditing}
+                isSaving={isSaving}
                 onChange={handleChange}
                 onSave={handleSave}
                 onCancel={handleCancel}

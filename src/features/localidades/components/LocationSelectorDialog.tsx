@@ -20,7 +20,6 @@ export const LocationSelectorDialog = (): JSX.Element => {
       .then((data) => setUfs(data))
       .catch((e) => {
         console.error('Error fetching UFs', e);
-        throw e;
       });
   }, []);
 
@@ -33,10 +32,15 @@ export const LocationSelectorDialog = (): JSX.Element => {
     }
     setMunicipiosLoading(true);
     LocalidadesService.getMunicipiosByUF(selectedUf)
-      .then((data) => setMunicipios(data.map((d) => ({ id: d.id, municipio: d.municipio })) ))
+      .then((data) => {
+        setMunicipios(data.map((d) => ({ 
+          id: String(d.id), 
+          municipio: d.municipio 
+        })));
+      })
       .catch((e) => {
         console.error('Error fetching municipios for UF', selectedUf, e);
-        throw e;
+        setMunicipios([]);
       })
       .finally(() => setMunicipiosLoading(false));
   }, [selectedUf]);
@@ -85,9 +89,9 @@ export const LocationSelectorDialog = (): JSX.Element => {
         <div className="flex items-start gap-4 mt-4">
           <div className="w-36">
             <label className="block text-sm text-neutral-700 mb-1">UF</label>
-            <Select onValueChange={(v) => setSelectedUf(v)}>
+            <Select value={selectedUf} onValueChange={(v) => setSelectedUf(v)}>
               <SelectTrigger className="w-36">
-                <SelectValue>{selectedUf ?? 'Selecione a UF'}</SelectValue>
+                <SelectValue placeholder="Selecione a UF" />
               </SelectTrigger>
               <SelectContent>
                 {ufs.map((uf) => (
@@ -99,13 +103,15 @@ export const LocationSelectorDialog = (): JSX.Element => {
 
           <div className="flex-1">
             <label className="block text-sm text-neutral-700 mb-1">Ente Federado</label>
-            <Select onValueChange={(v) => setSelectedMunicipioId(v)}>
+            <Select value={selectedMunicipioId} onValueChange={(v) => setSelectedMunicipioId(v)}>
               <SelectTrigger className="w-full">
-                <SelectValue>{municipios.find(m=>m.id===selectedMunicipioId)?.municipio ?? (selectedUf ? (municipiosLoading ? 'Carregando...' : 'Selecione o ente federado') : 'Escolha uma UF primeiro')}</SelectValue>
+                <SelectValue placeholder={selectedUf ? (municipiosLoading ? 'Carregando...' : 'Selecione o ente federado') : 'Escolha uma UF primeiro'} />
               </SelectTrigger>
               <SelectContent>
                 {municipiosLoading ? (
-                  <SelectItem key="loading" value="">Carregando...</SelectItem>
+                  <div className="p-2 text-sm text-gray-500">Carregando...</div>
+                ) : municipios.length === 0 ? (
+                  <div className="p-2 text-sm text-gray-500">Nenhum município encontrado</div>
                 ) : (
                   municipios.map((m) => (
                     <SelectItem key={m.id} value={m.id}>{m.municipio}</SelectItem>

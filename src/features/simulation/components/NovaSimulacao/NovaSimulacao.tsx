@@ -30,7 +30,7 @@ export const NovaSimulacao = (): JSX.Element => {
   const [isLoadingMunicipios, setIsLoadingMunicipios] = useState(false);
   const [selectedMunicipioData, setSelectedMunicipioData] = useState<{ municipio: string; uf: string } | null>(null);
 
-  const { categories, handleChange: handleEnrollmentChange, setCategories } =
+  const { categories, setCategories } =
     useEnrollmentForm();
   const { items, handleChange: handleRevenueChange } = useRevenueForm();
 
@@ -72,15 +72,12 @@ export const NovaSimulacao = (): JSX.Element => {
       return;
     }
     setIsLoadingMunicipios(true);
-    console.log("Buscando municípios para UF:", uf);
     SimulationService.getMunicipiosByUF(uf)
       .then((data) => {
-        console.log("Municípios recebidos:", data);
         setMunicipios(data.map((m: any) => ({ id: String(m.id), municipio: m.municipio, uf: m.uf })));
       })
       .catch((e) => {
         console.error("Error loading municipios", e);
-        console.error("Error details:", { status: e?.status, message: e?.message, data: e?.data });
         toast.error("Erro ao carregar municípios");
       })
       .finally(() => setIsLoadingMunicipios(false));

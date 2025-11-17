@@ -1,5 +1,5 @@
 import { http } from '../../../services/http/client';
-import { AuthResponse, LoginPayload, RegisterPayload, User } from '../../../types/api';
+import { AuthResponse, LoginPayload, RegisterPayload, User, UpdateProfilePayload } from '../../../types/api';
 
 const AUTH_TOKEN_KEY = "auth_token";
 const AUTH_USER_KEY = "auth_user";
@@ -44,6 +44,12 @@ export class AuthService {
 
   static async getProfile(): Promise<User> {
     const { data } = await http.get<User>("/auth/me");
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data));
+    return data;
+  }
+
+  static async updateProfile(payload: UpdateProfilePayload): Promise<User> {
+    const { data } = await http.put<User>("/auth/me", payload);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data));
     return data;
   }

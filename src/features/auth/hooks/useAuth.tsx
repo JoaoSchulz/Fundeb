@@ -8,6 +8,7 @@ interface AuthContextType {
   user: { nome: string } | null;
   login: (email: string, senha: string) => void;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -55,8 +56,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
+  const refreshUser = async () => {
+    try {
+      const updatedUser = await AuthService.getProfile();
+      setUser(updatedUser);
+    } catch (error) {
+      console.error('Error refreshing user', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

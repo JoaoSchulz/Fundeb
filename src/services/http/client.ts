@@ -38,8 +38,6 @@ export class HttpClient {
 
   constructor(baseUrl?: string) {
     this.baseUrl = baseUrl ?? getEnv().apiBaseUrl;
-    // Debug: log the base URL being used
-    console.log('HttpClient initialized with baseUrl:', this.baseUrl);
   }
 
   async request<T = unknown>(
@@ -49,9 +47,6 @@ export class HttpClient {
     const urlBase = this.baseUrl ?? "";
     const qs = buildQueryString(query);
     const url = `${urlBase}${path}${qs}`;
-    
-    // Debug: log the full URL being requested
-    console.log(`HTTP ${method} request to:`, url);
 
     const authToken = AuthService.getToken();
 
@@ -66,11 +61,28 @@ export class HttpClient {
       signal,
     });
 
+    // Status 304 (Not Modified) é considerado sucesso
+    // Status 204 (No Content) também é sucesso
+    const isSuccess = response.ok || response.status === 304 || response.status === 204;
+
     const contentType = response.headers.get("Content-Type") || "";
     const isJson = contentType.includes("application/json");
-    const data = (isJson ? await response.json() : await response.text()) as T;
+    
+    // Para 204 ou 304, pode não haver conteúdo
+    let data: T;
+    try {
+      if (response.status === 204 || response.status === 304) {
+        data = {} as T;
+      } else if (isJson) {
+        data = await response.json() as T;
+      } else {
+        data = await response.text() as T;
+      }
+    } catch (parseError) {
+      throw new Error(`Failed to parse response: ${parseError}`);
+    }
 
-    if (!response.ok) {
+    if (!isSuccess) {
       const error = new Error(
         `HTTP ${response.status}: ${typeof data === "string" ? data : "Erro na requisição"}`,
       ) as Error & { status: number; data: unknown };

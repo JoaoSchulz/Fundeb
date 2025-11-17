@@ -14,7 +14,20 @@ export interface User {
   id: string;
   nome: string;
   email: string;
+  telefone?: string;
+  cidade?: string;
+  uf?: string;
+  organizacao?: string;
   criado_em?: string;
+}
+
+export interface UpdateProfilePayload {
+  nome?: string;
+  email?: string;
+  telefone?: string;
+  cidade?: string;
+  uf?: string;
+  organizacao?: string;
 }
 
 export interface AuthResponse {
