@@ -1,6 +1,6 @@
 import { Separator } from "../../../../../../../components/ui/separator";
 import { TableSkeleton, CardsSkeleton } from "../../../../../../../components/common";
-import { SimulationTable, SimulationCards, RevenueTable, RevenueCards, IndicatorsTable, IndicatorsCards, SimulationInfoCards } from "../../../components";
+import { SimulationTable, SimulationCards, RevenueTable, RevenueCards, IndicatorsTable, IndicatorsCards } from "../../../components";
 import type { IndicatorRow, RevenueRow, SimulationRow } from "../../../../../types";
 import { debugLog } from "../../../../../../../utils/debug";
 
@@ -54,15 +54,6 @@ export const AllTablesView = ({
   debugLog('Rendering AllTablesView content');
   return (
     <div className="flex flex-col gap-6 py-4">
-      {/* Informações da Simulação e Resumo Financeiro (sempre na aba Todos) */}
-      <div className="px-4 md:px-6">
-        <SimulationInfoCards
-          simulationName={simulationName}
-          baseYear={baseYear}
-        />
-      </div>
-      <Separator className="bg-[#e9e9eb] mx-4 md:mx-6" />
-
       {/* Tabela Por Matrículas */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-0.5 px-4 md:px-6">
