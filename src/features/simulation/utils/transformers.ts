@@ -245,11 +245,11 @@ export const transformSimulationCategoriasToRows = (categorias: Record<string, {
   
   // Iterar sobre as categorias da simulação
   Object.entries(categorias).forEach(([key, value]) => {
-    const normalizedKey = normalizeCategoryKey(key);
-    const mapping = CATEGORY_MAPPING[normalizedKey];
+    // As keys já vêm normalizadas do banco (ex: creche_parcial)
+    // Não precisa normalizar novamente
+    const mapping = CATEGORY_MAPPING[key];
     
     if (!mapping) {
-      console.warn(`Categoria não mapeada: ${key}`);
       return;
     }
     

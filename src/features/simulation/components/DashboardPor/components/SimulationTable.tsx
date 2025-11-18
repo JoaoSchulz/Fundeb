@@ -15,9 +15,6 @@ export const SimulationTable = ({
   onOpenModal,
 }: SimulationTableProps): JSX.Element => {
   
-  console.log('SimulationTable recebeu data:', data);
-  console.log('data.length:', data.length);
-  
   // Converter SimulationRow para incluir índice de string
   const tableData: Record<string, unknown>[] = data.map(row => ({
     ...row,

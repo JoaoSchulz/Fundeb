@@ -43,13 +43,9 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
         if (sel?.id) {
           try {
             const simData = await SimulationService.getSimulationById(sel.id);
-            console.log('Dados da simulação completos:', simData);
-            console.log('dadosEntrada:', simData?.dadosEntrada);
-            console.log('Categorias:', simData?.dadosEntrada?.categorias);
             
             if (simData?.dadosEntrada?.categorias) {
               const rows = transformSimulationCategoriasToRows(simData.dadosEntrada.categorias);
-              console.log('Rows transformadas:', rows);
               setTableData(rows);
               setIsLoading(false);
               return;
