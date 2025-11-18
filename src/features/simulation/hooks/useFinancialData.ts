@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import { SimulationService } from "../services";
 import { LocalidadesService } from "../../localidades/services/localidadesService";
 import type { IndicatorRow, RevenueRow, SimulationRow, TabType } from "../types";
-import { debugLog, measurePerformance } from "../../../utils/debug";
 import { useSimulation } from "./useSimulation";
 import { transformMunicipioCategoriasToRows } from "../utils/transformers";
 
@@ -23,16 +22,13 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
   const [isLoading, setIsLoading] = useState(true);
 
   const loadTableData = async (tabId: TabType): Promise<void> => {
-    debugLog(`Loading table data for tab: ${tabId}`);
     setIsLoading(true);
 
     try {
-      await measurePerformance('Loading data', async () => {
-        // Simular delay de carregamento para mostrar o shimmer
-        await new Promise((resolve) => setTimeout(resolve, 600));
+      // Simular delay de carregamento para mostrar o shimmer
+      await new Promise((resolve) => setTimeout(resolve, 600));
         
-        if (tabId === "todos") {
-          debugLog('Loading all tables data');
+      if (tabId === "todos") {
           // Try to prefer municipio-specific categories when a municipality is selected
           const matriculasPromise = (async () => {
             try {
@@ -43,7 +39,7 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
                 return transformMunicipioCategoriasToRows(normalized);
               }
             } catch (e) {
-              debugLog('Error fetching municipio categorias, falling back to simulations endpoint', { data: e });
+              // Fall back to simulations endpoint
             }
             return SimulationService.getSimulationsByTab("matriculas") as Promise<SimulationRow[]>;
           })();
@@ -54,31 +50,20 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
             SimulationService.getSimulationsByTab("indicadores") as Promise<IndicatorRow[]>,
           ]);
 
-          debugLog('Setting table data', { data: { 
-            matriculasLength: matriculasResult.length,
-            receitaLength: receitaResult.length,
-            indicadoresLength: indicadoresResult.length 
-          }});
-
           setTableData(matriculasResult);
           setRevenueData(receitaResult);
           setIndicatorsData(indicadoresResult);
         } else if (tabId === "receita") {
-          debugLog('Loading revenue data');
           const data = await SimulationService.getSimulationsByTab("receita");
           setRevenueData(data as RevenueRow[]);
         } else if (tabId === "indicadores") {
-          debugLog('Loading indicators data');
           const data = await SimulationService.getSimulationsByTab("indicadores");
           setIndicatorsData(data as IndicatorRow[]);
         } else {
-          debugLog('Loading simulations data');
           const data = await SimulationService.getSimulationsByTab(tabId);
           setTableData(data as SimulationRow[]);
         }
-      });
     } catch (error) {
-      debugLog('Error loading table data', { type: 'error', data: error });
       // Erro será tratado pelo error boundary
       if (error instanceof Error) {
         toast.error('Erro ao carregar dados', {
@@ -86,7 +71,6 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
         });
       }
     } finally {
-      debugLog('Finished loading table data');
       setIsLoading(false);
     }
   };
@@ -99,7 +83,6 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const handler = () => {
-      debugLog('Received fundeb:locationChanged event, reloading table data');
       loadTableData(activeTab);
     };
     window.addEventListener("fundeb:locationChanged", handler as EventListener);

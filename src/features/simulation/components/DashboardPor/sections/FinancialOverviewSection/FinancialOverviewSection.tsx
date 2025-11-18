@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { SimulationService } from "../../../../services/simulationService";
 import type { SimulationSummary } from "../../../../types/simulation";
-import { debugLog } from "../../../../../../utils/debug";
+import { generateSimulationPDF } from "../../../../../../utils/pdfGenerator";
 import type {
   StatsCard,
   Tab,
@@ -164,16 +164,12 @@ export const FinancialOverviewSection = (): JSX.Element => {
   };
 
   const handleTabChange = async (tabId: string): Promise<void> => {
-    debugLog(`Changing tab to: ${tabId}`);
-    
     // Se selecionar "Todos", fazer scroll para o início da div da tabela
     if (tabId === "todos" && tableRef.current) {
-      debugLog('Scrolling to table start');
       setTimeout(() => {
         tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     } else {
-      debugLog('Saving scroll position before tab change');
       // Salvar posição do scroll antes de trocar de aba
       saveScrollPosition();
     }
@@ -184,19 +180,39 @@ export const FinancialOverviewSection = (): JSX.Element => {
         active: tab.id === tabId,
       }))
     );
-    debugLog('Tab change complete');
     // O useEffect no hook useFinancialData vai detectar a mudança de activeTab e chamar loadTableData
   };
 
   const handleDownloadPDF = () => {
-    toast.info("Gerando PDF...", {
-      description: "O download será iniciado em breve",
-    });
-    
-    // TODO: Implementar geração de PDF
-    setTimeout(() => {
+    if (!selectedSimulation) {
+      toast.error("Nenhuma simulação selecionada");
+      return;
+    }
+
+    try {
+      toast.info("Gerando PDF...", {
+        description: "O download será iniciado em breve",
+      });
+
+      generateSimulationPDF({
+        simulationName: selectedSimulation.name,
+        referencePeriod: selectedSimulation.referencePeriod,
+        city: selectedSimulation.city,
+        state: selectedSimulation.state,
+        createdAt: selectedSimulation.createdAt,
+        modifiedAt: selectedSimulation.modifiedAt,
+        tableData,
+        revenueData,
+        indicatorsData,
+      });
+
       toast.success("PDF gerado com sucesso!");
-    }, 1500);
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast.error("Erro ao gerar PDF", {
+        description: "Ocorreu um erro ao gerar o arquivo PDF",
+      });
+    }
   };
 
   const handleEdit = () => {
@@ -249,11 +265,9 @@ export const FinancialOverviewSection = (): JSX.Element => {
               tableScrollRef={tableScrollRef}
               viewMode={viewMode}
               onViewModeChange={(mode) => {
-                debugLog(`Changing view mode to: ${mode}`);
                 setIsViewModeChanging(true);
                 setViewMode(mode);
                 setTimeout(() => {
-                  debugLog(`View mode transition complete: ${mode}`);
                   setIsViewModeChanging(false);
                 }, 300);
               }}

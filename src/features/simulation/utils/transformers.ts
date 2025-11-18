@@ -90,26 +90,6 @@ export const transformEnrollmentData = (data: EnrollmentData[]): SimulationRow[]
     });
   });
 
-  // Aggregate any remaining normalized keys into an "Outros" row
-  const leftoverKeys = Object.keys(totalsCategorias).filter((k) => !consumedKeys.has(k));
-  const leftoverTotal = leftoverKeys.reduce((acc, k) => acc + (totalsCategorias[k] || 0), 0);
-  if (leftoverTotal > 0) {
-    const factor = 1.0;
-    const repasseOriginal = leftoverTotal * VALOR_ALUNO_ANO * factor;
-    const repasseSimulado = repasseOriginal * 1.1;
-    const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
-
-    rows.push({
-      category: "Outros",
-      subcategory: "Outros",
-      matriculas: Math.round(leftoverTotal),
-      repasseOriginal,
-      repasseSimulado,
-      diferenca,
-      diferencaColor,
-    });
-  }
-
   return rows;
 };
 
@@ -251,26 +231,6 @@ export const transformMunicipioCategoriasToRows = (normalized: Record<string, nu
       });
     });
   });
-
-  // Aggregate any remaining (unknown) keys into an "Outros" row
-  const leftoverValues = Object.values(remaining).map((v) => v ?? 0);
-  const leftoverTotalNum = leftoverValues.length > 0 ? leftoverValues.reduce((a, b) => a + b, 0) : 0;
-  if (leftoverTotalNum > 0) {
-    const factor = 1.0;
-    const repasseOriginal = leftoverTotalNum * VALOR_ALUNO_ANO * factor;
-    const repasseSimulado = repasseOriginal * 1.1;
-    const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
-
-    rows.push({
-      category: "Outros",
-      subcategory: "Outros",
-      matriculas: Math.round(leftoverTotalNum),
-      repasseOriginal,
-      repasseSimulado,
-      diferenca,
-      diferencaColor,
-    });
-  }
 
   return rows;
 };

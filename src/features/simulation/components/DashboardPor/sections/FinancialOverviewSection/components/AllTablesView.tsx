@@ -2,7 +2,6 @@ import { Separator } from "../../../../../../../components/ui/separator";
 import { TableSkeleton, CardsSkeleton } from "../../../../../../../components/common";
 import { SimulationTable, SimulationCards, RevenueTable, RevenueCards, IndicatorsTable, IndicatorsCards } from "../../../components";
 import type { IndicatorRow, RevenueRow, SimulationRow } from "../../../../../types";
-import { debugLog } from "../../../../../../../utils/debug";
 
 interface AllTablesViewProps {
   isLoading: boolean;
@@ -31,17 +30,8 @@ export const AllTablesView = ({
   baseYear,
   isViewModeChanging = false,
 }: AllTablesViewProps): JSX.Element => {
-  debugLog(`AllTablesView render - mode: ${viewMode}`, { data: {
-    isLoading,
-    isViewModeChanging,
-    hasTableData: tableData?.length > 0,
-    hasRevenueData: revenueData?.length > 0,
-    hasIndicatorsData: indicatorsData?.length > 0
-  }});
-
   if (isLoading || isViewModeChanging) {
     const SkeletonComponent = viewMode === "cards" ? CardsSkeleton : TableSkeleton;
-    debugLog(`Showing ${viewMode === "cards" ? "cards" : "table"} skeleton`);
     return (
       <div className="flex flex-col gap-12 py-8">
         <SkeletonComponent />
@@ -51,7 +41,6 @@ export const AllTablesView = ({
     );
   }
 
-  debugLog('Rendering AllTablesView content');
   return (
     <div className="flex flex-col gap-6 py-4">
       {/* Tabela Por Matrículas */}
@@ -64,24 +53,21 @@ export const AllTablesView = ({
             Distribuição de repasses por categoria educacional e número de matrículas
           </p>
         </div>
-        {(() => {
-          debugLog('Rendering matriculas section', { data: { viewMode, hasData: tableData?.length > 0 }});
-          return viewMode === "cards" ? (
-            <div className="px-4 md:px-6">
-              <SimulationCards
-                data={tableData}
-                onOpenModal={onOpenModal}
-              />
-            </div>
-          ) : (
-            <SimulationTable
+        {viewMode === "cards" ? (
+          <div className="px-4 md:px-6">
+            <SimulationCards
               data={tableData}
-              isModalOpen={isModalOpen}
               onOpenModal={onOpenModal}
-              onCloseModal={onCloseModal}
             />
-          );
-        })()}
+          </div>
+        ) : (
+          <SimulationTable
+            data={tableData}
+            isModalOpen={isModalOpen}
+            onOpenModal={onOpenModal}
+            onCloseModal={onCloseModal}
+          />
+        )}
       </div>
 
       <Separator className="bg-[#e9e9eb]" />
