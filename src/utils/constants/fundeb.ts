@@ -179,7 +179,7 @@ export const FUNDEB_CATEGORIES: Record<string, FundebCategory> = {
 
 /**
  * Categorias exibidas na tela de nova simulação
- * (Subconjunto das categorias principais)
+ * (8 categorias mais importantes para simulações FUNDEB)
  */
 export const SIMULATION_DISPLAY_CATEGORIES: Array<{
   name: string;
@@ -194,10 +194,28 @@ export const SIMULATION_DISPLAY_CATEGORIES: Array<{
     factor: FUNDEB_CATEGORIES.creche_parcial.factor
   },
   {
+    name: 'Educação Infantil',
+    subtitle: 'Creche Integral',
+    keywords: FUNDEB_CATEGORIES.creche_integral.dbKeys,
+    factor: FUNDEB_CATEGORIES.creche_integral.factor
+  },
+  {
+    name: 'Educação Infantil',
+    subtitle: 'Pré-escola',
+    keywords: FUNDEB_CATEGORIES.pre_escola.dbKeys,
+    factor: FUNDEB_CATEGORIES.pre_escola.factor
+  },
+  {
     name: 'Ensino Fundamental',
     subtitle: 'Séries Iniciais Urbano',
     keywords: FUNDEB_CATEGORIES.series_iniciais_urbano.dbKeys,
     factor: FUNDEB_CATEGORIES.series_iniciais_urbano.factor
+  },
+  {
+    name: 'Ensino Fundamental',
+    subtitle: 'Séries Finais Urbano',
+    keywords: FUNDEB_CATEGORIES.series_finais_urbano.dbKeys,
+    factor: FUNDEB_CATEGORIES.series_finais_urbano.factor
   },
   {
     name: 'Ensino Médio',
@@ -206,16 +224,10 @@ export const SIMULATION_DISPLAY_CATEGORIES: Array<{
     factor: FUNDEB_CATEGORIES.tempo_integral.factor
   },
   {
-    name: 'Educação Profissional',
-    subtitle: 'Formação Integrada',
-    keywords: FUNDEB_CATEGORIES.formacao_integrada.dbKeys,
-    factor: FUNDEB_CATEGORIES.formacao_integrada.factor
-  },
-  {
-    name: 'EJA - Anos Finais',
-    subtitle: 'Ensino Noturno',
-    keywords: FUNDEB_CATEGORIES.ensino_noturno.dbKeys,
-    factor: FUNDEB_CATEGORIES.ensino_noturno.factor
+    name: 'EJA',
+    subtitle: 'Anos Iniciais',
+    keywords: FUNDEB_CATEGORIES.eja_anos_iniciais.dbKeys,
+    factor: FUNDEB_CATEGORIES.eja_anos_iniciais.factor
   },
   {
     name: 'Educação Especial',

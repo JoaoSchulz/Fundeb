@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { SimulationService } from "../../../../services/simulationService";
 import type { SimulationSummary } from "../../../../types/simulation";
 import { generateSimulationPDF } from "../../../../../../utils/pdfGenerator";
+import { formatCurrency } from "../../../../../../utils/formatters";
 import type {
   StatsCard,
   Tab,
@@ -17,33 +18,6 @@ import {
   SimulationTableCard,
   ExpandedViewModal,
 } from "./components";
-
-const statsCards: StatsCard[] = [
-  {
-    title: "Projeção de repasse 2025",
-    value: "R$ 18.942.000",
-    trend: "6.0%",
-    trendLabel: "vs ano passado",
-    gradient:
-      "bg-[linear-gradient(45deg,rgba(90,105,255,1)_0%,rgba(150,68,255,1)_50%,rgba(145,171,255,1)_100%)]",
-  },
-  {
-    title: "Recurso potencial com simulações",
-    value: "R$ 2.384.000,00",
-    trend: "6.0%",
-    trendLabel: "vs ano passado",
-    gradient:
-      "bg-[linear-gradient(45deg,rgba(55,196,255,1)_0%,rgba(16,132,255,1)_50%,rgba(31,177,255,1)_100%)]",
-  },
-  {
-    title: "Potencial percentual de aumento",
-    value: "+12,4%",
-    trend: "6.0%",
-    trendLabel: "vs ano passado",
-    gradient:
-      "bg-[linear-gradient(135deg,rgba(255,157,88,1)_0%,rgba(255,117,43,1)_50%,rgba(255,175,106,1)_100%)]",
-  },
-];
 
 const initialTabs: Tab[] = [
   { id: "matriculas", label: "Por Matrículas", active: true },
@@ -86,6 +60,47 @@ export const FinancialOverviewSection = (): JSX.Element => {
     pageScrollContainerRef,
     isLoading,
   });
+
+  // Calcular cards dinamicamente com base nos dados da simulação
+  const statsCards: StatsCard[] = useMemo(() => {
+    // Calcular soma do repasse original (projeção 2025)
+    const totalRepasseOriginal = tableData.reduce((acc, row) => acc + row.repasseOriginal, 0);
+    
+    // Calcular soma do repasse simulado (recurso potencial)
+    const totalRepasseSimulado = tableData.reduce((acc, row) => acc + row.repasseSimulado, 0);
+    
+    // Calcular percentual de aumento
+    const percentualAumento = totalRepasseOriginal > 0 
+      ? ((totalRepasseSimulado - totalRepasseOriginal) / totalRepasseOriginal) * 100 
+      : 0;
+
+    return [
+      {
+        title: "Projeção de repasse 2025",
+        value: formatCurrency(totalRepasseOriginal),
+        trend: "6.0%",
+        trendLabel: "vs ano passado",
+        gradient:
+          "bg-[linear-gradient(45deg,rgba(90,105,255,1)_0%,rgba(150,68,255,1)_50%,rgba(145,171,255,1)_100%)]",
+      },
+      {
+        title: "Recurso potencial com simulações",
+        value: formatCurrency(totalRepasseSimulado),
+        trend: "6.0%",
+        trendLabel: "vs ano passado",
+        gradient:
+          "bg-[linear-gradient(45deg,rgba(55,196,255,1)_0%,rgba(16,132,255,1)_50%,rgba(31,177,255,1)_100%)]",
+      },
+      {
+        title: "Potencial percentual de aumento",
+        value: `${percentualAumento >= 0 ? '+' : ''}${percentualAumento.toFixed(1)}%`,
+        trend: "6.0%",
+        trendLabel: "vs ano passado",
+        gradient:
+          "bg-[linear-gradient(135deg,rgba(255,157,88,1)_0%,rgba(255,117,43,1)_50%,rgba(255,175,106,1)_100%)]",
+      },
+    ];
+  }, [tableData]);
 
   // Forçar viewMode para "table" quando não estiver em "todos"
   useEffect(() => {
