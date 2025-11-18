@@ -15,6 +15,8 @@ export const SimulationTable = ({
   onOpenModal,
 }: SimulationTableProps): JSX.Element => {
   
+  console.log('SimulationTable recebeu data:', data);
+  console.log('data.length:', data.length);
   
   // Converter SimulationRow para incluir índice de string
   const tableData: Record<string, unknown>[] = data.map(row => ({
@@ -89,6 +91,11 @@ export const SimulationTable = ({
 
   const tableColumns = createTableColumns(columns);
   
+  // Calcular o total potencial de repasse adicional (soma das diferenças positivas)
+  const totalPotencial = tableData.reduce((acc, row) => {
+    return acc + (row.diferenca > 0 ? row.diferenca : 0);
+  }, 0);
+  
   return (
     <DataTable
       data={tableData}
@@ -101,7 +108,7 @@ export const SimulationTable = ({
             Total potencial de repasse adicional
           </span>
           <span className={`font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[#252b37] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)]`}>
-            R$ 828.000,00
+            {formatCurrency(totalPotencial)}
           </span>
         </div>
       )}

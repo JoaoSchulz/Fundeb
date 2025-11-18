@@ -46,8 +46,7 @@ const statsCards: StatsCard[] = [
 ];
 
 const initialTabs: Tab[] = [
-  { id: "todos", label: "Todos", active: true },
-  { id: "matriculas", label: "Por Matrículas", active: false },
+  { id: "matriculas", label: "Por Matrículas", active: true },
   { id: "receita", label: "Por Receita", active: false },
   { id: "indicadores", label: "Por Indicadores VAAR", active: false },
 ];
@@ -110,6 +109,34 @@ export const FinancialOverviewSection = (): JSX.Element => {
       .then((list) => {
         if (!mounted) return;
         setSimulationsList(list as SimulationSummary[]);
+        
+        // Se não há simulação selecionada e há simulações na lista, selecionar a primeira
+        if (list.length > 0 && !selectedSimulation) {
+          const firstSim = list[0];
+          const rawCreated = (firstSim as any).createdAt ?? (firstSim as any).date ?? new Date().toISOString();
+          const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
+            ? rawCreated
+            : ((): string => {
+                const parts = String(rawCreated).split("/");
+                if (parts.length === 3) {
+                  const [day, month, year] = parts;
+                  return `${year}-${month}-${day}T10:30:00`;
+                }
+                return new Date().toISOString();
+              })();
+
+          const modifiedAt = (firstSim as any).modifiedAt ?? String((firstSim as any).date ?? createdAt);
+
+          setSelectedSimulation({
+            ...firstSim,
+            createdAt,
+            modifiedAt,
+            referencePeriod: (firstSim as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
+            city: (firstSim as { city?: string }).city || "Campinas",
+            state: (firstSim as { state?: string }).state || "SP",
+          });
+          setCurrentSimulationId(firstSim.id.toString());
+        }
       })
       .catch((e) => {
         if (!mounted) return;
@@ -117,7 +144,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
         throw e;
       });
     return () => { mounted = false };
-  }, []);
+  }, [selectedSimulation, setSelectedSimulation]);
 
   useEffect(() => {
     if (location.state && (location.state as { scrollToTable?: boolean }).scrollToTable && tableRef.current) {

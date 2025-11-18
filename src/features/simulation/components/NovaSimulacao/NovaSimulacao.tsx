@@ -143,6 +143,14 @@ export const NovaSimulacao = (): JSX.Element => {
       toast.error("Selecione um município");
       return;
     }
+
+    const parsedMunicipioId = parseInt(municipioId, 10);
+    if (isNaN(parsedMunicipioId) || parsedMunicipioId <= 0) {
+      toast.error("ID do município inválido. Por favor, selecione o município novamente.");
+      console.error("municipioId inválido:", municipioId, "parsed:", parsedMunicipioId);
+      return;
+    }
+
     if (categories.length === 0) {
       toast.error("Ao menos uma categoria deve ter valores");
       return;
@@ -184,12 +192,14 @@ export const NovaSimulacao = (): JSX.Element => {
       dadosEntrada: {
         anoBase: Number(baseYear),
         tipo: activeTab === "enrollment" ? "matriculas" : "receita",
-        municipioId: Number(municipioId),
+        municipioId: parsedMunicipioId,
         municipio: selectedMunicipioData.municipio,
         uf: selectedMunicipioData.uf,
         categorias: categoriasObj,
       },
     };
+
+    console.log("Payload a ser enviado:", JSON.stringify(payload, null, 2));
 
     SimulationService.createSimulation(payload)
       .then(() => {
@@ -200,13 +210,15 @@ export const NovaSimulacao = (): JSX.Element => {
       })
       .catch((e: any) => {
         console.error("Error creating simulation", e);
+        console.error("Payload enviado:", JSON.stringify(payload, null, 2));
         const status = e?.response?.status || e?.status;
         if (status === 401) {
           toast.error("Sessão expirada. Faça login novamente.");
           setTimeout(() => navigate("/login"), 1500);
         } else if (status === 400) {
-          const msg = e?.response?.data?.message || e?.message || "Dados inválidos";
-          toast.error(msg);
+          const errorMsg = e?.response?.data?.error || e?.response?.data?.message || e?.message || "Dados inválidos";
+          console.error("Erro 400:", errorMsg);
+          toast.error(`Erro de validação: ${errorMsg}`);
         } else {
           toast.error("Erro no servidor. Tente novamente mais tarde.");
         }

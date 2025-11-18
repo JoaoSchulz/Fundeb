@@ -2,6 +2,7 @@ import { EnrollmentData, IndicatorData, RevenueData } from "../../../types/api";
 import { IndicatorRow, RevenueRow, SimulationRow } from "../types/simulation";
 import { EDUCATION_CATEGORIES } from "../constants";
 import { normalizeCategoryKey, normalizeCategoriasObject } from "../../../utils/normalizers";
+import { CATEGORY_MAPPING } from "../../../utils/constants/fundeb";
 
 // Função auxiliar para calcular a diferença e cor
 const calculateDifference = (original: number, simulated: number): { value: number; color: string } => {
@@ -232,5 +233,44 @@ export const transformMunicipioCategoriasToRows = (normalized: Record<string, nu
     });
   });
 
+  return rows;
+};
+
+/**
+ * Transforma dados de categorias de uma simulação salva em linhas de tabela
+ * Formato esperado: { categoria_key: { matriculas: number, repasse: number } }
+ */
+export const transformSimulationCategoriasToRows = (categorias: Record<string, { matriculas: number; repasse: number }>): SimulationRow[] => {
+  const rows: SimulationRow[] = [];
+  
+  // Iterar sobre as categorias da simulação
+  Object.entries(categorias).forEach(([key, value]) => {
+    const normalizedKey = normalizeCategoryKey(key);
+    const mapping = CATEGORY_MAPPING[normalizedKey];
+    
+    if (!mapping) {
+      console.warn(`Categoria não mapeada: ${key}`);
+      return;
+    }
+    
+    const matriculas = value.matriculas || 0;
+    const repasseSimulado = value.repasse || 0;
+    
+    // Calcular repasse original (sem o fator de simulação de 1.1)
+    const repasseOriginal = matriculas * 4000 * mapping.factor;
+    
+    const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
+    
+    rows.push({
+      category: mapping.name,
+      subcategory: mapping.subtitle,
+      matriculas: Math.round(matriculas),
+      repasseOriginal,
+      repasseSimulado,
+      diferenca,
+      diferencaColor,
+    });
+  });
+  
   return rows;
 };

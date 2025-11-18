@@ -57,7 +57,10 @@ export const SimulationTableCard = ({
   onDownload,
   onEdit,
   onFilterToggle,
-}: SimulationTableCardProps): JSX.Element => (
+}: SimulationTableCardProps): JSX.Element => {
+  const hasSelectedSimulation = !!selectedSimulation && !!currentSimulationId;
+
+  return (
   <Card className="flex flex-col items-start w-full max-w-full bg-[#fcfcfc] rounded-xl border border-solid border-[#e9e9eb] shadow-shadows-shadow-xs overflow-hidden">
     <CardContent className="flex flex-col items-start gap-5 w-full p-0 bg-white">
       <SimulationTableHeader
@@ -104,7 +107,9 @@ export const SimulationTableCard = ({
         simulationName={selectedSimulation?.name}
         baseYear={selectedSimulation?.baseYear || "2027"}
         isViewModeChanging={isViewModeChanging}
+        hasSelectedSimulation={hasSelectedSimulation}
       />
     </div>
   </Card>
-);
+  );
+};

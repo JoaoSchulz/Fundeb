@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { SimulationService } from "../services";
-import { LocalidadesService } from "../../localidades/services/localidadesService";
 import type { IndicatorRow, RevenueRow, SimulationRow, TabType } from "../types";
 import { useSimulation } from "./useSimulation";
-import { transformMunicipioCategoriasToRows } from "../utils/transformers";
+import { transformSimulationCategoriasToRows } from "../utils/transformers";
 
 interface UseFinancialDataReturn {
   tableData: SimulationRow[];
@@ -22,47 +21,52 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
   const [isLoading, setIsLoading] = useState(true);
 
   const loadTableData = async (tabId: TabType): Promise<void> => {
+    // Se não há simulação selecionada, limpar dados e não fazer requisição
+    if (!simulationContext.selectedSimulation) {
+      setTableData([]);
+      setRevenueData([]);
+      setIndicatorsData([]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       // Simular delay de carregamento para mostrar o shimmer
       await new Promise((resolve) => setTimeout(resolve, 600));
-        
-      if (tabId === "todos") {
-          // Try to prefer municipio-specific categories when a municipality is selected
-          const matriculasPromise = (async () => {
-            try {
-              const sel = simulationContext.selectedSimulation;
-              if (sel?.municipioId) {
-                const mc = await LocalidadesService.getMunicipioCategorias(sel.municipioId);
-                const normalized = mc.matriculas_por_categoria ?? {};
-                return transformMunicipioCategoriasToRows(normalized);
-              }
-            } catch (e) {
-              // Fall back to simulations endpoint
+      
+      const sel = simulationContext.selectedSimulation;
+      
+      if (tabId === "matriculas") {
+        // Carregar dados específicos da simulação selecionada
+        if (sel?.id) {
+          try {
+            const simData = await SimulationService.getSimulationById(sel.id);
+            console.log('Dados da simulação completos:', simData);
+            console.log('dadosEntrada:', simData?.dadosEntrada);
+            console.log('Categorias:', simData?.dadosEntrada?.categorias);
+            
+            if (simData?.dadosEntrada?.categorias) {
+              const rows = transformSimulationCategoriasToRows(simData.dadosEntrada.categorias);
+              console.log('Rows transformadas:', rows);
+              setTableData(rows);
+              setIsLoading(false);
+              return;
             }
-            return SimulationService.getSimulationsByTab("matriculas") as Promise<SimulationRow[]>;
-          })();
-
-          const [matriculasResult, receitaResult, indicadoresResult] = await Promise.all([
-            matriculasPromise,
-            SimulationService.getSimulationsByTab("receita") as Promise<RevenueRow[]>,
-            SimulationService.getSimulationsByTab("indicadores") as Promise<IndicatorRow[]>,
-          ]);
-
-          setTableData(matriculasResult);
-          setRevenueData(receitaResult);
-          setIndicatorsData(indicadoresResult);
-        } else if (tabId === "receita") {
-          const data = await SimulationService.getSimulationsByTab("receita");
-          setRevenueData(data as RevenueRow[]);
-        } else if (tabId === "indicadores") {
-          const data = await SimulationService.getSimulationsByTab("indicadores");
-          setIndicatorsData(data as IndicatorRow[]);
-        } else {
-          const data = await SimulationService.getSimulationsByTab(tabId);
-          setTableData(data as SimulationRow[]);
+          } catch (e) {
+            console.error('Erro ao carregar dados da simulação:', e);
+          }
         }
+        // Se não conseguiu carregar, deixar vazio
+        setTableData([]);
+      } else if (tabId === "receita") {
+        const data = await SimulationService.getSimulationsByTab("receita");
+        setRevenueData(data as RevenueRow[]);
+      } else if (tabId === "indicadores") {
+        const data = await SimulationService.getSimulationsByTab("indicadores");
+        setIndicatorsData(data as IndicatorRow[]);
+      }
     } catch (error) {
       // Erro será tratado pelo error boundary
       if (error instanceof Error) {
@@ -77,7 +81,7 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
 
   useEffect(() => {
     loadTableData(activeTab);
-  }, [activeTab]);
+  }, [activeTab, simulationContext.selectedSimulation?.id]);
 
   // Listen to location changes (dispatched by LocationSelectorDialog) and refetch
   useEffect(() => {
