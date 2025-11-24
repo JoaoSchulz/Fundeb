@@ -27,6 +27,8 @@ export interface SimulationSummary {
   state?: string;
   // Optional selected municipality id (when a user selects a municipality)
   municipioId?: string | null;
+  // Código IBGE do município (para buscar dados históricos)
+  codMun?: string | null;
 }
 
 export type SimulationStatus = "Concluída" | "Em análise" | "Rascunho";
@@ -60,9 +62,10 @@ export interface RevenueRow {
 export interface IndicatorRow {
   indicador: string;
   valorAtual: number;
-  metaFundeb: number;
-  metaRede: number;
-  diferenca: number;
+  metaFundeb: number;  // Editável pelo usuário
+  metaRede: number;    // Editável pelo usuário
+  diferenca: number;   // Calculado: max(metaFundeb, metaRede) - valorAtual
   diferencaColor: string;
   isTotal?: boolean;
+  sugestaoMeta?: string; // Sugestão contextual para o usuário (ex: "+5% ao ano", "Meta do PME")
 }

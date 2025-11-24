@@ -14,7 +14,7 @@ import { parseBrazilianNumber, parseBrazilianInteger } from "../../../../utils/f
 import { SimulationService } from "../../services/simulationService";
 import { LocalidadesService } from "../../../localidades/services/localidadesService";
 import { normalizeCategoryKey } from "../../../../utils/normalizers";
-import { VALOR_ALUNO_ANO, CATEGORY_MAPPING, SIMULATION_DISPLAY_CATEGORIES } from "../../../../utils/constants/fundeb";
+import { VALOR_ALUNO_ANO, CATEGORY_MAPPING, SIMULATION_DISPLAY_CATEGORIES, FUNDEB_CATEGORIES } from "../../../../utils/constants/fundeb";
 import type { TabType } from "./types/simulationForm";
 import type { EnrollmentCategory } from "./types/simulationForm";
 
@@ -41,9 +41,12 @@ export const NovaSimulacao = (): JSX.Element => {
           return cat;
         }
         
-        const normalizedKey = normalizeCategoryKey(cat.subtitle);
-        const mapping = CATEGORY_MAPPING[normalizedKey];
-        const factor = mapping?.factor || 1.0;
+        // Encontrar a categoria pelo nome e subtítulo
+        const categoryConfig = SIMULATION_DISPLAY_CATEGORIES.find(
+          c => c.name === cat.name && c.subtitle === cat.subtitle
+        );
+        
+        const factor = categoryConfig?.factor || 1.0;
         const matriculas = Number(value.replace(/\D/g, "")) || 0;
         const repasse = matriculas * VALOR_ALUNO_ANO * factor;
         
@@ -122,6 +125,7 @@ export const NovaSimulacao = (): JSX.Element => {
               name: catConfig.name,
               subtitle: catConfig.subtitle,
               enrollments: String(totalMatriculas),
+              originalTransfer: new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(repasse),
               simulatedTransfer: new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(repasse),
             };
           });
@@ -144,28 +148,42 @@ export const NovaSimulacao = (): JSX.Element => {
       return;
     }
 
-    const parsedMunicipioId = parseInt(municipioId, 10);
-    if (isNaN(parsedMunicipioId) || parsedMunicipioId <= 0) {
-      toast.error("ID do município inválido. Por favor, selecione o município novamente.");
-      console.error("municipioId inválido:", municipioId, "parsed:", parsedMunicipioId);
-      return;
-    }
-
     if (categories.length === 0) {
       toast.error("Ao menos uma categoria deve ter valores");
       return;
     }
 
-    const categoriasObj: Record<string, { matriculas: number; repasse: number }> = {};
+    const categoriasObj: Record<string, { matriculas: number; repasseOriginal: number; repasseSimulado: number }> = {};
     let hasInvalidValues = false;
     let hasSomeValue = false;
 
     categories.forEach((c) => {
-      const normalizedKey = normalizeCategoryKey(c.subtitle);
-      const matriculas = parseBrazilianInteger(c.enrollments) || 0;
-      const repasse = parseBrazilianNumber(c.simulatedTransfer) || 0;
+      // Encontrar a key correta da categoria (ex: creche_parcial, pre_escola, etc)
+      const categoryConfig = SIMULATION_DISPLAY_CATEGORIES.find(
+        cat => cat.name === c.name && cat.subtitle === c.subtitle
+      );
       
-      if (matriculas < 0 || repasse < 0) {
+      if (!categoryConfig) {
+        console.warn(`Categoria não encontrada: ${c.name} - ${c.subtitle}`);
+        return;
+      }
+      
+      // Encontrar a key no FUNDEB_CATEGORIES
+      const categoryKey = Object.keys(CATEGORY_MAPPING).find(key => {
+        const mapping = CATEGORY_MAPPING[key];
+        return mapping.name === categoryConfig.name && mapping.subtitle === categoryConfig.subtitle;
+      });
+      
+      if (!categoryKey) {
+        console.warn(`Key não encontrada para: ${c.name} - ${c.subtitle}`);
+        return;
+      }
+      
+      const matriculas = parseBrazilianInteger(c.enrollments) || 0;
+      const repasseOriginal = parseBrazilianNumber(c.originalTransfer) || 0;
+      const repasseSimulado = parseBrazilianNumber(c.simulatedTransfer) || 0;
+      
+      if (matriculas < 0 || repasseOriginal < 0 || repasseSimulado < 0) {
         hasInvalidValues = true;
         return;
       }
@@ -174,7 +192,12 @@ export const NovaSimulacao = (): JSX.Element => {
         hasSomeValue = true;
       }
       
-      categoriasObj[normalizedKey] = { matriculas, repasse };
+      // Salvar ambos os valores de repasse
+      categoriasObj[categoryKey] = { 
+        matriculas, 
+        repasseOriginal,
+        repasseSimulado 
+      };
     });
 
     if (hasInvalidValues) {
@@ -192,7 +215,7 @@ export const NovaSimulacao = (): JSX.Element => {
       dadosEntrada: {
         anoBase: Number(baseYear),
         tipo: activeTab === "enrollment" ? "matriculas" : "receita",
-        municipioId: parsedMunicipioId,
+        municipioId: municipioId,
         municipio: selectedMunicipioData.municipio,
         uf: selectedMunicipioData.uf,
         categorias: categoriasObj,

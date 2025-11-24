@@ -3,6 +3,7 @@ import { IndicatorRow, RevenueRow, SimulationRow } from "../types/simulation";
 import { EDUCATION_CATEGORIES } from "../constants";
 import { normalizeCategoryKey, normalizeCategoriasObject } from "../../../utils/normalizers";
 import { CATEGORY_MAPPING } from "../../../utils/constants/fundeb";
+import { HistoricoService } from "../services/historicoService";
 
 // Função auxiliar para calcular a diferença e cor
 const calculateDifference = (original: number, simulated: number): { value: number; color: string } => {
@@ -176,27 +177,79 @@ export const transformIndicatorData = (data: IndicatorData[]): IndicatorRow[] =>
     { vaat: 0, vaar: 0 }
   );
 
+  // Sugestões genéricas (serão substituídas por enriquecerIndicadoresComHistorico se houver codMun)
+  const sugestaoVAAT = "Sugestão: +3% a +5% ao ano (crescimento histórico típico) ou meta do Plano Municipal de Educação";
+  const sugestaoVAAR = "Sugestão: meta baseada em melhorias de indicadores educacionais ou +5% a +8% ao ano";
+
   const vaatRow: IndicatorRow = {
     indicador: "VAAT",
     valorAtual: totals.vaat,
-    metaFundeb: 0,
-    metaRede: 0,
-    diferenca: 0,
-    diferencaColor: calculateDifference(totals.vaat, 0).color,
+    metaFundeb: 0,  // Usuário deve definir
+    metaRede: 0,    // Usuário deve definir
+    diferenca: 0,   // Calculado quando usuário definir metas
+    diferencaColor: "text-[#535861]", // Neutro quando não há meta
     isTotal: false,
+    sugestaoMeta: sugestaoVAAT,
   };
 
   const vaarRow: IndicatorRow = {
     indicador: "VAAR",
     valorAtual: totals.vaar,
-    metaFundeb: 0,
-    metaRede: 0,
-    diferenca: 0,
-    diferencaColor: calculateDifference(totals.vaar, 0).color,
+    metaFundeb: 0,  // Usuário deve definir
+    metaRede: 0,    // Usuário deve definir
+    diferenca: 0,   // Calculado quando usuário definir metas
+    diferencaColor: "text-[#535861]", // Neutro quando não há meta
     isTotal: false,
+    sugestaoMeta: sugestaoVAAR,
   };
 
     return [vaatRow, vaarRow];
+};
+
+/**
+ * Enriquece os indicadores VAAT/VAAR com dados históricos reais do município
+ * Substitui sugestões genéricas por cálculos baseados em crescimento histórico
+ * 
+ * @param indicadores Array de indicadores (VAAT/VAAR)
+ * @param codMun Código IBGE do município (ex: "1200013")
+ * @returns Promise com array de indicadores enriquecidos
+ */
+export const enriquecerIndicadoresComHistorico = async (
+  indicadores: IndicatorRow[],
+  codMun: string | null | undefined
+): Promise<IndicatorRow[]> => {
+  // Se não há código do município, retornar indicadores sem modificação
+  if (!codMun) {
+    return indicadores;
+  }
+
+  try {
+    // Buscar histórico dos últimos 5 anos
+    const historico = await HistoricoService.getMunicipioHistorico(codMun, 5);
+
+    // Se não há dados históricos, retornar indicadores originais
+    if (!historico.estatisticas) {
+      return indicadores;
+    }
+
+    // Enriquecer cada indicador com sugestão baseada em histórico real
+    return indicadores.map((ind) => {
+      if (ind.indicador === "VAAT" || ind.indicador === "VAAR") {
+        return {
+          ...ind,
+          sugestaoMeta: HistoricoService.formatarSugestaoMeta(
+            historico.estatisticas,
+            ind.indicador
+          ),
+        };
+      }
+      return ind;
+    });
+  } catch (error) {
+    console.error('Erro ao enriquecer indicadores com histórico:', error);
+    // Em caso de erro, retornar indicadores originais
+    return indicadores;
+  }
 };
 
 /**
@@ -240,7 +293,7 @@ export const transformMunicipioCategoriasToRows = (normalized: Record<string, nu
  * Transforma dados de categorias de uma simulação salva em linhas de tabela
  * Formato esperado: { categoria_key: { matriculas: number, repasse: number } }
  */
-export const transformSimulationCategoriasToRows = (categorias: Record<string, { matriculas: number; repasse: number }>): SimulationRow[] => {
+export const transformSimulationCategoriasToRows = (categorias: Record<string, { matriculas: number; repasseOriginal?: number; repasseSimulado?: number; repasse?: number }>): SimulationRow[] => {
   const rows: SimulationRow[] = [];
   
   // Iterar sobre as categorias da simulação
@@ -254,10 +307,10 @@ export const transformSimulationCategoriasToRows = (categorias: Record<string, {
     }
     
     const matriculas = value.matriculas || 0;
-    const repasseSimulado = value.repasse || 0;
     
-    // Calcular repasse original (sem o fator de simulação de 1.1)
-    const repasseOriginal = matriculas * 4000 * mapping.factor;
+    // Usar valores salvos se existirem (inclusive 0), caso contrário calcular
+    const repasseOriginal = value.repasseOriginal !== undefined ? value.repasseOriginal : (matriculas * 4000 * mapping.factor);
+    const repasseSimulado = value.repasseSimulado !== undefined ? value.repasseSimulado : (value.repasse !== undefined ? value.repasse : (matriculas * 4000 * mapping.factor));
     
     const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
     

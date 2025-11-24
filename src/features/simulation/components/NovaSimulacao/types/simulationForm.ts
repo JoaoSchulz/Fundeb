@@ -3,6 +3,7 @@ export interface EnrollmentCategory {
   name: string;
   subtitle: string;
   enrollments: string;
+  originalTransfer: string;
   simulatedTransfer: string;
 }
 

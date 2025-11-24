@@ -58,11 +58,19 @@ export const LocationSelectorDialog = (): JSX.Element => {
       city: municipio?.municipio || selectedSimulation?.city,
       state: selectedUf,
       municipioId: selectedMunicipioId ?? null,
+      codMun: municipio?.cod_mun ?? null, // Código IBGE para buscar histórico
     };
     setSelectedSimulation(newSim as any);
     // dispatch a custom event so other consumers can react and refetch if needed
     try {
-      const ev = new CustomEvent('fundeb:locationChanged', { detail: { state: selectedUf, city: municipio?.municipio ?? null, municipioId: selectedMunicipioId ?? null } });
+      const ev = new CustomEvent('fundeb:locationChanged', { 
+        detail: { 
+          state: selectedUf, 
+          city: municipio?.municipio ?? null, 
+          municipioId: selectedMunicipioId ?? null,
+          codMun: municipio?.cod_mun ?? null 
+        } 
+      });
       window.dispatchEvent(ev);
     } catch (e) {
       // ignore in environments where CustomEvent may not be present

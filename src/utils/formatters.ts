@@ -3,12 +3,15 @@ export const formatCurrency = (
   locale: string = "pt-BR",
   currency: string = "BRL"
 ): string => {
+  // Corrigir -0 para 0
+  const normalizedValue = value === 0 || Object.is(value, -0) ? 0 : value;
+  
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(normalizedValue);
 };
 
 export const parseCurrency = (value: string): number => {

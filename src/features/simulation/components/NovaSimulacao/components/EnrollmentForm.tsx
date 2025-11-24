@@ -8,6 +8,7 @@ interface EnrollmentCategory {
   name: string;
   subtitle: string;
   enrollments: string;
+  originalTransfer: string;
   simulatedTransfer: string;
 }
 
@@ -24,7 +25,7 @@ export const EnrollmentForm = ({
   
   return (
   <div className="overflow-x-auto scrollbar-modern-horizontal">
-    <div className="grid grid-cols-[1fr,auto,auto] gap-2 md:gap-4 mb-4 min-w-[600px]">
+    <div className="grid grid-cols-[1fr,auto,auto,auto] gap-2 md:gap-4 mb-4 min-w-[800px]">
       <div className="flex items-center gap-2">
         <span className="font-['Inter',Helvetica] font-medium text-[#535861] text-sm">
           Categoria
@@ -43,6 +44,14 @@ export const EnrollmentForm = ({
       </div>
       <div className="flex items-center gap-2 justify-end w-[160px] md:w-[200px]">
         <span className="font-['Inter',Helvetica] font-medium text-[#535861] text-sm">
+          Repasse Original
+        </span>
+        <Tooltip content="Valor do repasse atual baseado nas matrículas reais">
+          <HelpCircle className="w-4 h-4 text-[#858d9d]" />
+        </Tooltip>
+      </div>
+      <div className="flex items-center gap-2 justify-end w-[160px] md:w-[200px]">
+        <span className="font-['Inter',Helvetica] font-medium text-[#535861] text-sm">
           Repasse Simulado
         </span>
         <Tooltip content="Valor do repasse simulado calculado automaticamente">
@@ -53,7 +62,7 @@ export const EnrollmentForm = ({
     {categories.map((category, index) => (
       <div
         key={category.id}
-        className={`grid grid-cols-[1fr,auto,auto] gap-2 md:gap-4 py-4 min-w-[600px] ${
+        className={`grid grid-cols-[1fr,auto,auto,auto] gap-2 md:gap-4 py-4 min-w-[800px] ${
           index !== categories.length - 1 ? "border-b border-[#e9e9eb]" : ""
         }`}
       >
@@ -72,6 +81,11 @@ export const EnrollmentForm = ({
             className="h-10 text-right"
             type="text"
           />
+        </div>
+        <div className="w-[160px] md:w-[200px] flex items-center justify-end shrink-0">
+          <span className={`font-['Inter',Helvetica] font-normal text-[#535861] text-sm`}>
+            {category.originalTransfer}
+          </span>
         </div>
         <div className="w-[160px] md:w-[200px] flex items-center justify-end shrink-0">
           <span className={`font-['Inter',Helvetica] font-medium text-[#181d27] text-sm`}>
