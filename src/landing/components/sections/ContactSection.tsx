@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Send, Mail, User, Building2, FileText } from "lucide-react";
+import { toast } from "sonner";
 import { Section } from "./Section";
+import { SolicitacoesService } from "../../../services/solicitacoesService";
 
 interface ContactFormData {
   name: string;
@@ -16,12 +18,29 @@ export const ContactSection = (): JSX.Element => {
     organization: "",
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent): void => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    // TODO: Implementar envio para backend quando estiver disponível
-    alert("Solicitação enviada com sucesso! Em breve entraremos em contato.");
-    setFormData({ name: "", email: "", organization: "", message: "" });
+    setIsSubmitting(true);
+
+    try {
+      await SolicitacoesService.createSolicitacao({
+        nome: formData.name,
+        email: formData.email,
+        orgao_publico: formData.organization,
+        mensagem: formData.message,
+      });
+
+      toast.success("Solicitação enviada com sucesso! Aguarde a aprovação de um administrador.");
+      setFormData({ name: "", email: "", organization: "", message: "" });
+    } catch (error: any) {
+      console.error('Erro ao enviar solicitação:', error);
+      const errorMessage = error?.message || "Erro ao enviar solicitação. Tente novamente.";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: keyof ContactFormData, value: string): void => {
@@ -99,9 +118,10 @@ export const ContactSection = (): JSX.Element => {
 
             <button
               type="submit"
-              className="w-full h-12 px-8 text-base font-semibold text-white bg-[#22a3eb] hover:bg-[#1a8cc7] rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+              disabled={isSubmitting}
+              className="w-full h-12 px-8 text-base font-semibold text-white bg-[#22a3eb] hover:bg-[#1a8cc7] rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Enviar solicitação
+              {isSubmitting ? "Enviando..." : "Enviar solicitação"}
               <Send className="w-5 h-5" />
             </button>
           </form>

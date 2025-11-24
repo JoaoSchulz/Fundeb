@@ -13,6 +13,7 @@ interface UserProfile {
   cidade: string;
   uf: string;
   organization: string;
+  role: string;
 }
 
 interface ProfileFormProps {
@@ -114,6 +115,24 @@ export const ProfileForm = ({
               disabled={!isEditing}
               size="md"
             />
+          </div>
+        </div>
+
+        {/* Linha 5: Nível de Acesso */}
+        <div>
+          <div className="flex flex-col gap-2">
+            <label className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">
+              Nível de Acesso
+            </label>
+            <select
+              value={profile.role}
+              onChange={(e) => onChange("role", e.target.value)}
+              disabled={!isEditing}
+              className="flex h-10 w-full rounded-md border border-[#d0d3d9] bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[#858d9d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="cliente">Usuário</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
         </div>
       </div>

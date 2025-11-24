@@ -2,10 +2,11 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { AuthService } from "../services/authService";
+import { User } from "../../../types/api";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: { nome: string } | null;
+  user: User | null;
   login: (email: string, senha: string) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -15,7 +16,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => AuthService.isAuthenticated());
-  const [user, setUser] = useState<{ nome: string } | null>(() => AuthService.getUser());
+  const [user, setUser] = useState<User | null>(() => AuthService.getUser());
   const navigate = useNavigate();
 
   useEffect(() => {

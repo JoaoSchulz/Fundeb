@@ -1,0 +1,1 @@
+export { GerenciarSolicitacoes } from './GerenciarSolicitacoes';

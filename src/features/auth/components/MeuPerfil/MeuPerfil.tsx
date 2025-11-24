@@ -12,6 +12,7 @@ interface UserProfile {
   cidade: string;
   uf: string;
   organization: string;
+  role: string;
 }
 
 const emptyProfile: UserProfile = {
@@ -21,6 +22,7 @@ const emptyProfile: UserProfile = {
   cidade: "",
   uf: "",
   organization: "",
+  role: "cliente",
 };
 
 const mapAuthUserToProfile = (user: any): UserProfile => {
@@ -31,7 +33,8 @@ const mapAuthUserToProfile = (user: any): UserProfile => {
   const cidade = user.cidade || "";
   const uf = user.uf || "";
   const organization = user.organizacao || user.organização || user.organization || "";
-  return { name, email, phone, cidade, uf, organization };
+  const role = user.role || "cliente";
+  return { name, email, phone, cidade, uf, organization, role };
 };
 
 export const MeuPerfil = (): JSX.Element => {
@@ -59,15 +62,40 @@ export const MeuPerfil = (): JSX.Element => {
   };
 
   const handleSave = async (): Promise<void> => {
+    // Validações antes de enviar
+    if (!editedProfile.name || editedProfile.name.trim() === '') {
+      toast.error("Nome é obrigatório");
+      return;
+    }
+
+    if (!editedProfile.email || editedProfile.email.trim() === '') {
+      toast.error("Email é obrigatório");
+      return;
+    }
+
+    // Validação de formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(editedProfile.email)) {
+      toast.error("Email inválido");
+      return;
+    }
+
+    // Validação de UF
+    if (editedProfile.uf && editedProfile.uf.length !== 2) {
+      toast.error("UF deve ter 2 caracteres");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const payload = {
-        nome: editedProfile.name,
-        email: editedProfile.email,
-        telefone: editedProfile.phone,
-        cidade: editedProfile.cidade,
-        uf: editedProfile.uf,
-        organizacao: editedProfile.organization,
+        nome: editedProfile.name.trim(),
+        email: editedProfile.email.trim(),
+        telefone: editedProfile.phone?.trim() || null,
+        cidade: editedProfile.cidade?.trim() || null,
+        uf: editedProfile.uf?.trim().toUpperCase() || null,
+        organizacao: editedProfile.organization?.trim() || null,
+        role: editedProfile.role || "cliente",
       };
 
       await AuthService.updateProfile(payload);
