@@ -39,7 +39,7 @@ export class SolicitacoesService {
   static async createSolicitacao(data: CreateSolicitacaoData): Promise<{ message: string; solicitacao: SolicitacaoAcesso }> {
     const response = await http.post<{ message: string; solicitacao: SolicitacaoAcesso }>(
       '/solicitacoes',
-      { body: data }
+      data
     );
     return response.data;
   }
