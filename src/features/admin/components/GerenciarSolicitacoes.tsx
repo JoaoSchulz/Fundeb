@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Check, X, Shield, Mail, Building2, Calendar, MessageSquare } from "lucide-react";
+import { Check, X, Shield, Mail, Building2, Calendar, MessageSquare, MapPin } from "lucide-react";
 import { Card, CardContent } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
 import { SolicitacoesService, SolicitacaoAcesso } from "../../../services/solicitacoesService";
@@ -187,17 +187,24 @@ export const GerenciarSolicitacoes = (): JSX.Element => {
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                         <div className="flex items-center gap-2 text-gray-600">
-                          <Mail className="w-4 h-4" />
-                          <span className="text-sm">{solicitacao.email}</span>
+                          <Mail className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-sm truncate">{solicitacao.email}</span>
                         </div>
                         
+                        {solicitacao.uf && solicitacao.municipio && (
+                          <div className="flex items-center gap-2 text-gray-600">
+                            <MapPin className="w-4 h-4 flex-shrink-0" />
+                            <span className="text-sm">{solicitacao.municipio} - {solicitacao.uf}</span>
+                          </div>
+                        )}
+                        
                         <div className="flex items-center gap-2 text-gray-600">
-                          <Building2 className="w-4 h-4" />
+                          <Building2 className="w-4 h-4 flex-shrink-0" />
                           <span className="text-sm">{solicitacao.orgao_publico}</span>
                         </div>
                         
                         <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="w-4 h-4" />
+                          <Calendar className="w-4 h-4 flex-shrink-0" />
                           <span className="text-sm">{formatDate(solicitacao.criado_em)}</span>
                         </div>
                       </div>

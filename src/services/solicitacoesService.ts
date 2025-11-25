@@ -4,6 +4,8 @@ export interface SolicitacaoAcesso {
   id: string;
   nome: string;
   email: string;
+  uf: string | null;
+  municipio: string | null;
   orgao_publico: string;
   mensagem: string | null;
   status: 'pendente' | 'aprovado' | 'negado';
@@ -19,6 +21,8 @@ export interface SolicitacaoAcesso {
 export interface CreateSolicitacaoData {
   nome: string;
   email: string;
+  uf?: string;
+  municipio?: string;
   orgao_publico: string;
   mensagem?: string;
 }

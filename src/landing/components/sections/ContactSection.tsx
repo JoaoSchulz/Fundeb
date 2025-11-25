@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { Send, Mail, User, Building2, FileText } from "lucide-react";
+import { Send, Mail, User, Building2, FileText, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { Section } from "./Section";
 import { SolicitacoesService } from "../../../services/solicitacoesService";
+import { ESTADOS } from "../../../utils/constants";
 
 interface ContactFormData {
   name: string;
   email: string;
+  uf: string;
+  municipio: string;
   organization: string;
   message: string;
 }
@@ -15,6 +18,8 @@ export const ContactSection = (): JSX.Element => {
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
+    uf: "",
+    municipio: "",
     organization: "",
     message: "",
   });
@@ -28,12 +33,14 @@ export const ContactSection = (): JSX.Element => {
       await SolicitacoesService.createSolicitacao({
         nome: formData.name,
         email: formData.email,
+        uf: formData.uf,
+        municipio: formData.municipio,
         orgao_publico: formData.organization,
         mensagem: formData.message,
       });
 
       toast.success("Solicitação enviada com sucesso! Aguarde a aprovação de um administrador.");
-      setFormData({ name: "", email: "", organization: "", message: "" });
+      setFormData({ name: "", email: "", uf: "", municipio: "", organization: "", message: "" });
     } catch (error: any) {
       console.error('Erro ao enviar solicitação:', error);
       const errorMessage = error?.message || "Erro ao enviar solicitação. Tente novamente.";
@@ -84,6 +91,45 @@ export const ContactSection = (): JSX.Element => {
               />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="uf" className="flex items-center gap-2 text-sm font-medium text-[#181d27] mb-2">
+                  <MapPin className="w-4 h-4 text-[#717680]" />
+                  UF
+                </label>
+                <select
+                  id="uf"
+                  value={formData.uf}
+                  onChange={(e) => handleChange("uf", e.target.value)}
+                  required
+                  className="w-full h-11 px-4 py-2.5 rounded-lg border border-[#d5d6d9] bg-white text-[#181d27] focus:outline-none focus:ring-2 focus:ring-[#22a3eb] focus:ring-offset-2 transition-all"
+                >
+                  <option value="">Selecione o estado</option>
+                  {ESTADOS.map((estado) => (
+                    <option key={estado.value} value={estado.value}>
+                      {estado.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="municipio" className="flex items-center gap-2 text-sm font-medium text-[#181d27] mb-2">
+                  <Building2 className="w-4 h-4 text-[#717680]" />
+                  Município
+                </label>
+                <input
+                  id="municipio"
+                  type="text"
+                  value={formData.municipio}
+                  onChange={(e) => handleChange("municipio", e.target.value)}
+                  required
+                  className="w-full h-11 px-4 py-2.5 rounded-lg border border-[#d5d6d9] bg-white text-[#181d27] placeholder:text-[#858d9d] focus:outline-none focus:ring-2 focus:ring-[#22a3eb] focus:ring-offset-2 transition-all"
+                  placeholder="Nome do município"
+                />
+              </div>
+            </div>
+
             <div>
               <label htmlFor="organization" className="flex items-center gap-2 text-sm font-medium text-[#181d27] mb-2">
                 <Building2 className="w-4 h-4 text-[#717680]" />
@@ -96,7 +142,7 @@ export const ContactSection = (): JSX.Element => {
                 onChange={(e) => handleChange("organization", e.target.value)}
                 required
                 className="w-full h-11 px-4 py-2.5 rounded-lg border border-[#d5d6d9] bg-white text-[#181d27] placeholder:text-[#858d9d] focus:outline-none focus:ring-2 focus:ring-[#22a3eb] focus:ring-offset-2 transition-all"
-                placeholder="Prefeitura Municipal de..."
+                placeholder="Prefeitura Municipal, Secretaria..."
               />
             </div>
 
