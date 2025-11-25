@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Send, Mail, User, Building2, FileText, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { Section } from "./Section";
 import { SolicitacoesService } from "../../../services/solicitacoesService";
+import { LocalidadesService } from "../../../features/localidades/services/localidadesService";
 import { ESTADOS } from "../../../utils/constants";
 
 interface ContactFormData {
@@ -24,6 +25,29 @@ export const ContactSection = (): JSX.Element => {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [municipios, setMunicipios] = useState<Array<{ cod_mun: number; nome_municipio: string }>>([]);
+  const [loadingMunicipios, setLoadingMunicipios] = useState(false);
+
+  // Carregar municípios quando UF mudar
+  useEffect(() => {
+    if (formData.uf) {
+      setLoadingMunicipios(true);
+      LocalidadesService.getMunicipiosByUF(formData.uf)
+        .then((data) => {
+          setMunicipios(data);
+          setFormData(prev => ({ ...prev, municipio: "" })); // Limpar município ao trocar UF
+        })
+        .catch((error) => {
+          console.error("Erro ao carregar municípios:", error);
+          toast.error("Erro ao carregar municípios");
+          setMunicipios([]);
+        })
+        .finally(() => setLoadingMunicipios(false));
+    } else {
+      setMunicipios([]);
+      setFormData(prev => ({ ...prev, municipio: "" }));
+    }
+  }, [formData.uf]);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -118,15 +142,27 @@ export const ContactSection = (): JSX.Element => {
                   <Building2 className="w-4 h-4 text-[#717680]" />
                   Município
                 </label>
-                <input
+                <select
                   id="municipio"
-                  type="text"
                   value={formData.municipio}
                   onChange={(e) => handleChange("municipio", e.target.value)}
                   required
-                  className="w-full h-11 px-4 py-2.5 rounded-lg border border-[#d5d6d9] bg-white text-[#181d27] placeholder:text-[#858d9d] focus:outline-none focus:ring-2 focus:ring-[#22a3eb] focus:ring-offset-2 transition-all"
-                  placeholder="Nome do município"
-                />
+                  disabled={!formData.uf || loadingMunicipios}
+                  className="w-full h-11 px-4 py-2.5 rounded-lg border border-[#d5d6d9] bg-white text-[#181d27] focus:outline-none focus:ring-2 focus:ring-[#22a3eb] focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <option value="">
+                    {!formData.uf 
+                      ? "Selecione o UF primeiro" 
+                      : loadingMunicipios 
+                        ? "Carregando..." 
+                        : "Selecione o município"}
+                  </option>
+                  {municipios.map((municipio) => (
+                    <option key={municipio.cod_mun} value={municipio.nome_municipio}>
+                      {municipio.nome_municipio}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
