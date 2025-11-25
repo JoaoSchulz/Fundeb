@@ -45,12 +45,16 @@ export class AuthService {
   static async getProfile(): Promise<User> {
     const { data } = await http.get<User>("/auth/me");
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data));
+    // Dispara evento customizado para notificar a mudança
+    window.dispatchEvent(new Event('auth-user-updated'));
     return data;
   }
 
   static async updateProfile(payload: UpdateProfilePayload): Promise<User> {
     const { data } = await http.put<User>("/auth/me", payload);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data));
+    // Dispara evento customizado para notificar a mudança
+    window.dispatchEvent(new Event('auth-user-updated'));
     return data;
   }
 

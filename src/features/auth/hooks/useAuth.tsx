@@ -24,14 +24,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsAuthenticated(AuthService.isAuthenticated());
     setUser(AuthService.getUser());
 
-    // Adiciona listener para mudanças no localStorage
+    // Listener para mudanças no localStorage (de outras tabs)
     const handleStorageChange = () => {
       setIsAuthenticated(AuthService.isAuthenticated());
       setUser(AuthService.getUser());
     };
 
+    // Listener para mudanças locais (desta tab)
+    const handleAuthUserUpdated = () => {
+      setIsAuthenticated(AuthService.isAuthenticated());
+      setUser(AuthService.getUser());
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('auth-user-updated', handleAuthUserUpdated);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth-user-updated', handleAuthUserUpdated);
+    };
   }, []);
 
   const login = (email: string, senha: string) => {

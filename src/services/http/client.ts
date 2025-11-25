@@ -56,22 +56,24 @@ export class HttpClient {
         ...defaultHeaders,
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         ...(headers ?? {}),
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal,
+      cache: 'no-store',
     });
 
-    // Status 304 (Not Modified) é considerado sucesso
-    // Status 204 (No Content) também é sucesso
-    const isSuccess = response.ok || response.status === 304 || response.status === 204;
+    // Status 204 (No Content) é sucesso
+    const isSuccess = response.ok || response.status === 204;
 
     const contentType = response.headers.get("Content-Type") || "";
     const isJson = contentType.includes("application/json");
     
-    // Para 204 ou 304, pode não haver conteúdo
+    // Para 204, pode não haver conteúdo
     let data: T;
     try {
-      if (response.status === 204 || response.status === 304) {
+      if (response.status === 204) {
         data = {} as T;
       } else if (isJson) {
         data = await response.json() as T;

@@ -29,6 +29,7 @@ export interface UpdateProfilePayload {
   cidade?: string;
   uf?: string;
   organizacao?: string;
+  role?: 'admin' | 'cliente';
 }
 
 export interface AuthResponse {
