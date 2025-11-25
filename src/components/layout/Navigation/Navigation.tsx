@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { BarChart3, Home, LogOut as LogOutIcon, User as UserIcon } from "lucide-react";
+import { BarChart3, Home, LogOut as LogOutIcon, User as UserIcon, Shield } from "lucide-react";
 import { useAuth } from "../../../features/auth/hooks";
 import {
   MobileMenuButton,
@@ -50,7 +50,25 @@ export const Navigation = ({
   onToggleMobileMenu,
 }: NavigationProps): JSX.Element => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+
+  // Filtrar itens de navegação baseado na role do usuário
+  const filteredNavigationItems = React.useMemo(() => {
+    const items = [...navigationItems];
+    
+    // Se for admin, adicionar item de Solicitações antes do perfil
+    if (user?.role === 'admin') {
+      const perfilIndex = items.findIndex(item => item.path === '/app/perfil');
+      items.splice(perfilIndex, 0, {
+        icon: Shield,
+        label: "Solicitações",
+        path: "/app/admin/solicitacoes",
+        isLogout: false,
+      });
+    }
+    
+    return items;
+  }, [user?.role]);
 
   const handleNavigate = (path: string, isLogout: boolean): void => {
     if (isLogout) {
@@ -94,7 +112,7 @@ export const Navigation = ({
 
           <nav className="flex flex-col items-start px-3 py-0 w-full flex-1">
             <NavigationItems
-              items={navigationItems}
+              items={filteredNavigationItems}
               isCollapsed={isCollapsed}
               onNavigate={handleNavigate}
             />
