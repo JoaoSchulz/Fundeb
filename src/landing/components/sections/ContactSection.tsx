@@ -25,7 +25,7 @@ export const ContactSection = (): JSX.Element => {
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [municipios, setMunicipios] = useState<Array<{ cod_mun: number; nome_municipio: string }>>([]);
+  const [municipios, setMunicipios] = useState<Array<{ id: string; municipio: string }>>([]);
   const [loadingMunicipios, setLoadingMunicipios] = useState(false);
 
   // Carregar municípios quando UF mudar
@@ -157,9 +157,9 @@ export const ContactSection = (): JSX.Element => {
                         ? "Carregando..." 
                         : "Selecione o município"}
                   </option>
-                  {municipios.map((municipio) => (
-                    <option key={municipio.cod_mun} value={municipio.nome_municipio}>
-                      {municipio.nome_municipio}
+                  {municipios.map((mun) => (
+                    <option key={mun.id} value={mun.municipio}>
+                      {mun.municipio}
                     </option>
                   ))}
                 </select>
