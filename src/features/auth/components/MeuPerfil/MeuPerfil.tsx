@@ -43,6 +43,22 @@ export const MeuPerfil = (): JSX.Element => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<UserProfile>(mapAuthUserToProfile(user));
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+
+  // Carregar dados atualizados do backend na montagem do componente
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        await refreshUser();
+      } catch (error) {
+        console.error('Erro ao carregar perfil:', error);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+    
+    loadProfile();
+  }, []);
 
   useEffect(() => {
     // Atualiza o estado do perfil sempre que o usuário autenticado mudar
@@ -126,25 +142,34 @@ export const MeuPerfil = (): JSX.Element => {
 
         <div className="w-full max-w-[1400px] mx-auto bg-white rounded-xl border border-solid border-[#e9e9eb] shadow-sm overflow-hidden">
           <CardContent className="p-6 md:p-8">
-            <div className="flex flex-col gap-8">
-              {/* Avatar e Nome acima */}
-              <ProfileAvatar
-                name={profile.name}
-                email={profile.email}
-                isEditing={isEditing}
-              />
-              
-              {/* Informações Pessoais abaixo */}
-              <ProfileForm
-                profile={isEditing ? editedProfile : profile}
-                isEditing={isEditing}
-                isSaving={isSaving}
-                onChange={handleChange}
-                onSave={handleSave}
-                onCancel={handleCancel}
-                onEdit={handleEdit}
-              />
-            </div>
+            {isLoadingProfile ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" />
+                  <p className="mt-4 text-gray-600">Carregando perfil...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-8">
+                {/* Avatar e Nome acima */}
+                <ProfileAvatar
+                  name={profile.name}
+                  email={profile.email}
+                  isEditing={isEditing}
+                />
+                
+                {/* Informações Pessoais abaixo */}
+                <ProfileForm
+                  profile={isEditing ? editedProfile : profile}
+                  isEditing={isEditing}
+                  isSaving={isSaving}
+                  onChange={handleChange}
+                  onSave={handleSave}
+                  onCancel={handleCancel}
+                  onEdit={handleEdit}
+                />
+              </div>
+            )}
           </CardContent>
         </div>
       </div>
