@@ -139,44 +139,38 @@ export const GerenciarSolicitacoes = (): JSX.Element => {
         )}
 
         {!isLoading && solicitacoes.length > 0 && (
-          <div className="space-y-4">
+          <div className="bg-white rounded-lg shadow overflow-hidden">
             {solicitacoes.map((solicitacao) => (
-              <Card key={solicitacao.id} className="overflow-hidden">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-4 p-4 hover:bg-gray-50 border-b border-gray-200 transition-colors">
-                        <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                          <div>
-                            <p className="font-medium text-gray-900">{solicitacao.nome}</p>
-                            <p className="text-sm text-gray-500">{solicitacao.email}</p>
-                          </div>
-                          
-                          <div className="text-sm text-gray-600">
-                            {solicitacao.orgao_publico}
-                          </div>
-                          
-                          <div>
-                            {getStatusBadge(solicitacao.status)}
-                          </div>
-                          
-                          <div className="text-sm text-gray-500">
-                            {formatDate(solicitacao.criado_em)}
-                          </div>
-                        </div>
-                        
-                        <Button
-                          onClick={() => handleViewDetails(solicitacao)}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                        >
-                          <Eye className="w-4 h-4" />
-                          Ver Detalhes
-                        </Button>
-                      </div>
-                    </div>
+              <div key={solicitacao.id} className="flex items-center justify-between gap-4 p-4 hover:bg-gray-50 border-b border-gray-200 last:border-b-0 transition-colors">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                  <div>
+                    <p className="font-medium text-gray-900">{solicitacao.nome}</p>
+                    <p className="text-sm text-gray-500">{solicitacao.email}</p>
                   </div>
+                  
+                  <div className="text-sm text-gray-600">
+                    {solicitacao.orgao_publico}
+                  </div>
+                  
+                  <div>
+                    {getStatusBadge(solicitacao.status)}
+                  </div>
+                  
+                  <div className="text-sm text-gray-500">
+                    {formatDate(solicitacao.criado_em)}
+                  </div>
+                </div>
+                
+                <Button
+                  onClick={() => handleViewDetails(solicitacao)}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  Ver Detalhes
+                </Button>
+              </div>
             ))}
           </div>
         )}
