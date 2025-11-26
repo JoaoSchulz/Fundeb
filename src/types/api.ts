@@ -16,7 +16,7 @@ export interface User {
   email: string;
   role?: 'admin' | 'cliente';
   telefone?: string;
-  cidade?: string;
+  municipio?: string;
   uf?: string;
   organizacao?: string;
   criado_em?: string;
@@ -26,7 +26,7 @@ export interface UpdateProfilePayload {
   nome?: string;
   email?: string;
   telefone?: string;
-  cidade?: string;
+  municipio?: string;
   uf?: string;
   organizacao?: string;
   role?: 'admin' | 'cliente';
