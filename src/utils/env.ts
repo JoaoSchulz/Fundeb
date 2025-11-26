@@ -4,8 +4,18 @@ export type Env = {
 
 export const getEnv = (): Env => {
   // Vite expõe variáveis com import.meta.env
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  let apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  
+  // Fallback para produção se a variável não estiver definida
+  if (!apiBaseUrl && typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname === 'fundebfront.vercel.app' || hostname.includes('vercel.app')) {
+      apiBaseUrl = 'https://fundeb-back-end.vercel.app';
+      console.warn('⚠️ VITE_API_BASE_URL não definida, usando fallback:', apiBaseUrl);
+    }
+  }
 
+  console.log('🔍 [ENV] API Base URL:', apiBaseUrl);
   return { apiBaseUrl };
 };
 
