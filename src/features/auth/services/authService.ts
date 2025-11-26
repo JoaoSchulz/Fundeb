@@ -43,16 +43,22 @@ export class AuthService {
   }
 
   static async getProfile(): Promise<User> {
+    console.log('🔍 [AuthService] Fazendo requisição GET /auth/me');
     const { data } = await http.get<User>("/auth/me");
+    console.log('✅ [AuthService] Resposta do backend:', data);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data));
+    console.log('💾 [AuthService] Dados salvos no localStorage');
     // Dispara evento customizado para notificar a mudança
     window.dispatchEvent(new Event('auth-user-updated'));
     return data;
   }
 
   static async updateProfile(payload: UpdateProfilePayload): Promise<User> {
+    console.log('🔍 [AuthService] Atualizando perfil com payload:', payload);
     const { data } = await http.put<User>("/auth/me", payload);
+    console.log('✅ [AuthService] Resposta do backend após atualização:', data);
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data));
+    console.log('💾 [AuthService] Dados atualizados salvos no localStorage');
     // Dispara evento customizado para notificar a mudança
     window.dispatchEvent(new Event('auth-user-updated'));
     return data;

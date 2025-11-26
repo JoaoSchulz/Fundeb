@@ -49,9 +49,12 @@ export const MeuPerfil = (): JSX.Element => {
   useEffect(() => {
     const loadProfile = async () => {
       try {
+        console.log('🔍 [MeuPerfil] Iniciando refresh do usuário...');
+        console.log('🔍 [MeuPerfil] Usuário ANTES do refresh:', user);
         await refreshUser();
+        console.log('✅ [MeuPerfil] Refresh concluído');
       } catch (error) {
-        console.error('Erro ao carregar perfil:', error);
+        console.error('❌ [MeuPerfil] Erro ao carregar perfil:', error);
       } finally {
         setIsLoadingProfile(false);
       }
@@ -62,7 +65,9 @@ export const MeuPerfil = (): JSX.Element => {
 
   useEffect(() => {
     // Atualiza o estado do perfil sempre que o usuário autenticado mudar
+    console.log('🔍 [MeuPerfil] Usuário DEPOIS do refresh:', user);
     const mapped = mapAuthUserToProfile(user);
+    console.log('🔍 [MeuPerfil] Profile mapeado:', mapped);
     setProfile(mapped);
     setEditedProfile(mapped);
   }, [user]);
