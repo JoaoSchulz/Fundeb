@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { Check, X, Shield, Mail, Building2, Calendar, MessageSquare, MapPin } from "lucide-react";
-import { Card, CardContent } from "../../../components/ui/card";
+import { Shield, Eye } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { SolicitacoesService, SolicitacaoAcesso } from "../../../services/solicitacoesService";
 import { useAuth } from "../../auth/hooks";
+import { SolicitacaoDetailModal } from "./SolicitacaoDetailModal";
 
 export const GerenciarSolicitacoes = (): JSX.Element => {
   const { user } = useAuth();
   const [solicitacoes, setSolicitacoes] = useState<SolicitacaoAcesso[]>([]);
   const [filtro, setFiltro] = useState<'todas' | 'pendente' | 'aprovado' | 'negado'>('todas');
   const [isLoading, setIsLoading] = useState(true);
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [selectedSolicitacao, setSelectedSolicitacao] = useState<SolicitacaoAcesso | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     loadSolicitacoes();
@@ -31,51 +31,18 @@ export const GerenciarSolicitacoes = (): JSX.Element => {
     }
   };
 
-  const handleAprovar = async (solicitacao: SolicitacaoAcesso) => {
-    const senha = prompt("Digite a senha temporária para o novo usuário (mínimo 6 caracteres):");
-    if (!senha || senha.length < 6) {
-      toast.error("Senha temporária deve ter no mínimo 6 caracteres");
-      return;
-    }
-
-    const role = confirm("Conceder acesso de ADMIN? (Cancele para usuário comum)") ? 'admin' : 'cliente';
-
-    setProcessingId(solicitacao.id);
-    try {
-      const result = await SolicitacoesService.aprovarSolicitacao(solicitacao.id, {
-        role,
-        senha_temporaria: senha
-      });
-
-      toast.success(
-        `Solicitação aprovada! Usuário criado como ${role}.\nSenha temporária: ${result.senha_temporaria}`
-      );
-      loadSolicitacoes();
-    } catch (error: any) {
-      console.error('Erro ao aprovar solicitação:', error);
-      toast.error(error?.message || "Erro ao aprovar solicitação");
-    } finally {
-      setProcessingId(null);
-    }
+  const handleViewDetails = (solicitacao: SolicitacaoAcesso) => {
+    setSelectedSolicitacao(solicitacao);
+    setIsModalOpen(true);
   };
 
-  const handleNegar = async (solicitacao: SolicitacaoAcesso) => {
-    const motivo = prompt("Motivo da recusa (opcional):");
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedSolicitacao(null);
+  };
 
-    setProcessingId(solicitacao.id);
-    try {
-      await SolicitacoesService.negarSolicitacao(solicitacao.id, {
-        motivo: motivo || undefined
-      });
-
-      toast.success("Solicitação negada");
-      loadSolicitacoes();
-    } catch (error: any) {
-      console.error('Erro ao negar solicitação:', error);
-      toast.error(error?.message || "Erro ao negar solicitação");
-    } finally {
-      setProcessingId(null);
-    }
+  const handleSuccess = () => {
+    loadSolicitacoes();
   };
 
   const formatDate = (dateString: string) => {
@@ -178,82 +145,48 @@ export const GerenciarSolicitacoes = (): JSX.Element => {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-semibold text-gray-900">
-                          {solicitacao.nome}
-                        </h3>
-                        {getStatusBadge(solicitacao.status)}
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Mail className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm truncate">{solicitacao.email}</span>
-                        </div>
-                        
-                        {solicitacao.uf && solicitacao.municipio && (
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <MapPin className="w-4 h-4 flex-shrink-0" />
-                            <span className="text-sm">{solicitacao.municipio} - {solicitacao.uf}</span>
+                      <div className="flex items-center justify-between gap-4 p-4 hover:bg-gray-50 border-b border-gray-200 transition-colors">
+                        <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                          <div>
+                            <p className="font-medium text-gray-900">{solicitacao.nome}</p>
+                            <p className="text-sm text-gray-500">{solicitacao.email}</p>
                           </div>
-                        )}
-                        
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Building2 className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm">{solicitacao.orgao_publico}</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="w-4 h-4 flex-shrink-0" />
-                          <span className="text-sm">{formatDate(solicitacao.criado_em)}</span>
-                        </div>
-                      </div>
-
-                      {solicitacao.mensagem && (
-                        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-start gap-2">
-                            <MessageSquare className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                            <p className="text-sm text-gray-700">{solicitacao.mensagem}</p>
+                          
+                          <div className="text-sm text-gray-600">
+                            {solicitacao.orgao_publico}
+                          </div>
+                          
+                          <div>
+                            {getStatusBadge(solicitacao.status)}
+                          </div>
+                          
+                          <div className="text-sm text-gray-500">
+                            {formatDate(solicitacao.criado_em)}
                           </div>
                         </div>
-                      )}
-
-                      {solicitacao.motivo_rejeicao && (
-                        <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
-                          <p className="text-sm text-red-700">
-                            <strong>Motivo da recusa:</strong> {solicitacao.motivo_rejeicao}
-                          </p>
-                        </div>
-                      )}
+                        
+                        <Button
+                          onClick={() => handleViewDetails(solicitacao)}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Ver Detalhes
+                        </Button>
+                      </div>
                     </div>
                   </div>
-
-                  {solicitacao.status === 'pendente' && (
-                    <div className="flex gap-3 mt-4 pt-4 border-t border-gray-200">
-                      <Button
-                        onClick={() => handleAprovar(solicitacao)}
-                        disabled={processingId === solicitacao.id}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        <Check className="w-4 h-4 mr-2" />
-                        Aprovar
-                      </Button>
-                      <Button
-                        onClick={() => handleNegar(solicitacao)}
-                        disabled={processingId === solicitacao.id}
-                        variant="outline"
-                        className="flex-1 border-red-300 text-red-700 hover:bg-red-50"
-                      >
-                        <X className="w-4 h-4 mr-2" />
-                        Negar
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
             ))}
           </div>
         )}
+
+        <SolicitacaoDetailModal
+          solicitacao={selectedSolicitacao}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSuccess={handleSuccess}
+        />
       </div>
     </div>
   );
