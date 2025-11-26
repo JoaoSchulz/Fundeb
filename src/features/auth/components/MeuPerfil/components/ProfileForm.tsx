@@ -10,7 +10,7 @@ interface UserProfile {
   name: string;
   email: string;
   phone: string;
-  cidade: string;
+  municipio: string;
   uf: string;
   organization: string;
   role: string;
@@ -95,10 +95,10 @@ export const ProfileForm = ({
         <div className="grid grid-cols-[160px_1fr] md:grid-cols-[180px_1fr] gap-4">
           <ProfileLocationSelector
             uf={profile.uf}
-            cidade={profile.cidade}
+            municipio={profile.municipio}
             isEditing={isEditing}
             onUfChange={(value) => onChange("uf", value)}
-            onCidadeChange={(value) => onChange("cidade", value)}
+            onMunicipioChange={(value) => onChange("municipio", value)}
           />
         </div>
 

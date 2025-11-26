@@ -5,18 +5,18 @@ import { SimulationService } from '../../../../simulation/services/simulationSer
 import { LocalidadesService } from '../../../../localidades/services/localidadesService';
 
 interface ProfileLocationSelectorProps {
-  cidade: string;
+  municipio: string;
   uf: string;
   isEditing: boolean;
-  onCidadeChange: (cidade: string) => void;
+  onMunicipioChange: (municipio: string) => void;
   onUfChange: (uf: string) => void;
 }
 
 export const ProfileLocationSelector = ({
-  cidade,
+  municipio,
   uf,
   isEditing,
-  onCidadeChange,
+  onMunicipioChange,
   onUfChange,
 }: ProfileLocationSelectorProps): JSX.Element => {
   const [ufs, setUfs] = useState<string[]>([]);
@@ -42,9 +42,9 @@ export const ProfileLocationSelector = ({
       .then((data) => {
         setMunicipios(data.map((d) => ({ id: d.id, municipio: d.municipio })));
         
-        // Se já tinha uma cidade selecionada mas não existe mais na lista, limpar
-        if (cidade && !data.some(d => d.municipio === cidade)) {
-          onCidadeChange('');
+        // Se já tinha um município selecionado mas não existe mais na lista, limpar
+        if (municipio && !data.some(d => d.municipio === municipio)) {
+          onMunicipioChange('');
         }
       })
       .catch((e) => {
@@ -56,11 +56,11 @@ export const ProfileLocationSelector = ({
 
   const handleUfChange = (newUf: string) => {
     onUfChange(newUf);
-    onCidadeChange(''); // Limpar cidade ao mudar UF
+    onMunicipioChange(''); // Limpar município ao mudar UF
   };
 
-  const handleMunicipioChange = (municipioNome: string) => {
-    onCidadeChange(municipioNome);
+  const handleMunicipioChangeLocal = (municipioNome: string) => {
+    onMunicipioChange(municipioNome);
   };
 
   return (
@@ -92,8 +92,8 @@ export const ProfileLocationSelector = ({
           Município
         </label>
         <Select 
-          value={cidade} 
-          onValueChange={handleMunicipioChange}
+          value={municipio} 
+          onValueChange={handleMunicipioChangeLocal}
           disabled={!isEditing || !uf || municipiosLoading}
         >
           <SelectTrigger className="h-11 border-[#d0d3d9]">

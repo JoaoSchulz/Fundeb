@@ -9,7 +9,7 @@ interface UserProfile {
   name: string;
   email: string;
   phone: string;
-  cidade: string;
+  municipio: string;
   uf: string;
   organization: string;
   role: string;
@@ -19,7 +19,7 @@ const emptyProfile: UserProfile = {
   name: "",
   email: "",
   phone: "",
-  cidade: "",
+  municipio: "",
   uf: "",
   organization: "",
   role: "cliente",
@@ -30,11 +30,11 @@ const mapAuthUserToProfile = (user: any): UserProfile => {
   const name = user.nome || user.name || "";
   const email = user.email || "";
   const phone = user.telefone || user.phone || "";
-  const cidade = user.cidade || "";
+  const municipio = user.municipio || "";
   const uf = user.uf || "";
   const organization = user.organizacao || user.organização || user.organization || "";
   const role = user.role || "cliente";
-  return { name, email, phone, cidade, uf, organization, role };
+  return { name, email, phone, municipio, uf, organization, role };
 };
 
 export const MeuPerfil = (): JSX.Element => {
@@ -92,7 +92,7 @@ export const MeuPerfil = (): JSX.Element => {
         nome: editedProfile.name.trim(),
         email: editedProfile.email.trim(),
         telefone: editedProfile.phone?.trim() || null,
-        cidade: editedProfile.cidade?.trim() || null,
+        municipio: editedProfile.municipio?.trim() || null,
         uf: editedProfile.uf?.trim().toUpperCase() || null,
         organizacao: editedProfile.organization?.trim() || null,
         role: editedProfile.role || "cliente",
