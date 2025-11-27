@@ -58,8 +58,11 @@ export const EditarSimulacao = (): JSX.Element => {
         try {
           const entrada = (simulation.dadosEntrada ?? {}) as any;
           
+          console.log('Dados da simulação:', simulation);
+          console.log('Dados de entrada:', entrada);
+          
           // categorias: expect array of { id, name, subtitle, enrollments, simulatedTransfer }
-          if (entrada.categorias && Array.isArray(entrada.categorias) && setCategories) {
+          if (entrada.categorias && Array.isArray(entrada.categorias) && entrada.categorias.length > 0) {
             const mapped = entrada.categorias.map((c: any, idx: number) => ({
               id: String(c.id ?? c.key ?? idx + 1),
               name: c.name ?? c.nome ?? c.category ?? `Categoria ${idx + 1}`,
@@ -69,9 +72,18 @@ export const EditarSimulacao = (): JSX.Element => {
               simulatedTransfer: c.simulatedTransfer != null ? String(c.simulatedTransfer) : (c.repasseSimulado != null ? String(c.repasseSimulado) : "R$ 0"),
             }));
             setCategories(mapped);
+            console.log('Categorias mapeadas:', mapped);
           } else {
-            // Se não houver categorias, definir array vazio
-            setCategories([]);
+            console.warn('Nenhuma categoria encontrada nos dados de entrada');
+            // Criar categorias padrão baseadas no formato esperado
+            const defaultCategories = [
+              { id: '1', name: 'Creche - Parcial', subtitle: 'Até 3 anos', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
+              { id: '2', name: 'Creche - Integral', subtitle: 'Até 3 anos', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
+              { id: '3', name: 'Pré-escola', subtitle: '4 a 5 anos', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
+              { id: '4', name: 'Anos Iniciais - Urbano', subtitle: '1º ao 5º ano', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
+              { id: '5', name: 'Anos Iniciais - Campo', subtitle: '1º ao 5º ano', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
+            ];
+            setCategories(defaultCategories);
           }
 
           // receitas: expect array of { id, name, simulatedTransfer, currentValue }

@@ -11,11 +11,9 @@ export const getEnv = (): Env => {
     const hostname = window.location.hostname;
     if (hostname === 'fundebfront.vercel.app' || hostname.includes('vercel.app')) {
       apiBaseUrl = 'https://fundeb-back-end.vercel.app';
-      console.warn('⚠️ VITE_API_BASE_URL não definida, usando fallback:', apiBaseUrl);
     }
   }
 
-  console.log('🔍 [ENV] API Base URL:', apiBaseUrl);
   return { apiBaseUrl };
 };
 
