@@ -3,7 +3,7 @@ import { SimulationService } from "../../services/simulationService";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { formatCurrency } from "../../../../utils/formatters";
-import { FUNDEB_CATEGORIES, VALOR_ALUNO_ANO } from "../../../../utils/constants/fundeb";
+import { FUNDEB_CATEGORIES } from "../../../../utils/constants/fundeb";
 import {
   SimulationHeader,
   EditFormFields,
@@ -70,22 +70,13 @@ export const EditarSimulacao = (): JSX.Element => {
               const categoryKey = (c.id || c.nome || c.name || '').toLowerCase().replace(/ /g, '_');
               const fundebCat = FUNDEB_CATEGORIES[categoryKey];
               
-              const matriculas = c.matriculas || c.enrollments || 0;
-              let repasseOriginal = c.repasseOriginal || c.originalTransfer || 0;
-              const repasseSimulado = c.repasseSimulado || c.simulatedTransfer || 0;
-              
-              // Se repasse original for 0 mas tiver matrículas, calcular automaticamente
-              if (repasseOriginal === 0 && matriculas > 0 && fundebCat) {
-                repasseOriginal = matriculas * VALOR_ALUNO_ANO * fundebCat.factor;
-              }
-              
               return {
                 id: String(c.id ?? idx + 1),
                 name: fundebCat ? fundebCat.name : (c.nome || c.name || c.category || `Categoria ${idx + 1}`),
                 subtitle: fundebCat ? fundebCat.subtitle : (c.subtitulo || c.subtitle || c.subcategory || ''),
-                enrollments: String(matriculas),
-                originalTransfer: formatCurrency(repasseOriginal),
-                simulatedTransfer: formatCurrency(repasseSimulado),
+                enrollments: String(c.matriculas || c.enrollments || 0),
+                originalTransfer: formatCurrency(c.repasseOriginal || c.originalTransfer || 0),
+                simulatedTransfer: formatCurrency(c.repasseSimulado || c.simulatedTransfer || 0),
               };
             });
             console.log('Categorias mapeadas:', mapped);
@@ -100,22 +91,13 @@ export const EditarSimulacao = (): JSX.Element => {
                 index++;
                 const fundebCat = FUNDEB_CATEGORIES[key];
                 
-                const matriculas = value.matriculas || value.enrollments || 0;
-                let repasseOriginal = value.repasseOriginal || value.repasse || value.originalTransfer || 0;
-                const repasseSimulado = value.repasseSimulado || value.simulatedTransfer || 0;
-                
-                // Se repasse original for 0 mas tiver matrículas, calcular automaticamente
-                if (repasseOriginal === 0 && matriculas > 0 && fundebCat) {
-                  repasseOriginal = matriculas * VALOR_ALUNO_ANO * fundebCat.factor;
-                }
-                
                 categoriesArray.push({
                   id: String(index),
                   name: fundebCat ? fundebCat.name : (value.nome || value.name || key),
                   subtitle: fundebCat ? fundebCat.subtitle : (value.subtitulo || value.subtitle || ''),
-                  enrollments: String(matriculas),
-                  originalTransfer: formatCurrency(repasseOriginal),
-                  simulatedTransfer: formatCurrency(repasseSimulado),
+                  enrollments: String(value.matriculas || value.enrollments || 0),
+                  originalTransfer: formatCurrency(value.repasseOriginal || value.repasse || value.originalTransfer || 0),
+                  simulatedTransfer: formatCurrency(value.repasseSimulado || value.simulatedTransfer || 0),
                 });
               }
             });
