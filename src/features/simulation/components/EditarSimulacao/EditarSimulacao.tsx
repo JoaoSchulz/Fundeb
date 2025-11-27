@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { SimulationService } from "../../services/simulationService";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Card, CardContent } from "../../../../components/ui/card";
 import {
   SimulationHeader,
   SimulationFormFields,
@@ -21,59 +20,85 @@ export const EditarSimulacao = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState<TabType>("enrollment");
   const [simulationName, setSimulationName] = useState("Simulação 05/05/2025");
   const [baseYear, setBaseYear] = useState("2027");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const { categories, handleChange: handleEnrollmentChange, setCategories } =
     useEnrollmentForm();
   const { items, handleChange: handleRevenueChange, setItems } = useRevenueForm();
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) {
+      setError("ID da simulação não encontrado");
+      setIsLoading(false);
+      toast.error("ID da simulação não encontrado");
+      navigate("/app/simulacoes");
+      return;
+    }
+    
     let mounted = true;
-    import("../../services/simulationService").then(({ SimulationService }) => {
-      SimulationService.getSimulationById(id)
-        .then((simulation) => {
-          if (!mounted || !simulation) return;
-          setSimulationName(simulation.nome || simulation.name || "Simulação");
-          setBaseYear(simulation.baseYear || "2027");
-          // Prefill: map simulation.dadosEntrada into form hooks (categories/items)
-          try {
-            const entrada = (simulation.dadosEntrada ?? {}) as any;
-            // categorias: expect array of { id, name, subtitle, enrollments, simulatedTransfer }
-            if (entrada.categorias && Array.isArray(entrada.categorias) && setCategories) {
-              const mapped = entrada.categorias.map((c: any, idx: number) => ({
-                id: String(c.id ?? c.key ?? idx + 1),
-                name: c.name ?? c.nome ?? c.category ?? `Categoria ${idx + 1}`,
-                subtitle: c.subtitle ?? c.subtitulo ?? c.subcategory ?? "",
-                enrollments: c.enrollments != null ? String(c.enrollments) : (c.matriculas != null ? String(c.matriculas) : "0"),
-                originalTransfer: c.originalTransfer != null ? String(c.originalTransfer) : (c.repasseOriginal != null ? String(c.repasseOriginal) : "R$ 0"),
-                simulatedTransfer: c.simulatedTransfer != null ? String(c.simulatedTransfer) : (c.repasseSimulado != null ? String(c.repasseSimulado) : "R$ 0"),
-              }));
-              setCategories(mapped);
-            }
-
-            // receitas: expect array of { id, name, simulatedTransfer, currentValue }
-            if (entrada.receitas && Array.isArray(entrada.receitas) && setItems) {
-              const mappedItems = entrada.receitas.map((r: any, idx: number) => ({
-                id: String(r.id ?? r.key ?? idx + 1),
-                name: r.name ?? r.nome ?? `Receita ${idx + 1}`,
-                simulatedTransfer: r.simulatedTransfer != null ? String(r.simulatedTransfer) : (r.repasseSimulado != null ? String(r.repasseSimulado) : "R$ 0"),
-                currentValue: r.currentValue != null ? String(r.currentValue) : (r.valorAtual != null ? String(r.valorAtual) : "R$ 0"),
-              }));
-              setItems(mappedItems);
-            }
-          } catch (err) {
-            // swallow mapping errors
+    setIsLoading(true);
+    setError(null);
+    
+    SimulationService.getSimulationById(id)
+      .then((simulation) => {
+        if (!mounted) return;
+        
+        if (!simulation) {
+          setError("Simulação não encontrada");
+          toast.error("Simulação não encontrada");
+          navigate("/app/simulacoes");
+          return;
+        }
+        
+        setSimulationName(simulation.nome || simulation.name || "Simulação");
+        setBaseYear(simulation.baseYear || "2027");
+        
+        // Prefill: map simulation.dadosEntrada into form hooks (categories/items)
+        try {
+          const entrada = (simulation.dadosEntrada ?? {}) as any;
+          
+          // categorias: expect array of { id, name, subtitle, enrollments, simulatedTransfer }
+          if (entrada.categorias && Array.isArray(entrada.categorias) && setCategories) {
+            const mapped = entrada.categorias.map((c: any, idx: number) => ({
+              id: String(c.id ?? c.key ?? idx + 1),
+              name: c.name ?? c.nome ?? c.category ?? `Categoria ${idx + 1}`,
+              subtitle: c.subtitle ?? c.subtitulo ?? c.subcategory ?? "",
+              enrollments: c.enrollments != null ? String(c.enrollments) : (c.matriculas != null ? String(c.matriculas) : "0"),
+              originalTransfer: c.originalTransfer != null ? String(c.originalTransfer) : (c.repasseOriginal != null ? String(c.repasseOriginal) : "R$ 0"),
+              simulatedTransfer: c.simulatedTransfer != null ? String(c.simulatedTransfer) : (c.repasseSimulado != null ? String(c.repasseSimulado) : "R$ 0"),
+            }));
+            setCategories(mapped);
           }
-        })
-        .catch((e) => {
-          console.error('Error fetching simulation by id', e);
-          // Re-throw to surface the error to dev console
-          throw e;
-        });
-    });
+
+          // receitas: expect array of { id, name, simulatedTransfer, currentValue }
+          if (entrada.receitas && Array.isArray(entrada.receitas) && setItems) {
+            const mappedItems = entrada.receitas.map((r: any, idx: number) => ({
+              id: String(r.id ?? r.key ?? idx + 1),
+              name: r.name ?? r.nome ?? `Receita ${idx + 1}`,
+              simulatedTransfer: r.simulatedTransfer != null ? String(r.simulatedTransfer) : (r.repasseSimulado != null ? String(r.repasseSimulado) : "R$ 0"),
+              currentValue: r.currentValue != null ? String(r.currentValue) : (r.valorAtual != null ? String(r.valorAtual) : "R$ 0"),
+            }));
+            setItems(mappedItems);
+          }
+        } catch (err) {
+          console.error("Erro ao mapear dados da simulação:", err);
+          setError("Erro ao carregar dados da simulação");
+          toast.error("Erro ao carregar dados da simulação");
+        }
+        
+        setIsLoading(false);
+      })
+      .catch((e) => {
+        if (!mounted) return;
+        console.error('Error fetching simulation by id', e);
+        setError("Erro ao buscar simulação");
+        toast.error("Erro ao buscar simulação");
+        setIsLoading(false);
+      });
 
     return () => { mounted = false };
-  }, [id]);
+  }, [id, navigate, setCategories, setItems]);
 
   const handleSave = (): void => {
     // Helpers para conversão de strings para números
@@ -137,6 +162,32 @@ export const EditarSimulacao = (): JSX.Element => {
   const handleCancel = (): void => {
     navigate("/app/simulacoes");
   };
+
+  if (isLoading) {
+    return (
+      <section className="flex flex-col items-center justify-center gap-8 pt-8 pb-12 px-0 w-full bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(239,246,255,1)_50%,rgba(236,238,243,1)_100%)] min-h-screen">
+        <div className="text-center">
+          <p className="text-lg text-gray-600">Carregando simulação...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="flex flex-col items-center justify-center gap-8 pt-8 pb-12 px-0 w-full bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(239,246,255,1)_50%,rgba(236,238,243,1)_100%)] min-h-screen">
+        <div className="text-center">
+          <p className="text-lg text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => navigate("/app/simulacoes")}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Voltar para Simulações
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="flex flex-col items-start gap-8 pt-8 pb-12 px-0 w-full bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(239,246,255,1)_50%,rgba(236,238,243,1)_100%)] min-h-screen">
