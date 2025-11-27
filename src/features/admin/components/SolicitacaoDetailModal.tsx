@@ -140,15 +140,20 @@ export const SolicitacaoDetailModal = ({ solicitacao, isOpen, onClose, onSuccess
                 </div>
               </div>
             )}
-
-            {solicitacao.motivo_rejeicao && (
-              <div className="p-4 bg-red-50 rounded-lg border border-red-100">
-                <p className="text-sm text-red-700">
-                  <strong>Motivo da recusa:</strong> {solicitacao.motivo_rejeicao}
-                </p>
-              </div>
-            )}
           </div>
+
+          {/* Motivo da Rejeição */}
+          {solicitacao.status === 'negado' && solicitacao.motivo_rejeicao && (
+            <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-start gap-2">
+                <MessageSquare className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-red-900 mb-1">Motivo da Recusa</p>
+                  <p className="text-sm text-red-700">{solicitacao.motivo_rejeicao}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Formulário de Aprovação/Rejeição */}
           {solicitacao.status === 'pendente' && !showRejectForm && (
