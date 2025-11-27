@@ -64,6 +64,15 @@ export class AuthService {
     return data;
   }
 
+  static async checkSession(): Promise<boolean> {
+    try {
+      await http.get("/auth/check-session");
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   static async logout(): Promise<void> {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);

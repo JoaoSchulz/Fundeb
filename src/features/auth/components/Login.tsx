@@ -1,4 +1,4 @@
-import { Eye as Eye, EyeOff as EyeOffIcon } from "lucide-react";
+import { Eye as Eye, EyeOff as EyeOffIcon, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
@@ -10,7 +10,7 @@ export const Login = (): JSX.Element => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [showSenha, setShowSenha] = useState(false);
-  const { login } = useAuth();
+  const { login, isLoading } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,8 +79,16 @@ export const Login = (): JSX.Element => {
           <Button
             type="submit"
             className={LAYOUT_CONSTANTS.BUTTON.PRIMARY_FULL_WIDTH}
+            disabled={isLoading}
           >
-            Entrar
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Entrando...
+              </>
+            ) : (
+              "Entrar"
+            )}
           </Button>
 
           <div className="flex justify-center">

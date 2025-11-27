@@ -7,6 +7,7 @@ import { User } from "../../../types/api";
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
+  isLoading: boolean;
   login: (email: string, senha: string) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => AuthService.isAuthenticated());
   const [user, setUser] = useState<User | null>(() => AuthService.getUser());
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,14 +40,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('auth-user-updated', handleAuthUserUpdated);
+
+    // Verificar sessão a cada 30 segundos
+    const sessionCheckInterval = setInterval(async () => {
+      if (AuthService.isAuthenticated()) {
+        const isValid = await AuthService.checkSession();
+        if (!isValid) {
+          setIsAuthenticated(false);
+          setUser(null);
+          AuthService.logout();
+          toast.error('Sua sessão foi encerrada. Outro login foi detectado.');
+          navigate('/login');
+        }
+      }
+    }, 30000); // 30 segundos
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('auth-user-updated', handleAuthUserUpdated);
+      clearInterval(sessionCheckInterval);
     };
-  }, []);
+  }, [navigate]);
 
   const login = (email: string, senha: string) => {
+    setIsLoading(true);
     AuthService.login({ email, senha })
       .then(() => {
         setIsAuthenticated(true);
@@ -57,6 +75,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         toast.error("Credenciais inválidas");
         // Re-throw so error is visible in console and can be handled by dev tooling
         throw e;
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -78,7 +99,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, isLoading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
