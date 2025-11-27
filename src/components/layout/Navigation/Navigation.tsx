@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart3, Home, LogOut as LogOutIcon, User as UserIcon, Shield } from "lucide-react";
 import { useAuth } from "../../../features/auth/hooks";
+import { SolicitacoesService } from "../../../services/solicitacoesService";
 import {
   MobileMenuButton,
   NavigationLogo,
@@ -51,6 +52,27 @@ export const Navigation = ({
 }: NavigationProps): JSX.Element => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  // Buscar quantidade de solicitações pendentes se for admin
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      const fetchPendingCount = async () => {
+        try {
+          const solicitacoes = await SolicitacoesService.getSolicitacoes('pendente');
+          setPendingCount(solicitacoes.length);
+        } catch (error) {
+          console.error('Erro ao buscar solicitações pendentes:', error);
+        }
+      };
+
+      fetchPendingCount();
+      
+      // Atualizar a cada 30 segundos
+      const interval = setInterval(fetchPendingCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user?.role]);
 
   // Filtrar itens de navegação baseado na role do usuário
   const filteredNavigationItems = React.useMemo(() => {
@@ -64,11 +86,12 @@ export const Navigation = ({
         label: "Solicitações",
         path: "/app/admin/solicitacoes",
         isLogout: false,
+        badge: pendingCount > 0 ? pendingCount : undefined,
       });
     }
     
     return items;
-  }, [user?.role]);
+  }, [user?.role, pendingCount]);
 
   const handleNavigate = (path: string, isLogout: boolean): void => {
     if (isLogout) {

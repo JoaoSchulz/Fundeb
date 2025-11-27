@@ -7,6 +7,7 @@ interface NavigationItem {
   label: string;
   path: string;
   isLogout: boolean;
+  badge?: number;
 }
 
 interface NavigationItemsProps {
@@ -42,12 +43,17 @@ export const NavigationItems = ({
               <div
                 className={`flex items-center gap-3 ${isCollapsed ? "" : "w-full"}`}
               >
-                <div className="flex w-5 h-5 items-center justify-center flex-shrink-0">
+                <div className="relative flex w-5 h-5 items-center justify-center flex-shrink-0">
                   <item.icon
                     className={`w-5 h-5 transition-colors duration-200 ${
                       isActive ? "text-[#22a3eb]" : "text-[#414651]"
                     }`}
                   />
+                  {item.badge && item.badge > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                      {item.badge > 9 ? '9+' : item.badge}
+                    </span>
+                  )}
                 </div>
                 {!isCollapsed && (
                   <span
