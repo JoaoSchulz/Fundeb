@@ -1,5 +1,5 @@
 export { SimulationHeader } from "./SimulationHeader";
-export { SimulationFormFields } from "../../NovaSimulacao/components/SimulationFormFields";
+export { EditFormFields } from "./EditFormFields";
 export { TabSelector } from "../../NovaSimulacao/components/TabSelector";
 export { EnrollmentForm } from "../../NovaSimulacao/components/EnrollmentForm";
 export { RevenueForm } from "../../NovaSimulacao/components/RevenueForm";

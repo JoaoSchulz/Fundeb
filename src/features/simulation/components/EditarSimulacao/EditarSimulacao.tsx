@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
   SimulationHeader,
-  SimulationFormFields,
+  EditFormFields,
   TabSelector,
   EnrollmentForm,
   RevenueForm,
@@ -202,7 +202,7 @@ export const EditarSimulacao = (): JSX.Element => {
 
         <div className="w-full max-w-[1400px] mx-auto bg-white rounded-xl border border-solid border-[#e9e9eb] shadow-sm">
           <div className="p-6 md:p-8">
-            <SimulationFormFields
+            <EditFormFields
               simulationName={simulationName}
               onNameChange={setSimulationName}
               baseYear={baseYear}
