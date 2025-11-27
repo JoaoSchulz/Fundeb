@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Shield, Eye } from "lucide-react";
 import { Button } from "../../../components/ui/button";
+import { Card, CardContent } from "../../../components/ui/card";
 import { SolicitacoesService, SolicitacaoAcesso } from "../../../services/solicitacoesService";
 import { useAuth } from "../../auth/hooks";
 import { SolicitacaoDetailModal } from "./SolicitacaoDetailModal";
