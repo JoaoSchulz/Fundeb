@@ -3,6 +3,7 @@ import { SimulationService } from "../../services/simulationService";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { formatCurrency } from "../../../../utils/formatters";
+import { FUNDEB_CATEGORIES } from "../../../../utils/constants/fundeb";
 import {
   SimulationHeader,
   EditFormFields,
@@ -65,14 +66,19 @@ export const EditarSimulacao = (): JSX.Element => {
           
           // Usar as categorias exatamente como vieram do backend (não gerar todas do sistema)
           if (entrada.categorias && Array.isArray(entrada.categorias) && entrada.categorias.length > 0) {
-            const mapped = entrada.categorias.map((c: any, idx: number) => ({
-              id: String(c.id ?? idx + 1),
-              name: c.nome || c.name || c.category || `Categoria ${idx + 1}`,
-              subtitle: c.subtitulo || c.subtitle || c.subcategory || '',
-              enrollments: String(c.matriculas || c.enrollments || 0),
-              originalTransfer: formatCurrency(c.repasseOriginal || c.originalTransfer || 0),
-              simulatedTransfer: formatCurrency(c.repasseSimulado || c.simulatedTransfer || 0),
-            }));
+            const mapped = entrada.categorias.map((c: any, idx: number) => {
+              const categoryKey = (c.id || c.nome || c.name || '').toLowerCase().replace(/ /g, '_');
+              const fundebCat = FUNDEB_CATEGORIES[categoryKey];
+              
+              return {
+                id: String(c.id ?? idx + 1),
+                name: fundebCat ? fundebCat.name : (c.nome || c.name || c.category || `Categoria ${idx + 1}`),
+                subtitle: fundebCat ? fundebCat.subtitle : (c.subtitulo || c.subtitle || c.subcategory || ''),
+                enrollments: String(c.matriculas || c.enrollments || 0),
+                originalTransfer: formatCurrency(c.repasseOriginal || c.originalTransfer || 0),
+                simulatedTransfer: formatCurrency(c.repasseSimulado || c.simulatedTransfer || 0),
+              };
+            });
             console.log('Categorias mapeadas:', mapped);
             setCategories(mapped);
           } else if (entrada.categorias && typeof entrada.categorias === 'object' && !Array.isArray(entrada.categorias)) {
@@ -83,10 +89,12 @@ export const EditarSimulacao = (): JSX.Element => {
             Object.entries(entrada.categorias).forEach(([key, value]: [string, any]) => {
               if (value && typeof value === 'object') {
                 index++;
+                const fundebCat = FUNDEB_CATEGORIES[key];
+                
                 categoriesArray.push({
                   id: String(index),
-                  name: value.nome || value.name || key,
-                  subtitle: value.subtitulo || value.subtitle || '',
+                  name: fundebCat ? fundebCat.name : (value.nome || value.name || key),
+                  subtitle: fundebCat ? fundebCat.subtitle : (value.subtitulo || value.subtitle || ''),
                   enrollments: String(value.matriculas || value.enrollments || 0),
                   originalTransfer: formatCurrency(value.repasseOriginal || value.repasse || value.originalTransfer || 0),
                   simulatedTransfer: formatCurrency(value.repasseSimulado || value.simulatedTransfer || 0),
