@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { SimulationService } from "../../services/simulationService";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { EDUCATION_CATEGORIES } from "../../constants";
+import { formatCurrency } from "../../../../utils/formatters";
 import {
   SimulationHeader,
   EditFormFields,
@@ -61,33 +63,59 @@ export const EditarSimulacao = (): JSX.Element => {
           console.log('Dados da simulação:', simulation);
           console.log('Dados de entrada:', entrada);
           
-          // categorias: expect array of { id, name, subtitle, enrollments, simulatedTransfer }
-          if (entrada.categorias && Array.isArray(entrada.categorias) && entrada.categorias.length > 0) {
-            const mapped = entrada.categorias.map((c: any, idx: number) => ({
-              id: String(c.id ?? c.key ?? idx + 1),
-              name: c.name ?? c.nome ?? c.category ?? `Categoria ${idx + 1}`,
-              subtitle: c.subtitle ?? c.subtitulo ?? c.subcategory ?? "",
-              enrollments: c.enrollments != null ? String(c.enrollments) : (c.matriculas != null ? String(c.matriculas) : "0"),
-              originalTransfer: c.originalTransfer != null ? String(c.originalTransfer) : (c.repasseOriginal != null ? String(c.repasseOriginal) : "R$ 0"),
-              simulatedTransfer: c.simulatedTransfer != null ? String(c.simulatedTransfer) : (c.repasseSimulado != null ? String(c.repasseSimulado) : "R$ 0"),
-            }));
-            setCategories(mapped);
-            console.log('Categorias mapeadas:', mapped);
-          } else {
-            console.warn('Nenhuma categoria encontrada nos dados de entrada');
-            // Criar categorias padrão baseadas no formato esperado
-            const defaultCategories = [
-              { id: '1', name: 'Creche - Parcial', subtitle: 'Até 3 anos', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
-              { id: '2', name: 'Creche - Integral', subtitle: 'Até 3 anos', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
-              { id: '3', name: 'Pré-escola', subtitle: '4 a 5 anos', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
-              { id: '4', name: 'Anos Iniciais - Urbano', subtitle: '1º ao 5º ano', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
-              { id: '5', name: 'Anos Iniciais - Campo', subtitle: '1º ao 5º ano', enrollments: '0', originalTransfer: 'R$ 0', simulatedTransfer: 'R$ 0' },
-            ];
-            setCategories(defaultCategories);
-          }
-
-          // receitas: expect array of { id, name, simulatedTransfer, currentValue }
-          if (entrada.receitas && Array.isArray(entrada.receitas) && setItems) {
+          // Criar categorias baseadas em EDUCATION_CATEGORIES do sistema
+          const allCategories: any[] = [];
+          let categoryIndex = 0;
+          
+          Object.entries(EDUCATION_CATEGORIES).forEach(([_, category]) => {
+            Object.entries(category.subcategories).forEach(([key, subcategoryName]) => {
+              categoryIndex++;
+              
+              // Buscar dados desta categoria nos dadosEntrada
+              let matriculas = 0;
+              let repasseOriginal = 0;
+              let repasseSimulado = 0;
+              
+              // Tentar encontrar nos dados de entrada
+              if (entrada.categorias && Array.isArray(entrada.categorias)) {
+                const found = entrada.categorias.find((c: any) => 
+                  (c.nome === subcategoryName || c.name === subcategoryName || c.subcategory === subcategoryName)
+                );
+                
+                if (found) {
+                  matriculas = found.matriculas || found.enrollments || 0;
+                  repasseOriginal = found.repasseOriginal || found.originalTransfer || 0;
+                  repasseSimulado = found.repasseSimulado || found.simulatedTransfer || 0;
+                }
+              }
+              
+              // Se não encontrou nos dados, tentar buscar no objeto categorias (formato antigo)
+              if (matriculas === 0 && entrada.categorias && typeof entrada.categorias === 'object' && !Array.isArray(entrada.categorias)) {
+                const catKey = key.toLowerCase();
+                if (entrada.categorias[catKey]) {
+                  const catData = entrada.categorias[catKey];
+                  matriculas = catData.matriculas || catData.enrollments || 0;
+                  repasseOriginal = catData.repasseOriginal || catData.repasse || catData.originalTransfer || 0;
+                  repasseSimulado = catData.repasseSimulado || catData.simulatedTransfer || 0;
+                }
+              }
+              
+              allCategories.push({
+                id: String(categoryIndex),
+                name: subcategoryName,
+                subtitle: category.name,
+                enrollments: String(matriculas),
+                originalTransfer: formatCurrency(repasseOriginal),
+                simulatedTransfer: formatCurrency(repasseSimulado),
+              });
+            });
+          });
+          
+          console.log('Categorias geradas:', allCategories);
+          setCategories(allCategories);
+          
+          // Receitas
+          if (entrada.receitas && Array.isArray(entrada.receitas)) {
             const mappedItems = entrada.receitas.map((r: any, idx: number) => ({
               id: String(r.id ?? r.key ?? idx + 1),
               name: r.name ?? r.nome ?? `Receita ${idx + 1}`,
@@ -96,7 +124,6 @@ export const EditarSimulacao = (): JSX.Element => {
             }));
             setItems(mappedItems);
           } else {
-            // Se não houver receitas, definir array vazio
             setItems([]);
           }
         } catch (err) {
