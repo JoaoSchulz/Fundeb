@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SimulationService } from "../../services/simulationService";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { Card, CardContent } from "../../../../components/ui/card";
 import {
   SimulationHeader,
   SimulationFormFields,
@@ -44,6 +45,7 @@ export const EditarSimulacao = (): JSX.Element => {
                 name: c.name ?? c.nome ?? c.category ?? `Categoria ${idx + 1}`,
                 subtitle: c.subtitle ?? c.subtitulo ?? c.subcategory ?? "",
                 enrollments: c.enrollments != null ? String(c.enrollments) : (c.matriculas != null ? String(c.matriculas) : "0"),
+                originalTransfer: c.originalTransfer != null ? String(c.originalTransfer) : (c.repasseOriginal != null ? String(c.repasseOriginal) : "R$ 0"),
                 simulatedTransfer: c.simulatedTransfer != null ? String(c.simulatedTransfer) : (c.repasseSimulado != null ? String(c.repasseSimulado) : "R$ 0"),
               }));
               setCategories(mapped);
