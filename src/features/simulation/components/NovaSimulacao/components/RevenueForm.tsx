@@ -24,6 +24,8 @@ export const RevenueForm = ({
   onRevenueChange,
 }: RevenueFormProps): JSX.Element => {
   
+  // Garantir que items seja sempre um array
+  const safeItems = Array.isArray(items) ? items : [];
   
   return (
   <div className="overflow-x-auto scrollbar-modern-horizontal">
@@ -53,11 +55,11 @@ export const RevenueForm = ({
         </Tooltip>
       </div>
     </div>
-    {items.map((item, index) => (
+    {safeItems.map((item, index) => (
       <div
         key={item.id}
         className={`grid grid-cols-[1fr,auto,auto] gap-2 md:gap-4 py-4 min-w-[600px] ${
-          index !== items.length - 1 ? "border-b border-[#e9e9eb]" : ""
+          index !== safeItems.length - 1 ? "border-b border-[#e9e9eb]" : ""
         }`}
       >
         <div className="flex items-center min-w-0">

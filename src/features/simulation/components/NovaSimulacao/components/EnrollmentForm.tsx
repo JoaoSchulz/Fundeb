@@ -22,6 +22,8 @@ export const EnrollmentForm = ({
   onEnrollmentChange,
 }: EnrollmentFormProps): JSX.Element => {
   
+  // Garantir que categories seja sempre um array
+  const safeCategories = Array.isArray(categories) ? categories : [];
   
   return (
   <div className="overflow-x-auto scrollbar-modern-horizontal">
@@ -59,11 +61,11 @@ export const EnrollmentForm = ({
         </Tooltip>
       </div>
     </div>
-    {categories.map((category, index) => (
+    {safeCategories.map((category, index) => (
       <div
         key={category.id}
         className={`grid grid-cols-[1fr,auto,auto,auto] gap-2 md:gap-4 py-4 min-w-[800px] ${
-          index !== categories.length - 1 ? "border-b border-[#e9e9eb]" : ""
+          index !== safeCategories.length - 1 ? "border-b border-[#e9e9eb]" : ""
         }`}
       >
         <div className="flex flex-col min-w-0">

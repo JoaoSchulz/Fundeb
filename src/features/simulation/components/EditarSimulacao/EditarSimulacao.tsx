@@ -24,7 +24,7 @@ export const EditarSimulacao = (): JSX.Element => {
   const [error, setError] = useState<string | null>(null);
 
   const { categories, handleChange: handleEnrollmentChange, setCategories } =
-    useEnrollmentForm();
+    useEnrollmentForm([]);
   const { items, handleChange: handleRevenueChange, setItems } = useRevenueForm();
 
   useEffect(() => {
@@ -69,6 +69,9 @@ export const EditarSimulacao = (): JSX.Element => {
               simulatedTransfer: c.simulatedTransfer != null ? String(c.simulatedTransfer) : (c.repasseSimulado != null ? String(c.repasseSimulado) : "R$ 0"),
             }));
             setCategories(mapped);
+          } else {
+            // Se não houver categorias, definir array vazio
+            setCategories([]);
           }
 
           // receitas: expect array of { id, name, simulatedTransfer, currentValue }
@@ -80,6 +83,9 @@ export const EditarSimulacao = (): JSX.Element => {
               currentValue: r.currentValue != null ? String(r.currentValue) : (r.valorAtual != null ? String(r.valorAtual) : "R$ 0"),
             }));
             setItems(mappedItems);
+          } else {
+            // Se não houver receitas, definir array vazio
+            setItems([]);
           }
         } catch (err) {
           console.error("Erro ao mapear dados da simulação:", err);
@@ -207,12 +213,12 @@ export const EditarSimulacao = (): JSX.Element => {
 
             {activeTab === "enrollment" ? (
               <EnrollmentForm
-                categories={categories}
+                categories={categories || []}
                 onEnrollmentChange={handleEnrollmentChange}
               />
             ) : (
               <RevenueForm
-                items={items}
+                items={items || []}
                 onRevenueChange={handleRevenueChange}
               />
             )}
