@@ -2,6 +2,8 @@ import { DataTable, type Column } from "../../../../../components/common";
 import type { SimulationRow } from "../../../types";
 import { createTableColumns } from "../../../utils/table";
 import { formatCurrency } from "../../../../../utils/formatters";
+import { CategoryDetailsModal } from "./CategoryDetailsModal";
+import { useState } from "react";
 
 interface SimulationTableProps {
   data: SimulationRow[];
@@ -12,8 +14,14 @@ interface SimulationTableProps {
 
 export const SimulationTable = ({
   data,
-  onOpenModal,
 }: SimulationTableProps): JSX.Element => {
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<SimulationRow | null>(null);
+
+  const handleRowAction = (row: SimulationRow) => {
+    setSelectedCategory(row);
+    setIsCategoryModalOpen(true);
+  };
   
   // Converter SimulationRow para incluir índice de string
   const tableData: Record<string, unknown>[] = data.map(row => ({
@@ -94,21 +102,29 @@ export const SimulationTable = ({
   }, 0);
   
   return (
-    <DataTable
-      data={tableData}
-      columns={tableColumns}
-      onRowAction={onOpenModal}
-      actionLabel="Visualizar detalhes da simulação"
-      renderTotalRow={() => (
-        <div className="flex items-center justify-between w-full">
-          <span className="font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[#252b37] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)]">
-            Total potencial de repasse adicional
-          </span>
-          <span className={`font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[#252b37] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)]`}>
-            {formatCurrency(totalPotencial)}
-          </span>
-        </div>
-      )}
-    />
+    <>
+      <DataTable
+        data={tableData}
+        columns={tableColumns}
+        onRowAction={handleRowAction}
+        actionLabel="Visualizar detalhes da categoria"
+        renderTotalRow={() => (
+          <div className="flex items-center justify-between w-full">
+            <span className="font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[#252b37] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)]">
+              Total potencial de repasse adicional
+            </span>
+            <span className={`font-text-sm-semibold font-[number:var(--text-sm-semibold-font-weight)] text-[#252b37] text-[length:var(--text-sm-semibold-font-size)] tracking-[var(--text-sm-semibold-letter-spacing)] leading-[var(--text-sm-semibold-line-height)] [font-style:var(--text-sm-semibold-font-style)]`}>
+              {formatCurrency(totalPotencial)}
+            </span>
+          </div>
+        )}
+      />
+      
+      <CategoryDetailsModal
+        open={isCategoryModalOpen}
+        onOpenChange={setIsCategoryModalOpen}
+        category={selectedCategory}
+      />
+    </>
   );
 };
