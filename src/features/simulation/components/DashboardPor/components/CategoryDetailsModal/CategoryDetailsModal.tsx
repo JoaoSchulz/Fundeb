@@ -176,27 +176,27 @@ export const CategoryDetailsModal = ({
                     Contexto do Município
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
-                    {selectedSimulation.complementacaoVAAT > 0 && (
+                    {(selectedSimulation.complementacaoVAAT ?? 0) > 0 && (
                       <div className="flex flex-col gap-2 p-4 rounded-xl bg-purple-50">
                         <span className="text-sm text-[#535861]">Complementação VAAT</span>
                         <span className="text-base font-semibold text-[#181d27]">
-                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAT))}
+                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAT ?? 0))}
                         </span>
                       </div>
                     )}
-                    {selectedSimulation.complementacaoVAAR > 0 && (
+                    {(selectedSimulation.complementacaoVAAR ?? 0) > 0 && (
                       <div className="flex flex-col gap-2 p-4 rounded-xl bg-orange-50">
                         <span className="text-sm text-[#535861]">Complementação VAAR</span>
                         <span className="text-base font-semibold text-[#181d27]">
-                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAR))}
+                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAR ?? 0))}
                         </span>
                       </div>
                     )}
-                    {selectedSimulation.complementacaoVAAF > 0 && (
+                    {(selectedSimulation.complementacaoVAAF ?? 0) > 0 && (
                       <div className="flex flex-col gap-2 p-4 rounded-xl bg-green-50">
                         <span className="text-sm text-[#535861]">Complementação VAAF</span>
                         <span className="text-base font-semibold text-[#181d27]">
-                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAF))}
+                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAF ?? 0))}
                         </span>
                       </div>
                     )}
