@@ -139,21 +139,40 @@ export const MinhasSimulacoes = (): JSX.Element => {
       let complementacaoVAAT = 0;
       let complementacaoVAAR = 0;
       
-      if (simulation.codMun || dadosEntrada.municipioId) {
+      if (simulation.codMun || dadosEntrada.municipioId || dadosEntrada.municipio || simulation.city) {
         try {
-          // Buscar dados de indicadores do município
-          const indicatorsData = await SimulationService.getSimulationsByTab('indicadores');
-          const municipioData = indicatorsData.find((m: any) => 
-            m.municipio === (dadosEntrada.municipio || simulation.city)
-          );
+          // Buscar dados BRUTOS dos indicadores (sem transformer)
+          const indicatorsData = await SimulationService.getRawIndicatorsData();
+          const municipioNome = dadosEntrada.municipio || simulation.city || '';
+          
+          console.log('Buscando indicadores para município:', municipioNome);
+          
+          // Buscar município com comparação case-insensitive e normalizada
+          const municipioData = indicatorsData.find((m: any) => {
+            const nomeMunicipio = m.municipio?.toLowerCase().trim() || '';
+            const nomeComparar = municipioNome.toLowerCase().trim();
+            return nomeMunicipio === nomeComparar;
+          });
           
           if (municipioData) {
             complementacaoVAAF = (municipioData as any).indicadores_vaaf || 0;
             complementacaoVAAT = (municipioData as any).indicadores_vaat || 0;
             complementacaoVAAR = (municipioData as any).indicadores_vaar || 0;
+            
+            console.log('✅ Indicadores encontrados:', {
+              municipio: municipioNome,
+              vaaf: complementacaoVAAF,
+              vaat: complementacaoVAAT,
+              vaar: complementacaoVAAR
+            });
+          } else {
+            console.warn('⚠️ Município não encontrado nos indicadores:', municipioNome);
+            console.log('Primeiros 10 municípios disponíveis:', 
+              indicatorsData.slice(0, 10).map((m: any) => m.municipio)
+            );
           }
         } catch (error) {
-          console.warn('Não foi possível buscar indicadores do município:', error);
+          console.error('❌ Erro ao buscar indicadores do município:', error);
         }
       }
 

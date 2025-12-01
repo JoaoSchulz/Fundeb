@@ -45,6 +45,12 @@ export class SimulationService {
     return transformIndicatorData(data);
   }
 
+  // Buscar dados brutos de indicadores (sem transformer) - para uso interno
+  static async getRawIndicatorsData(): Promise<IndicatorData[]> {
+    const { data } = await http.get<IndicatorData[]>("/simulations/indicators");
+    return data;
+  }
+
   // Endpoints de Localidades
   static async getUFs(): Promise<string[]> {
     const { data } = await http.get<string[]>("/localidades/ufs");
