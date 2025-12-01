@@ -168,6 +168,21 @@ export const MinhasSimulacoes = (): JSX.Element => {
             });
           } else {
             console.warn('⚠️ Município não encontrado nos indicadores:', municipioNome);
+            
+            // Buscar municípios do AC para debug
+            const municipiosAC = indicatorsData.filter((m: any) => m.uf === 'AC');
+            console.log('🔍 Total municípios do AC no backend:', municipiosAC.length);
+            console.log('🔍 Primeiros 10 municípios do AC:', 
+              municipiosAC.slice(0, 10).map((m: any) => m.municipio)
+            );
+            
+            // Buscar variações do nome
+            const variacoes = indicatorsData.filter((m: any) => 
+              m.municipio?.toLowerCase().includes('acreland') || 
+              m.municipio?.toLowerCase().includes('acrelân')
+            );
+            console.log('🔍 Variações de ACRELANDIA encontradas:', variacoes.map((m: any) => m.municipio));
+            
             console.log('📋 Primeiros 5 municípios disponíveis:', 
               indicatorsData.slice(0, 5).map((m: any) => ({ 
                 nome: m.municipio, 
