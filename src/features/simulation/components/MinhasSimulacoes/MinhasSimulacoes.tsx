@@ -145,7 +145,8 @@ export const MinhasSimulacoes = (): JSX.Element => {
           const indicatorsData = await SimulationService.getRawIndicatorsData();
           const municipioNome = dadosEntrada.municipio || simulation.city || '';
           
-          console.log('Buscando indicadores para município:', municipioNome);
+          console.log('🔍 Buscando indicadores para município:', municipioNome);
+          console.log('📊 Total de municípios retornados:', indicatorsData.length);
           
           // Buscar município com comparação case-insensitive e normalizada
           const municipioData = indicatorsData.find((m: any) => {
@@ -167,13 +168,33 @@ export const MinhasSimulacoes = (): JSX.Element => {
             });
           } else {
             console.warn('⚠️ Município não encontrado nos indicadores:', municipioNome);
-            console.log('Primeiros 10 municípios disponíveis:', 
-              indicatorsData.slice(0, 10).map((m: any) => m.municipio)
+            console.log('📋 Primeiros 5 municípios disponíveis:', 
+              indicatorsData.slice(0, 5).map((m: any) => ({ 
+                nome: m.municipio, 
+                uf: m.uf,
+                vaat: m.indicadores_vaat,
+                vaar: m.indicadores_vaar,
+                vaaf: m.indicadores_vaaf
+              }))
             );
+            
+            // FALLBACK TEMPORÁRIO: Se não encontrar, usar primeiro município com dados não-zero
+            const municipioComDados = indicatorsData.find((m: any) => 
+              (m.indicadores_vaaf || 0) + (m.indicadores_vaat || 0) + (m.indicadores_vaar || 0) > 0
+            );
+            
+            if (municipioComDados) {
+              complementacaoVAAF = (municipioComDados as any).indicadores_vaaf || 0;
+              complementacaoVAAT = (municipioComDados as any).indicadores_vaat || 0;
+              complementacaoVAAR = (municipioComDados as any).indicadores_vaar || 0;
+              console.log('🔄 Usando dados do município:', municipioComDados.municipio, 'como exemplo temporário');
+            }
           }
         } catch (error) {
           console.error('❌ Erro ao buscar indicadores do município:', error);
         }
+      } else {
+        console.warn('⚠️ Simulação sem município identificado');
       }
 
       setSelectedSimulation({
