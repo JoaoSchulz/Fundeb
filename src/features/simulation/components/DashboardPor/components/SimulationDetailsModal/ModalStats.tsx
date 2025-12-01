@@ -7,10 +7,10 @@ interface Props {
 
 export const ModalStats = ({ selectedSimulation }: Props): JSX.Element => {
   const { hideValues } = useHideValues();
-  const matriculas = selectedSimulation?.totalMatriculas ?? 806;
-  const repassePerMatricula = selectedSimulation && selectedSimulation.totalMatriculas
-    ? (selectedSimulation.repasseOriginal / selectedSimulation.totalMatriculas)
-    : 1501.24;
+  const matriculas = selectedSimulation?.totalMatriculas ?? 0;
+  const repassePerMatricula = selectedSimulation && selectedSimulation.totalMatriculas > 0
+    ? (selectedSimulation.repasseSimulado / selectedSimulation.totalMatriculas)
+    : 0;
 
   const fmtCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 

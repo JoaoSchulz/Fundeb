@@ -8,8 +8,8 @@ interface Props {
 
 export const ModalFinancialData = ({ selectedSimulation }: Props): JSX.Element => {
   const { hideValues } = useHideValues();
-  const original = selectedSimulation?.repasseOriginal ?? 1000000;
-  const simulated = selectedSimulation?.repasseSimulado ?? 1210000;
+  const original = selectedSimulation?.repasseOriginal ?? 0;
+  const simulated = selectedSimulation?.repasseSimulado ?? 0;
   const ganho = simulated - original;
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

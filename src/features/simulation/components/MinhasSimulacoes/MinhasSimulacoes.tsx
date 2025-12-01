@@ -110,7 +110,7 @@ export const MinhasSimulacoes = (): JSX.Element => {
     return () => scrollContainer.removeEventListener("scroll", handleScroll);
   }, [loadMoreSimulations]);
 
-  const handleViewSimulation = (simulation: SimulationListItem) => {
+  const handleViewSimulation = async (simulation: SimulationListItem) => {
     const rawCreated = simulation.createdAt ?? simulation.date ?? new Date().toISOString();
     const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
       ? rawCreated
@@ -125,18 +125,78 @@ export const MinhasSimulacoes = (): JSX.Element => {
 
     const modifiedAt = simulation.modifiedAt ?? String(simulation.date ?? createdAt);
 
-    setSelectedSimulation({
-      ...simulation,
-      createdAt,
-      modifiedAt,
-      referencePeriod: (simulation as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
-      city: (simulation as { city?: string }).city || "Campinas",
-      state: (simulation as { state?: string }).state || "SP",
-    });
-    toast.success("Simulação atualizada", {
-      description: `Visualizando: ${simulation.name}`,
-    });
-    navigate("/app", { state: { scrollToTable: true } });
+    // Buscar dados completos da simulação para obter info do município
+    try {
+      const fullSimulation = await SimulationService.getSimulationById(simulation.id);
+      const dadosEntrada = fullSimulation.dadosEntrada || {};
+      
+      // Calcular receita própria (20% da receita total contribuída ao FUNDEB)
+      const repasseOriginal = simulation.repasseOriginal || 0;
+      const receitaPropria = repasseOriginal * 0.20; // 20% vai pro FUNDEB
+      
+      // Buscar indicadores do município se codMun estiver disponível
+      let complementacaoVAAF = 0;
+      let complementacaoVAAT = 0;
+      let complementacaoVAAR = 0;
+      
+      if (simulation.codMun || dadosEntrada.municipioId) {
+        try {
+          // Buscar dados de indicadores do município
+          const indicatorsData = await SimulationService.getSimulationsByTab('indicadores');
+          const municipioData = indicatorsData.find((m: any) => 
+            m.municipio === (dadosEntrada.municipio || simulation.city)
+          );
+          
+          if (municipioData) {
+            complementacaoVAAF = (municipioData as any).indicadores_vaaf || 0;
+            complementacaoVAAT = (municipioData as any).indicadores_vaat || 0;
+            complementacaoVAAR = (municipioData as any).indicadores_vaar || 0;
+          }
+        } catch (error) {
+          console.warn('Não foi possível buscar indicadores do município:', error);
+        }
+      }
+
+      setSelectedSimulation({
+        ...simulation,
+        createdAt,
+        modifiedAt,
+        referencePeriod: (simulation as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
+        city: (simulation as { city?: string }).city || dadosEntrada.municipio || "Campinas",
+        state: (simulation as { state?: string }).state || dadosEntrada.uf || "SP",
+        receitaPropria,
+        complementacaoVAAF,
+        complementacaoVAAT,
+        complementacaoVAAR,
+      });
+      
+      toast.success("Simulação atualizada", {
+        description: `Visualizando: ${simulation.name}`,
+      });
+      navigate("/app", { state: { scrollToTable: true } });
+    } catch (error) {
+      console.error('Erro ao buscar dados completos da simulação:', error);
+      // Fallback: usar cálculo estimado
+      const receitaPropria = (simulation.repasseOriginal || 0) * 0.20;
+      
+      setSelectedSimulation({
+        ...simulation,
+        createdAt,
+        modifiedAt,
+        referencePeriod: (simulation as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
+        city: (simulation as { city?: string }).city || "Campinas",
+        state: (simulation as { state?: string }).state || "SP",
+        receitaPropria,
+        complementacaoVAAF: 0,
+        complementacaoVAAT: 0,
+        complementacaoVAAR: 0,
+      });
+      
+      toast.success("Simulação atualizada", {
+        description: `Visualizando: ${simulation.name}`,
+      });
+      navigate("/app", { state: { scrollToTable: true } });
+    }
   };
 
   const handleEditSimulation = (simulation: SimulationListItem) => {

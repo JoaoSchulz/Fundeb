@@ -29,6 +29,11 @@ export interface SimulationSummary {
   municipioId?: string | null;
   // Código IBGE do município (para buscar dados históricos)
   codMun?: string | null;
+  // Composição do FUNDEB
+  receitaPropria?: number;
+  complementacaoVAAF?: number;
+  complementacaoVAAT?: number;
+  complementacaoVAAR?: number;
 }
 
 export type SimulationStatus = "Concluída" | "Em análise" | "Rascunho";
