@@ -1,8 +1,9 @@
-import { Dialog, DialogContent } from "../../../../../../components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../../../../../../components/ui/dialog";
 import { X } from "lucide-react";
 import { Button } from "../../../../../../components/ui/button";
 import { formatCurrency } from "../../../../../../utils/formatters";
 import { useHideValues } from "../../../../../../hooks/useHideValues";
+import { useSimulation } from "../../../../hooks";
 import type { SimulationRow } from "../../../../types/simulation";
 
 interface CategoryDetailsModalProps {
@@ -17,14 +18,22 @@ export const CategoryDetailsModal = ({
   category,
 }: CategoryDetailsModalProps): JSX.Element => {
   const { hideValues } = useHideValues();
+  const { selectedSimulation } = useSimulation();
 
   if (!category) return <></>;
 
   const maskValue = (value: string) => (hideValues ? "R$ •••••" : value);
 
+  // Proporção desta categoria no total
+  const totalRepasseSimulado = selectedSimulation?.repasseSimulado || 0;
+  const proporcaoCategoria = totalRepasseSimulado > 0 
+    ? (category.repasseSimulado / totalRepasseSimulado) * 100 
+    : 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[700px] max-h-[90vh] p-0 overflow-hidden [&>button]:hidden">
+        <DialogTitle className="sr-only">Detalhes da Categoria: {category.category} - {category.subcategory}</DialogTitle>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="px-6 pt-6 pb-4 border-b border-[#e9e9eb] flex items-start justify-between">
@@ -152,8 +161,51 @@ export const CategoryDetailsModal = ({
                       )}
                     </p>
                   )}
+                  {proporcaoCategoria > 0 && (
+                    <p className="text-sm text-[#414651] mt-2">
+                      Representa {proporcaoCategoria.toFixed(1)}% do repasse total simulado
+                    </p>
+                  )}
                 </div>
               </div>
+
+              {/* Contexto do Município (se disponível) */}
+              {selectedSimulation && (selectedSimulation.complementacaoVAAF || selectedSimulation.complementacaoVAAT || selectedSimulation.complementacaoVAAR) && (
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-base font-semibold text-[#181d27]">
+                    Contexto do Município
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {selectedSimulation.complementacaoVAAT > 0 && (
+                      <div className="flex flex-col gap-2 p-4 rounded-xl bg-purple-50">
+                        <span className="text-sm text-[#535861]">Complementação VAAT</span>
+                        <span className="text-base font-semibold text-[#181d27]">
+                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAT))}
+                        </span>
+                      </div>
+                    )}
+                    {selectedSimulation.complementacaoVAAR > 0 && (
+                      <div className="flex flex-col gap-2 p-4 rounded-xl bg-orange-50">
+                        <span className="text-sm text-[#535861]">Complementação VAAR</span>
+                        <span className="text-base font-semibold text-[#181d27]">
+                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAR))}
+                        </span>
+                      </div>
+                    )}
+                    {selectedSimulation.complementacaoVAAF > 0 && (
+                      <div className="flex flex-col gap-2 p-4 rounded-xl bg-green-50">
+                        <span className="text-sm text-[#535861]">Complementação VAAF</span>
+                        <span className="text-base font-semibold text-[#181d27]">
+                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAF))}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-[#717680]">
+                    * Valores de complementação do município {selectedSimulation.city || 'selecionado'}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
