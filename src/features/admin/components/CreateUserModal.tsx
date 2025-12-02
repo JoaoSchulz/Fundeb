@@ -38,7 +38,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSuccess }: CreateUserModalP
 
   // Carregar municípios quando a UF mudar
   useEffect(() => {
-    if (!formData.uf) {
+    if (!formData.uf || formData.uf === "") {
       setMunicipios([]);
       return;
     }
@@ -46,7 +46,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSuccess }: CreateUserModalP
     const loadMunicipios = async () => {
       setIsLoadingMunicipios(true);
       try {
-        const data = await LocalidadesService.getMunicipiosByUF(formData.uf);
+        const data = await LocalidadesService.getMunicipiosByUF(formData.uf!);
         setMunicipios(data);
       } catch (error) {
         console.error("Erro ao carregar municípios:", error);
