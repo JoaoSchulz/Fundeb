@@ -44,6 +44,29 @@ export const SimulationTableHeader = ({
     return formatDateLong(new Date("2025-03-22T10:30:00"));
   };
 
+  // Função para calcular período de referência a partir do ano base
+  const getReferencePeriod = (simulation?: any): string => {
+    if (simulation?.referencePeriod) {
+      return simulation.referencePeriod;
+    }
+    
+    // Extrair ano base dos dadosEntrada se existir
+    const anoBase = simulation?.dadosEntrada?.anoBase;
+    if (anoBase && typeof anoBase === 'number') {
+      const startDate = new Date(anoBase, 11, 9); // 09/12/ANOBASE
+      const endDate = new Date(anoBase + 2, 11, 9); // 09/12/(ANOBASE+2)
+      const formatDate = (d: Date) => {
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+      return `${formatDate(startDate)} a ${formatDate(endDate)}`;
+    }
+    
+    return "09/12/2024 a 09/12/2026";
+  };
+
   const navigate = useNavigate();
   const selectRef = useRef<HTMLButtonElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -90,13 +113,15 @@ export const SimulationTableHeader = ({
         </h3>
         <div className="flex items-center gap-2 flex-wrap">
           <p className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#535861] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
-            Período de referência: {selectedSimulation?.referencePeriod || "09/12/2024 a 09/12/2026"}
+            Período de referência: {getReferencePeriod(selectedSimulation)}
           </p>
           <span className="w-1 h-1 bg-[#717680] rounded-full shrink-0"></span>
-          <p className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#535861] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+          <p className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#535861] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-tracking)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
             {selectedSimulation?.state && selectedSimulation?.city 
               ? `${selectedSimulation.state} | ${selectedSimulation.city}`
-              : "SP | Campinas"}
+              : (selectedSimulation?.dadosEntrada?.uf && selectedSimulation?.dadosEntrada?.municipio
+                ? `${selectedSimulation.dadosEntrada.uf} | ${selectedSimulation.dadosEntrada.municipio}`
+                : "Selecione uma simulação")}
           </p>
         </div>
       </div>
