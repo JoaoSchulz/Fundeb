@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { X, User, Mail, Lock, Phone, MapPin, Building2, Shield } from "lucide-react";
+import { User, Mail, Lock, Phone, MapPin, Building2, Shield } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../components/ui/dialog";
@@ -33,7 +33,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSuccess }: CreateUserModalP
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (field: keyof CreateUserData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev: CreateUserData) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
