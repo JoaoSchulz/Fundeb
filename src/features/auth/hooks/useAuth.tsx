@@ -67,6 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     AuthService.login({ email, senha })
       .then(() => {
         setIsAuthenticated(true);
+        setUser(AuthService.getUser()); // Atualiza o user state com os dados do localStorage
         toast.success("Login realizado com sucesso!");
         navigate("/app");
       })
