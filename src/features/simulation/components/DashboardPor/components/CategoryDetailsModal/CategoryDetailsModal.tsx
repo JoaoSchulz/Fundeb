@@ -24,12 +24,6 @@ export const CategoryDetailsModal = ({
 
   const maskValue = (value: string) => (hideValues ? "R$ •••••" : value);
 
-  // Proporção desta categoria no total
-  const totalRepasseSimulado = selectedSimulation?.repasseSimulado || 0;
-  const proporcaoCategoria = totalRepasseSimulado > 0 
-    ? (category.repasseSimulado / totalRepasseSimulado) * 100 
-    : 0;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[700px] max-h-[90vh] p-0 overflow-hidden [&>button]:hidden">
@@ -134,38 +128,6 @@ export const CategoryDetailsModal = ({
                       {maskValue(formatCurrency(category.diferenca))}
                     </span>
                   </div>
-                </div>
-              </div>
-
-              {/* Análise */}
-              <div className="flex flex-col gap-4">
-                <h3 className="text-base font-semibold text-[#181d27]">
-                  Análise
-                </h3>
-                <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                  <p className="text-sm text-[#414651]">
-                    {category.diferenca > 0
-                      ? `Esta categoria apresenta um ganho potencial de ${maskValue(
-                          formatCurrency(category.diferenca)
-                        )} com a simulação realizada.`
-                      : category.diferenca < 0
-                      ? `Esta categoria apresenta uma redução de ${maskValue(
-                          formatCurrency(Math.abs(category.diferenca))
-                        )} com a simulação realizada.`
-                      : "Esta categoria mantém os mesmos valores na simulação."}
-                  </p>
-                  {category.matriculas > 0 && (
-                    <p className="text-sm text-[#414651] mt-2">
-                      Valor por matrícula: {maskValue(
-                        formatCurrency(category.repasseSimulado / category.matriculas)
-                      )}
-                    </p>
-                  )}
-                  {proporcaoCategoria > 0 && (
-                    <p className="text-sm text-[#414651] mt-2">
-                      Representa {proporcaoCategoria.toFixed(1)}% do repasse total simulado
-                    </p>
-                  )}
                 </div>
               </div>
 
