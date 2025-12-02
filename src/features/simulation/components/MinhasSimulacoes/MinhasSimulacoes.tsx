@@ -7,6 +7,7 @@ import { useSimulation } from "../../hooks";
 import { SimulationService } from "../../services/simulationService";
 import type { SimulationSummary } from "../../types/simulation";
 import { Input } from "../../../../components/ui/input";
+import { normalizeCreatedAt, calculateReferencePeriod, extractLocationData } from "../../../../utils/simulationHelpers";
 import {
   SimulationsListHeader,
   SimulationsTable,
@@ -16,6 +17,12 @@ import {
 type SimulationListItem = SimulationSummary;
 
 const ITEMS_PER_PAGE = 10;
+const IS_DEV = import.meta.env.DEV;
+
+// Cache para indicadores (evitar buscar 6000 registros toda vez)
+let indicatorsCache: any[] | null = null;
+let indicatorsCacheTime: number | null = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
 export const MinhasSimulacoes = (): JSX.Element => {
   const navigate = useNavigate();
@@ -112,17 +119,7 @@ export const MinhasSimulacoes = (): JSX.Element => {
 
   const handleViewSimulation = async (simulation: SimulationListItem) => {
     const rawCreated = simulation.createdAt ?? simulation.date ?? new Date().toISOString();
-    const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
-      ? rawCreated
-      : (() => {
-          const parts = String(rawCreated).split("/");
-          if (parts.length === 3) {
-            const [day, month, year] = parts;
-            return `${year}-${month}-${day}T10:30:00`;
-          }
-          return new Date().toISOString();
-        })();
-
+    const createdAt = normalizeCreatedAt(rawCreated);
     const modifiedAt = simulation.modifiedAt ?? String(simulation.date ?? createdAt);
 
     // Buscar dados completos da simulação para obter info do município
@@ -130,28 +127,19 @@ export const MinhasSimulacoes = (): JSX.Element => {
       const fullSimulation = await SimulationService.getSimulationById(simulation.id);
       const dadosEntrada = fullSimulation.dadosEntrada || {};
       
-      console.log('📋 Dados da simulação completa:', {
-        id: simulation.id,
-        name: simulation.name,
-        dadosEntrada,
-        uf: dadosEntrada.uf,
-        municipio: dadosEntrada.municipio,
-        anoBase: dadosEntrada.anoBase
-      });
-      
-      // Calcular período de referência a partir do ano base
-      let referencePeriod = "09/12/2024 a 09/12/2026";
-      if (dadosEntrada.anoBase && typeof dadosEntrada.anoBase === 'number') {
-        const startDate = new Date(dadosEntrada.anoBase, 11, 9); // 09/12/ANOBASE
-        const endDate = new Date(dadosEntrada.anoBase + 2, 11, 9); // 09/12/(ANOBASE+2)
-        const formatDate = (d: Date) => {
-          const day = String(d.getDate()).padStart(2, '0');
-          const month = String(d.getMonth() + 1).padStart(2, '0');
-          const year = d.getFullYear();
-          return `${day}/${month}/${year}`;
-        };
-        referencePeriod = `${formatDate(startDate)} a ${formatDate(endDate)}`;
+      if (IS_DEV) {
+        console.log('📋 Dados da simulação completa:', {
+          id: simulation.id,
+          name: simulation.name,
+          dadosEntrada,
+          uf: dadosEntrada.uf,
+          municipio: dadosEntrada.municipio,
+          anoBase: dadosEntrada.anoBase
+        });
       }
+      
+      const referencePeriod = calculateReferencePeriod(dadosEntrada.anoBase);
+      const location = extractLocationData({ ...simulation, dadosEntrada });
       
       // Calcular receita própria (20% da receita total contribuída ao FUNDEB)
       const repasseOriginal = simulation.repasseOriginal || 0;
@@ -164,15 +152,25 @@ export const MinhasSimulacoes = (): JSX.Element => {
       
       if (simulation.codMun || dadosEntrada.municipioId || dadosEntrada.municipio || simulation.city) {
         try {
-          // Buscar dados BRUTOS dos indicadores (sem transformer)
-          const indicatorsData = await SimulationService.getRawIndicatorsData();
+          // Verificar cache antes de buscar
+          const now = Date.now();
+          if (!indicatorsCache || !indicatorsCacheTime || (now - indicatorsCacheTime) > CACHE_DURATION) {
+            if (IS_DEV) console.log('📡 Buscando indicadores (cache expirado ou inexistente)');
+            indicatorsCache = await SimulationService.getRawIndicatorsData();
+            indicatorsCacheTime = now;
+          } else if (IS_DEV) {
+            console.log('⚡ Usando cache de indicadores');
+          }
+          
           const municipioNome = dadosEntrada.municipio || simulation.city || '';
           
-          console.log('🔍 Buscando indicadores para município:', municipioNome);
-          console.log('📊 Total de municípios retornados:', indicatorsData.length);
+          if (IS_DEV) {
+            console.log('🔍 Buscando indicadores para município:', municipioNome);
+            console.log('📊 Total de municípios no cache:', indicatorsCache.length);
+          }
           
           // Buscar município com comparação case-insensitive e normalizada
-          const municipioData = indicatorsData.find((m: any) => {
+          const municipioData = indicatorsCache.find((m: any) => {
             const nomeMunicipio = m.municipio?.toLowerCase().trim() || '';
             const nomeComparar = municipioNome.toLowerCase().trim();
             return nomeMunicipio === nomeComparar;
@@ -183,41 +181,45 @@ export const MinhasSimulacoes = (): JSX.Element => {
             complementacaoVAAT = (municipioData as any).indicadores_vaat || 0;
             complementacaoVAAR = (municipioData as any).indicadores_vaar || 0;
             
-            console.log('✅ Indicadores encontrados:', {
-              municipio: municipioNome,
-              vaaf: complementacaoVAAF,
-              vaat: complementacaoVAAT,
-              vaar: complementacaoVAAR
-            });
-          } else {
+            if (IS_DEV) {
+              console.log('✅ Indicadores encontrados:', {
+                municipio: municipioNome,
+                vaaf: complementacaoVAAF,
+                vaat: complementacaoVAAT,
+                vaar: complementacaoVAAR
+              });
+            }
+          } else if (IS_DEV) {
             console.warn('⚠️ Município não encontrado nos indicadores:', municipioNome);
             
-            // Buscar municípios do AC para debug
-            const municipiosAC = indicatorsData.filter((m: any) => m.uf === 'AC');
-            console.log('🔍 Total municípios do AC no backend:', municipiosAC.length);
-            console.log('🔍 Primeiros 10 municípios do AC:', 
-              municipiosAC.slice(0, 10).map((m: any) => m.municipio)
-            );
-            
-            // Buscar variações do nome
-            const variacoes = indicatorsData.filter((m: any) => 
-              m.municipio?.toLowerCase().includes('acreland') || 
-              m.municipio?.toLowerCase().includes('acrelân')
-            );
-            console.log('🔍 Variações de ACRELANDIA encontradas:', variacoes.map((m: any) => m.municipio));
-            
-            console.log('📋 Primeiros 5 municípios disponíveis:', 
-              indicatorsData.slice(0, 5).map((m: any) => ({ 
-                nome: m.municipio, 
-                uf: m.uf,
-                vaat: m.indicadores_vaat,
-                vaar: m.indicadores_vaar,
-                vaaf: m.indicadores_vaaf
-              }))
-            );
+            if (IS_DEV) {
+              // Buscar municípios do AC para debug
+              const municipiosAC = indicatorsCache.filter((m: any) => m.uf === 'AC');
+              console.log('🔍 Total municípios do AC no backend:', municipiosAC.length);
+              console.log('🔍 Primeiros 10 municípios do AC:', 
+                municipiosAC.slice(0, 10).map((m: any) => m.municipio)
+              );
+              
+              // Buscar variações do nome
+              const variacoes = indicatorsCache.filter((m: any) => 
+                m.municipio?.toLowerCase().includes('acreland') || 
+                m.municipio?.toLowerCase().includes('acrelân')
+              );
+              console.log('🔍 Variações de ACRELANDIA encontradas:', variacoes.map((m: any) => m.municipio));
+              
+              console.log('📋 Primeiros 5 municípios disponíveis:', 
+                indicatorsCache.slice(0, 5).map((m: any) => ({ 
+                  nome: m.municipio, 
+                  uf: m.uf,
+                  vaat: m.indicadores_vaat,
+                  vaar: m.indicadores_vaar,
+                  vaaf: m.indicadores_vaaf
+                }))
+              );
+            }
             
             // FALLBACK TEMPORÁRIO: Se não encontrar, usar primeiro município com dados não-zero
-            const municipioComDados = indicatorsData.find((m: any) => 
+            const municipioComDados = indicatorsCache.find((m: any) => 
               (m.indicadores_vaaf || 0) + (m.indicadores_vaat || 0) + (m.indicadores_vaar || 0) > 0
             );
             
@@ -225,28 +227,32 @@ export const MinhasSimulacoes = (): JSX.Element => {
               complementacaoVAAF = (municipioComDados as any).indicadores_vaaf || 0;
               complementacaoVAAT = (municipioComDados as any).indicadores_vaat || 0;
               complementacaoVAAR = (municipioComDados as any).indicadores_vaar || 0;
-              console.log('🔄 Usando dados do município:', municipioComDados.municipio, 'como exemplo temporário');
+              if (IS_DEV) {
+                console.log('🔄 Usando dados do município:', municipioComDados.municipio, 'como exemplo temporário');
+              }
             }
           }
         } catch (error) {
           console.error('❌ Erro ao buscar indicadores do município:', error);
         }
-      } else {
+      } else if (IS_DEV) {
         console.warn('⚠️ Simulação sem município identificado');
       }
+
+      const finalLocation = extractLocationData({ ...simulation, dadosEntrada });
 
       setSelectedSimulation({
         ...simulation,
         createdAt,
         modifiedAt,
         referencePeriod,
-        city: dadosEntrada.municipio || (simulation as { city?: string }).city || null,
-        state: dadosEntrada.uf || (simulation as { state?: string }).state || null,
+        city: finalLocation.municipio,
+        state: finalLocation.uf,
         receitaPropria,
         complementacaoVAAF,
         complementacaoVAAT,
         complementacaoVAAR,
-        dadosEntrada, // Manter dadosEntrada para acesso nos componentes
+        dadosEntrada,
       });
       
       toast.success("Simulação atualizada", {

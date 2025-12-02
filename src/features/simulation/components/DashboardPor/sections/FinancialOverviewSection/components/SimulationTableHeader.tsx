@@ -129,10 +129,11 @@ export const SimulationTableHeader = ({
           </p>
           <span className="w-1 h-1 bg-[#717680] rounded-full shrink-0"></span>
           <p className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#535861] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-tracking)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
-            {selectedSimulation?.state && selectedSimulation?.city 
-              ? `${selectedSimulation.state} | ${selectedSimulation.city}`
-              : (selectedSimulation?.dadosEntrada?.uf && selectedSimulation?.dadosEntrada?.municipio
-                ? `${selectedSimulation.dadosEntrada.uf} | ${selectedSimulation.dadosEntrada.municipio}`
+            {/* ✅ PRIORIDADE CONSISTENTE: dadosEntrada primeiro */}
+            {selectedSimulation?.dadosEntrada?.uf && selectedSimulation?.dadosEntrada?.municipio
+              ? `${selectedSimulation.dadosEntrada.uf} | ${selectedSimulation.dadosEntrada.municipio}`
+              : (selectedSimulation?.state && selectedSimulation?.city
+                ? `${selectedSimulation.state} | ${selectedSimulation.city}`
                 : "Selecione uma simulação")}
           </p>
         </div>
