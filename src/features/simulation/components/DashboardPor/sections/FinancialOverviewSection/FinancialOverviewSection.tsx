@@ -224,11 +224,29 @@ export const FinancialOverviewSection = (): JSX.Element => {
   const handleSimulationChange = async (value: string): Promise<void> => {
     setCurrentSimulationId(value);
     const selectedSim = simulationsList.find((sim) => sim.id.toString() === value);
+    
+    console.log('🔄 Trocando simulação:', {
+      id: value,
+      name: selectedSim?.name,
+      found: !!selectedSim
+    });
+    
     if (selectedSim) {
       try {
         // Buscar dados completos da simulação
+        console.log('📡 Buscando dados completos da simulação ID:', selectedSim.id);
         const fullSimulation = await SimulationService.getSimulationById(selectedSim.id);
         const dadosEntrada = fullSimulation.dadosEntrada || {};
+        
+        console.log('✅ Dados completos recebidos:', {
+          id: selectedSim.id,
+          name: selectedSim.name,
+          dadosEntrada: {
+            uf: dadosEntrada.uf,
+            municipio: dadosEntrada.municipio,
+            anoBase: dadosEntrada.anoBase
+          }
+        });
         
         // Normalize selectedSim fields to match Simulation shape
         const rawCreated = (selectedSim as any).createdAt ?? (selectedSim as any).date ?? new Date().toISOString();
@@ -258,8 +276,8 @@ export const FinancialOverviewSection = (): JSX.Element => {
           };
           referencePeriod = `${formatDate(startDate)} a ${formatDate(endDate)}`;
         }
-
-        setSelectedSimulation({
+        
+        const updatedSimulation = {
           ...selectedSim,
           createdAt,
           modifiedAt,
@@ -267,12 +285,22 @@ export const FinancialOverviewSection = (): JSX.Element => {
           city: dadosEntrada.municipio || (selectedSim as { city?: string }).city || null,
           state: dadosEntrada.uf || (selectedSim as { state?: string }).state || null,
           dadosEntrada,
+        };
+        
+        console.log('💾 Atualizando simulação selecionada:', {
+          id: updatedSimulation.id,
+          name: updatedSimulation.name,
+          city: updatedSimulation.city,
+          state: updatedSimulation.state,
+          referencePeriod: updatedSimulation.referencePeriod
         });
+
+        setSelectedSimulation(updatedSimulation);
         toast.success("Simulação atualizada", {
           description: `Visualizando dados de "${selectedSim.name}"`,
         });
       } catch (error) {
-        console.error('Erro ao carregar dados completos da simulação:', error);
+        console.error('❌ Erro ao carregar dados completos da simulação:', error);
         // Fallback
         const rawCreated = (selectedSim as any).createdAt ?? (selectedSim as any).date ?? new Date().toISOString();
         const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
