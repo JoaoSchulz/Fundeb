@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Shield, Eye } from "lucide-react";
+import { Shield, Eye, UserPlus } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
 import { SolicitacoesService, SolicitacaoAcesso } from "../../../services/solicitacoesService";
 import { useAuth } from "../../auth/hooks";
 import { SolicitacaoDetailModal } from "./SolicitacaoDetailModal";
+import { CreateUserModal } from "./CreateUserModal";
 
 export const GerenciarSolicitacoes = (): JSX.Element => {
   const { user } = useAuth();
@@ -14,6 +15,7 @@ export const GerenciarSolicitacoes = (): JSX.Element => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSolicitacao, setSelectedSolicitacao] = useState<SolicitacaoAcesso | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
 
   useEffect(() => {
     loadSolicitacoes();
@@ -95,13 +97,22 @@ export const GerenciarSolicitacoes = (): JSX.Element => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Gerenciar Solicitações de Acesso
-          </h1>
-          <p className="text-gray-600">
-            Aprove ou negue solicitações de novos usuários
-          </p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Gerenciar Solicitações de Acesso
+            </h1>
+            <p className="text-gray-600">
+              Aprove ou negue solicitações de novos usuários
+            </p>
+          </div>
+          <Button
+            onClick={() => setIsCreateUserModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            Criar Usuário
+          </Button>
         </div>
 
         {/* Filtros */}
@@ -182,6 +193,14 @@ export const GerenciarSolicitacoes = (): JSX.Element => {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           onSuccess={handleSuccess}
+        />
+
+        <CreateUserModal
+          isOpen={isCreateUserModalOpen}
+          onClose={() => setIsCreateUserModalOpen(false)}
+          onSuccess={() => {
+            toast.success("Usuário criado com sucesso!");
+          }}
         />
       </div>
     </div>
