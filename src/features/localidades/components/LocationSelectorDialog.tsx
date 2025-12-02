@@ -82,9 +82,13 @@ export const LocationSelectorDialog = (): JSX.Element => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="h-11 inline-flex items-center justify-center gap-2 px-3 py-2 bg-white rounded-lg border border-solid border-[#d5d6d9] shadow-shadows-shadow-xs transition-all duration-200 w-full sm:w-auto">
-          <span className="font-text-md-medium text-[#181d27]">{selectedSimulation?.state || 'SP'}</span>
+          <span className="font-text-md-medium text-[#181d27]">
+            {selectedSimulation?.state || selectedSimulation?.dadosEntrada?.uf || '—'}
+          </span>
           <img className="w-px h-3 object-cover" alt="Line" src="/line-1.svg" />
-          <span className="font-text-md-medium text-[#181d27]">{selectedSimulation?.city || 'Campinas'}</span>
+          <span className="font-text-md-medium text-[#181d27]">
+            {selectedSimulation?.city || selectedSimulation?.dadosEntrada?.municipio || 'Selecione'}
+          </span>
         </Button>
       </DialogTrigger>
 

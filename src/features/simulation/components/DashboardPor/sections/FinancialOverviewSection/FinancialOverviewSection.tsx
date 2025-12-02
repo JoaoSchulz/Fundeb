@@ -120,6 +120,80 @@ export const FinancialOverviewSection = (): JSX.Element => {
   // Load simulations list from backend
   useEffect(() => {
     let mounted = true;
+    
+    const loadFirstSimulation = async (firstSim: any) => {
+      try {
+        // Buscar dados completos da simulação
+        const fullSimulation = await SimulationService.getSimulationById(firstSim.id);
+        const dadosEntrada = fullSimulation.dadosEntrada || {};
+        
+        const rawCreated = firstSim.createdAt ?? firstSim.date ?? new Date().toISOString();
+        const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
+          ? rawCreated
+          : ((): string => {
+              const parts = String(rawCreated).split("/");
+              if (parts.length === 3) {
+                const [day, month, year] = parts;
+                return `${year}-${month}-${day}T10:30:00`;
+              }
+              return new Date().toISOString();
+            })();
+
+        const modifiedAt = firstSim.modifiedAt ?? String(firstSim.date ?? createdAt);
+        
+        // Calcular período de referência a partir do ano base
+        let referencePeriod = "09/12/2024 a 09/12/2026";
+        if (dadosEntrada.anoBase && typeof dadosEntrada.anoBase === 'number') {
+          const startDate = new Date(dadosEntrada.anoBase, 11, 9);
+          const endDate = new Date(dadosEntrada.anoBase + 2, 11, 9);
+          const formatDate = (d: Date) => {
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+          };
+          referencePeriod = `${formatDate(startDate)} a ${formatDate(endDate)}`;
+        }
+
+        setSelectedSimulation({
+          ...firstSim,
+          createdAt,
+          modifiedAt,
+          referencePeriod,
+          city: dadosEntrada.municipio || firstSim.city || null,
+          state: dadosEntrada.uf || firstSim.state || null,
+          dadosEntrada,
+        });
+        setCurrentSimulationId(firstSim.id.toString());
+      } catch (error) {
+        console.error('Erro ao carregar dados completos da primeira simulação:', error);
+        // Fallback para dados básicos
+        const rawCreated = firstSim.createdAt ?? firstSim.date ?? new Date().toISOString();
+        const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
+          ? rawCreated
+          : ((): string => {
+              const parts = String(rawCreated).split("/");
+              if (parts.length === 3) {
+                const [day, month, year] = parts;
+                return `${year}-${month}-${day}T10:30:00`;
+              }
+              return new Date().toISOString();
+            })();
+
+        const modifiedAt = firstSim.modifiedAt ?? String(firstSim.date ?? createdAt);
+
+        setSelectedSimulation({
+          ...firstSim,
+          createdAt,
+          modifiedAt,
+          referencePeriod: "09/12/2024 a 09/12/2026",
+          city: firstSim.city || null,
+          state: firstSim.state || null,
+        });
+        setCurrentSimulationId(firstSim.id.toString());
+      }
+    };
+    
     SimulationService.getSimulations()
       .then((list) => {
         if (!mounted) return;
@@ -127,30 +201,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
         
         // Se não há simulação selecionada e há simulações na lista, selecionar a primeira
         if (list.length > 0 && !selectedSimulation) {
-          const firstSim = list[0];
-          const rawCreated = (firstSim as any).createdAt ?? (firstSim as any).date ?? new Date().toISOString();
-          const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
-            ? rawCreated
-            : ((): string => {
-                const parts = String(rawCreated).split("/");
-                if (parts.length === 3) {
-                  const [day, month, year] = parts;
-                  return `${year}-${month}-${day}T10:30:00`;
-                }
-                return new Date().toISOString();
-              })();
-
-          const modifiedAt = (firstSim as any).modifiedAt ?? String((firstSim as any).date ?? createdAt);
-
-          setSelectedSimulation({
-            ...firstSim,
-            createdAt,
-            modifiedAt,
-            referencePeriod: (firstSim as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
-            city: (firstSim as { city?: string }).city || "Campinas",
-            state: (firstSim as { state?: string }).state || "SP",
-          });
-          setCurrentSimulationId(firstSim.id.toString());
+          loadFirstSimulation(list[0]);
         }
       })
       .catch((e) => {
@@ -174,32 +225,79 @@ export const FinancialOverviewSection = (): JSX.Element => {
     setCurrentSimulationId(value);
     const selectedSim = simulationsList.find((sim) => sim.id.toString() === value);
     if (selectedSim) {
-      // Normalize selectedSim fields to match Simulation shape
-      const rawCreated = (selectedSim as any).createdAt ?? (selectedSim as any).date ?? new Date().toISOString();
-      const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
-        ? rawCreated
-        : ((): string => {
-            const parts = String(rawCreated).split("/");
-            if (parts.length === 3) {
-              const [day, month, year] = parts;
-              return `${year}-${month}-${day}T10:30:00`;
-            }
-            return new Date().toISOString();
-          })();
+      try {
+        // Buscar dados completos da simulação
+        const fullSimulation = await SimulationService.getSimulationById(selectedSim.id);
+        const dadosEntrada = fullSimulation.dadosEntrada || {};
+        
+        // Normalize selectedSim fields to match Simulation shape
+        const rawCreated = (selectedSim as any).createdAt ?? (selectedSim as any).date ?? new Date().toISOString();
+        const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
+          ? rawCreated
+          : ((): string => {
+              const parts = String(rawCreated).split("/");
+              if (parts.length === 3) {
+                const [day, month, year] = parts;
+                return `${year}-${month}-${day}T10:30:00`;
+              }
+              return new Date().toISOString();
+            })();
 
-      const modifiedAt = (selectedSim as any).modifiedAt ?? String((selectedSim as any).date ?? createdAt);
+        const modifiedAt = (selectedSim as any).modifiedAt ?? String((selectedSim as any).date ?? createdAt);
+        
+        // Calcular período de referência a partir do ano base
+        let referencePeriod = "09/12/2024 a 09/12/2026";
+        if (dadosEntrada.anoBase && typeof dadosEntrada.anoBase === 'number') {
+          const startDate = new Date(dadosEntrada.anoBase, 11, 9);
+          const endDate = new Date(dadosEntrada.anoBase + 2, 11, 9);
+          const formatDate = (d: Date) => {
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+          };
+          referencePeriod = `${formatDate(startDate)} a ${formatDate(endDate)}`;
+        }
 
-      setSelectedSimulation({
-        ...selectedSim,
-        createdAt,
-        modifiedAt,
-        referencePeriod: (selectedSim as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
-        city: (selectedSim as { city?: string }).city || "Campinas",
-        state: (selectedSim as { state?: string }).state || "SP",
-      });
-      toast.success("Simulação atualizada", {
-        description: `Visualizando dados de "${selectedSim.name}"`,
-      });
+        setSelectedSimulation({
+          ...selectedSim,
+          createdAt,
+          modifiedAt,
+          referencePeriod,
+          city: dadosEntrada.municipio || (selectedSim as { city?: string }).city || null,
+          state: dadosEntrada.uf || (selectedSim as { state?: string }).state || null,
+          dadosEntrada,
+        });
+        toast.success("Simulação atualizada", {
+          description: `Visualizando dados de "${selectedSim.name}"`,
+        });
+      } catch (error) {
+        console.error('Erro ao carregar dados completos da simulação:', error);
+        // Fallback
+        const rawCreated = (selectedSim as any).createdAt ?? (selectedSim as any).date ?? new Date().toISOString();
+        const createdAt = typeof rawCreated === 'string' && rawCreated.includes('T')
+          ? rawCreated
+          : ((): string => {
+              const parts = String(rawCreated).split("/");
+              if (parts.length === 3) {
+                const [day, month, year] = parts;
+                return `${year}-${month}-${day}T10:30:00`;
+              }
+              return new Date().toISOString();
+            })();
+
+        const modifiedAt = (selectedSim as any).modifiedAt ?? String((selectedSim as any).date ?? createdAt);
+
+        setSelectedSimulation({
+          ...selectedSim,
+          createdAt,
+          modifiedAt,
+          referencePeriod: "09/12/2024 a 09/12/2026",
+          city: (selectedSim as { city?: string }).city || null,
+          state: (selectedSim as { state?: string }).state || null,
+        });
+        toast.error("Erro ao carregar dados da simulação");
+      }
     }
     // loadTableData já gerencia o isLoading, então apenas chamamos ele
     await loadTableData(activeTab as TabType);

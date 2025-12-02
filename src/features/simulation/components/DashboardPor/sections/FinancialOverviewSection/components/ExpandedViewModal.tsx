@@ -105,7 +105,9 @@ export const ExpandedViewModal = ({
                         <p className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-[#535861] text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
                           {selectedSimulation?.state && selectedSimulation?.city 
                             ? `${selectedSimulation.state} | ${selectedSimulation.city}`
-                            : "SP | Campinas"}
+                            : (selectedSimulation?.dadosEntrada?.uf && selectedSimulation?.dadosEntrada?.municipio
+                              ? `${selectedSimulation.dadosEntrada.uf} | ${selectedSimulation.dadosEntrada.municipio}`
+                              : "Nenhuma simulação selecionada")}
                         </p>
                       </div>
                     </div>
