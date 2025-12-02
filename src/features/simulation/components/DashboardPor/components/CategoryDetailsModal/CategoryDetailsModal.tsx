@@ -169,36 +169,44 @@ export const CategoryDetailsModal = ({
                 </div>
               </div>
 
-              {/* Contexto do Município (se disponível) */}
+              {/* Composição FUNDEB do Município */}
               {selectedSimulation && (
                 <div className="flex flex-col gap-4">
                   <h3 className="text-base font-semibold text-[#181d27]">
                     Composição FUNDEB do Município
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-2 p-4 rounded-xl bg-blue-50">
-                      <span className="text-sm text-[#535861]">Receita Própria</span>
-                      <span className="text-base font-semibold text-[#181d27]">
-                        {maskValue(formatCurrency(selectedSimulation.receitaPropria ?? 0))}
-                      </span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="flex flex-col gap-2 p-4 bg-white rounded-lg border border-[#e9e9eb]">
+                      <div className="text-sm font-medium text-[#535861]">
+                        Receita Própria
+                      </div>
+                      <div className={`text-base font-semibold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '16px', lineHeight: '20px' }}>
+                        {formatCurrency(selectedSimulation.receitaPropria ?? 0)}
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-2 p-4 rounded-xl bg-green-50">
-                      <span className="text-sm text-[#535861]">Complementação VAAF</span>
-                      <span className="text-base font-semibold text-[#181d27]">
-                        {maskValue(formatCurrency(selectedSimulation.complementacaoVAAF ?? 0))}
-                      </span>
+                    <div className="flex flex-col gap-2 p-4 bg-white rounded-lg border border-[#e9e9eb]">
+                      <div className="text-sm font-medium text-[#535861]">
+                        Complementação VAAF
+                      </div>
+                      <div className={`text-base font-semibold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '16px', lineHeight: '20px' }}>
+                        {formatCurrency(selectedSimulation.complementacaoVAAF ?? 0)}
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-2 p-4 rounded-xl bg-purple-50">
-                      <span className="text-sm text-[#535861]">Complementação VAAT</span>
-                      <span className="text-base font-semibold text-[#181d27]">
-                        {maskValue(formatCurrency(selectedSimulation.complementacaoVAAT ?? 0))}
-                      </span>
+                    <div className="flex flex-col gap-2 p-4 bg-white rounded-lg border border-[#e9e9eb]">
+                      <div className="text-sm font-medium text-[#535861]">
+                        Complementação VAAT
+                      </div>
+                      <div className={`text-base font-semibold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '16px', lineHeight: '20px' }}>
+                        {formatCurrency(selectedSimulation.complementacaoVAAT ?? 0)}
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-2 p-4 rounded-xl bg-orange-50">
-                      <span className="text-sm text-[#535861]">Complementação VAAR</span>
-                      <span className="text-base font-semibold text-[#181d27]">
-                        {maskValue(formatCurrency(selectedSimulation.complementacaoVAAR ?? 0))}
-                      </span>
+                    <div className="flex flex-col gap-2 p-4 bg-white rounded-lg border border-[#e9e9eb]">
+                      <div className="text-sm font-medium text-[#535861]">
+                        Complementação VAAR
+                      </div>
+                      <div className={`text-base font-semibold text-[#181d27] ${hideValues ? 'select-none blur-sm' : ''}`} style={{ fontSize: '16px', lineHeight: '20px' }}>
+                        {formatCurrency(selectedSimulation.complementacaoVAAR ?? 0)}
+                      </div>
                     </div>
                   </div>
                   <p className="text-xs text-[#717680]">
