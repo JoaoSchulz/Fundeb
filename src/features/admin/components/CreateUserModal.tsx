@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { User, Mail, Lock, Phone, MapPin, Building2, Shield } from "lucide-react";
 import { Button } from "../../../components/ui/button";
@@ -6,6 +6,8 @@ import { Input } from "../../../components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
 import { UsersService, CreateUserData } from "../../../services/usersService";
+import { LocalidadesService } from "../../localidades/services/localidadesService";
+import type { MunicipioCategorias } from "../../../types/api";
 
 interface CreateUserModalProps {
   isOpen: boolean;
@@ -31,9 +33,41 @@ export const CreateUserModal = ({ isOpen, onClose, onSuccess }: CreateUserModalP
     organizacao: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [municipios, setMunicipios] = useState<MunicipioCategorias[]>([]);
+  const [isLoadingMunicipios, setIsLoadingMunicipios] = useState(false);
+
+  // Carregar municípios quando a UF mudar
+  useEffect(() => {
+    if (!formData.uf) {
+      setMunicipios([]);
+      return;
+    }
+
+    const loadMunicipios = async () => {
+      setIsLoadingMunicipios(true);
+      try {
+        const data = await LocalidadesService.getMunicipiosByUF(formData.uf);
+        setMunicipios(data);
+      } catch (error) {
+        console.error("Erro ao carregar municípios:", error);
+        toast.error("Erro ao carregar municípios");
+        setMunicipios([]);
+      } finally {
+        setIsLoadingMunicipios(false);
+      }
+    };
+
+    loadMunicipios();
+  }, [formData.uf]);
 
   const handleChange = (field: keyof CreateUserData, value: string) => {
-    setFormData((prev: CreateUserData) => ({ ...prev, [field]: value }));
+    setFormData((prev: CreateUserData) => {
+      // Se mudou a UF, limpar o município selecionado
+      if (field === "uf") {
+        return { ...prev, [field]: value, municipio: "" };
+      }
+      return { ...prev, [field]: value };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -260,13 +294,28 @@ export const CreateUserModal = ({ isOpen, onClose, onSuccess }: CreateUserModalP
                   <MapPin className="w-4 h-4" />
                   Município
                 </label>
-                <Input
-                  type="text"
-                  placeholder="Digite o município"
+                <Select
                   value={formData.municipio}
-                  onChange={(e) => handleChange("municipio", e.target.value)}
-                  disabled={isSubmitting}
-                />
+                  onValueChange={(value) => handleChange("municipio", value)}
+                  disabled={isSubmitting || !formData.uf || isLoadingMunicipios}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={
+                      !formData.uf 
+                        ? "Selecione primeiro o estado" 
+                        : isLoadingMunicipios 
+                        ? "Carregando..." 
+                        : "Selecione o município"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {municipios.map((mun) => (
+                      <SelectItem key={mun.id} value={mun.municipio}>
+                        {mun.municipio}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
