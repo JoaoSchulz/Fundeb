@@ -23,8 +23,8 @@ export interface SimulationSummary {
   createdAt?: string;
   modifiedAt?: string;
   referencePeriod?: string;
-  city?: string;
-  state?: string;
+  city?: string | null;
+  state?: string | null;
   // Optional selected municipality id (when a user selects a municipality)
   municipioId?: string | null;
   // Código IBGE do município (para buscar dados históricos)
@@ -34,6 +34,15 @@ export interface SimulationSummary {
   complementacaoVAAF?: number;
   complementacaoVAAT?: number;
   complementacaoVAAR?: number;
+  // Dados de entrada da simulação (para acessar uf, municipio, anoBase)
+  dadosEntrada?: {
+    anoBase?: number;
+    tipo?: 'matriculas' | 'receita';
+    municipioId?: number;
+    municipio?: string;
+    uf?: string;
+    categorias?: any;
+  };
 }
 
 export type SimulationStatus = "Concluída" | "Em análise" | "Rascunho";

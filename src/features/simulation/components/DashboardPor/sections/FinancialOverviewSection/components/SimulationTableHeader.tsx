@@ -7,7 +7,19 @@ import { formatDateLong } from "../../../../../../../utils/formatters";
 // Tab type not used in this file
 
 interface SimulationTableHeaderProps {
-  selectedSimulation?: { id?: string; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string };
+  selectedSimulation?: { 
+    id?: string; 
+    name: string; 
+    createdAt?: string; 
+    referencePeriod?: string; 
+    city?: string | null; 
+    state?: string | null;
+    dadosEntrada?: {
+      anoBase?: number;
+      uf?: string;
+      municipio?: string;
+    };
+  };
   onSimulationChange?: (value: string) => void;
   currentSimulationId?: string;
   simulationsList?: Array<{ id: string; name: string; createdAt?: string; referencePeriod?: string; city?: string; state?: string }>;

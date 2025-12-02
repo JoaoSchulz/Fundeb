@@ -130,6 +130,29 @@ export const MinhasSimulacoes = (): JSX.Element => {
       const fullSimulation = await SimulationService.getSimulationById(simulation.id);
       const dadosEntrada = fullSimulation.dadosEntrada || {};
       
+      console.log('📋 Dados da simulação completa:', {
+        id: simulation.id,
+        name: simulation.name,
+        dadosEntrada,
+        uf: dadosEntrada.uf,
+        municipio: dadosEntrada.municipio,
+        anoBase: dadosEntrada.anoBase
+      });
+      
+      // Calcular período de referência a partir do ano base
+      let referencePeriod = "09/12/2024 a 09/12/2026";
+      if (dadosEntrada.anoBase && typeof dadosEntrada.anoBase === 'number') {
+        const startDate = new Date(dadosEntrada.anoBase, 11, 9); // 09/12/ANOBASE
+        const endDate = new Date(dadosEntrada.anoBase + 2, 11, 9); // 09/12/(ANOBASE+2)
+        const formatDate = (d: Date) => {
+          const day = String(d.getDate()).padStart(2, '0');
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const year = d.getFullYear();
+          return `${day}/${month}/${year}`;
+        };
+        referencePeriod = `${formatDate(startDate)} a ${formatDate(endDate)}`;
+      }
+      
       // Calcular receita própria (20% da receita total contribuída ao FUNDEB)
       const repasseOriginal = simulation.repasseOriginal || 0;
       const receitaPropria = repasseOriginal * 0.20; // 20% vai pro FUNDEB
@@ -216,13 +239,14 @@ export const MinhasSimulacoes = (): JSX.Element => {
         ...simulation,
         createdAt,
         modifiedAt,
-        referencePeriod: (simulation as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
-        city: (simulation as { city?: string }).city || dadosEntrada.municipio || "Campinas",
-        state: (simulation as { state?: string }).state || dadosEntrada.uf || "SP",
+        referencePeriod,
+        city: dadosEntrada.municipio || (simulation as { city?: string }).city || null,
+        state: dadosEntrada.uf || (simulation as { state?: string }).state || null,
         receitaPropria,
         complementacaoVAAF,
         complementacaoVAAT,
         complementacaoVAAR,
+        dadosEntrada, // Manter dadosEntrada para acesso nos componentes
       });
       
       toast.success("Simulação atualizada", {
@@ -238,9 +262,9 @@ export const MinhasSimulacoes = (): JSX.Element => {
         ...simulation,
         createdAt,
         modifiedAt,
-        referencePeriod: (simulation as { referencePeriod?: string }).referencePeriod || "09/12/2024 a 09/12/2026",
-        city: (simulation as { city?: string }).city || "Campinas",
-        state: (simulation as { state?: string }).state || "SP",
+        referencePeriod: "09/12/2024 a 09/12/2026",
+        city: (simulation as { city?: string }).city || null,
+        state: (simulation as { state?: string }).state || null,
         receitaPropria,
         complementacaoVAAF: 0,
         complementacaoVAAT: 0,
