@@ -170,39 +170,39 @@ export const CategoryDetailsModal = ({
               </div>
 
               {/* Contexto do Município (se disponível) */}
-              {selectedSimulation && (selectedSimulation.complementacaoVAAF || selectedSimulation.complementacaoVAAT || selectedSimulation.complementacaoVAAR) && (
+              {selectedSimulation && (
                 <div className="flex flex-col gap-4">
                   <h3 className="text-base font-semibold text-[#181d27]">
-                    Contexto do Município
+                    Composição FUNDEB do Município
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
-                    {(selectedSimulation.complementacaoVAAT ?? 0) > 0 && (
-                      <div className="flex flex-col gap-2 p-4 rounded-xl bg-purple-50">
-                        <span className="text-sm text-[#535861]">Complementação VAAT</span>
-                        <span className="text-base font-semibold text-[#181d27]">
-                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAT ?? 0))}
-                        </span>
-                      </div>
-                    )}
-                    {(selectedSimulation.complementacaoVAAR ?? 0) > 0 && (
-                      <div className="flex flex-col gap-2 p-4 rounded-xl bg-orange-50">
-                        <span className="text-sm text-[#535861]">Complementação VAAR</span>
-                        <span className="text-base font-semibold text-[#181d27]">
-                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAR ?? 0))}
-                        </span>
-                      </div>
-                    )}
-                    {(selectedSimulation.complementacaoVAAF ?? 0) > 0 && (
-                      <div className="flex flex-col gap-2 p-4 rounded-xl bg-green-50">
-                        <span className="text-sm text-[#535861]">Complementação VAAF</span>
-                        <span className="text-base font-semibold text-[#181d27]">
-                          {maskValue(formatCurrency(selectedSimulation.complementacaoVAAF ?? 0))}
-                        </span>
-                      </div>
-                    )}
+                    <div className="flex flex-col gap-2 p-4 rounded-xl bg-blue-50">
+                      <span className="text-sm text-[#535861]">Receita Própria</span>
+                      <span className="text-base font-semibold text-[#181d27]">
+                        {maskValue(formatCurrency(selectedSimulation.receitaPropria ?? 0))}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-2 p-4 rounded-xl bg-green-50">
+                      <span className="text-sm text-[#535861]">Complementação VAAF</span>
+                      <span className="text-base font-semibold text-[#181d27]">
+                        {maskValue(formatCurrency(selectedSimulation.complementacaoVAAF ?? 0))}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-2 p-4 rounded-xl bg-purple-50">
+                      <span className="text-sm text-[#535861]">Complementação VAAT</span>
+                      <span className="text-base font-semibold text-[#181d27]">
+                        {maskValue(formatCurrency(selectedSimulation.complementacaoVAAT ?? 0))}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-2 p-4 rounded-xl bg-orange-50">
+                      <span className="text-sm text-[#535861]">Complementação VAAR</span>
+                      <span className="text-base font-semibold text-[#181d27]">
+                        {maskValue(formatCurrency(selectedSimulation.complementacaoVAAR ?? 0))}
+                      </span>
+                    </div>
                   </div>
                   <p className="text-xs text-[#717680]">
-                    * Valores de complementação do município {selectedSimulation.city || 'selecionado'}
+                    * Composição FUNDEB do município {selectedSimulation.city || 'selecionado'}
                   </p>
                 </div>
               )}
