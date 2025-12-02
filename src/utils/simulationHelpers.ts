@@ -1,3 +1,5 @@
+import { FUNDEB_CONSTANTS } from './constants';
+
 /**
  * Utility functions for simulation data processing
  */
@@ -32,8 +34,9 @@ export function calculateReferencePeriod(anoBase: number | undefined | null): st
     return DEFAULT_PERIOD;
   }
   
-  const startDate = new Date(anoBase, 11, 9); // 09/12/anoBase
-  const endDate = new Date(anoBase + 2, 11, 9); // 09/12/anoBase+2
+  const { START_DAY, START_MONTH, DURATION_YEARS } = FUNDEB_CONSTANTS.REFERENCE_PERIOD;
+  const startDate = new Date(anoBase, START_MONTH, START_DAY);
+  const endDate = new Date(anoBase + DURATION_YEARS, START_MONTH, START_DAY);
   
   const formatDate = (date: Date): string => {
     const day = String(date.getDate()).padStart(2, '0');

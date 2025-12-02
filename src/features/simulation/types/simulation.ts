@@ -8,6 +8,20 @@ export interface SimulationRow {
   diferencaColor: string;
 }
 
+export interface MunicipioIndicadores {
+  municipio: string;
+  uf: string;
+  indicadores_vaaf: number;
+  indicadores_vaat: number;
+  indicadores_vaar: number;
+}
+
+export interface SimulationWithDates extends SimulationSummary {
+  createdAt?: string | Date;
+  modifiedAt?: string | Date;
+  date?: string | Date;
+}
+
 export interface SimulationSummary {
   id: string;
   name: string;

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { SimulationService } from "../../../../services/simulationService";
-import type { SimulationSummary } from "../../../../types/simulation";
+import type { SimulationSummary, SimulationWithDates } from "../../../../types/simulation";
 import { generateSimulationPDF } from "../../../../../../utils/pdfGenerator";
 import { formatCurrency } from "../../../../../../utils/formatters";
 import { normalizeCreatedAt, calculateReferencePeriod, extractLocationData } from "../../../../../../utils/simulationHelpers";
@@ -124,7 +124,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
   useEffect(() => {
     let mounted = true;
     
-    const loadFirstSimulation = async (firstSim: any) => {
+    const loadFirstSimulation = async (firstSim: SimulationWithDates) => {
       try {
         const fullSimulation = await SimulationService.getSimulationById(firstSim.id);
         
@@ -237,9 +237,9 @@ export const FinancialOverviewSection = (): JSX.Element => {
           });
         }
         
-        const rawCreated = (selectedSim as any).createdAt ?? (selectedSim as any).date ?? new Date().toISOString();
+        const rawCreated = selectedSim.createdAt ?? selectedSim.date ?? new Date().toISOString();
         const createdAt = normalizeCreatedAt(rawCreated);
-        const modifiedAt = (selectedSim as any).modifiedAt ?? String((selectedSim as any).date ?? createdAt);
+        const modifiedAt = selectedSim.modifiedAt ?? String(selectedSim.date ?? createdAt);
         const referencePeriod = calculateReferencePeriod(dadosEntrada.anoBase);
         const location = extractLocationData({ ...selectedSim, dadosEntrada });
         
@@ -274,9 +274,9 @@ export const FinancialOverviewSection = (): JSX.Element => {
           description: errorMessage
         });
         
-        const rawCreated = (selectedSim as any).createdAt ?? (selectedSim as any).date ?? new Date().toISOString();
+        const rawCreated = selectedSim.createdAt ?? selectedSim.date ?? new Date().toISOString();
         const createdAt = normalizeCreatedAt(rawCreated);
-        const modifiedAt = (selectedSim as any).modifiedAt ?? String((selectedSim as any).date ?? createdAt);
+        const modifiedAt = selectedSim.modifiedAt ?? String(selectedSim.date ?? createdAt);
 
         setSelectedSimulation({
           ...selectedSim,

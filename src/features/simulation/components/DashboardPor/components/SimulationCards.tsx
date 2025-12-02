@@ -31,8 +31,8 @@ export const SimulationCards = ({
         // Support two shapes:
         // 1) SimulationRow produced by transformers (category/subcategory, repasseOriginal, repasseSimulado, diferenca)
         // 2) Municipio-level row returned by backend (uf, municipio, matriculas, receita_total)
-        const asAny = row as any;
-        const isMunicipioRow = typeof asAny.municipio === 'string' || typeof asAny.uf === 'string';
+        const rowData = row as Record<string, any>;
+        const isMunicipioRow = typeof rowData.municipio === 'string' || typeof rowData.uf === 'string';
 
         if (isMunicipioRow) {
           return (
@@ -43,28 +43,28 @@ export const SimulationCards = ({
               <CardContent className="flex flex-col p-6 gap-4">
                 <div className="flex flex-col gap-1.5 pb-3 border-b border-[#f0f0f0]">
                   <h4 className="text-base font-semibold text-[#181d27] leading-tight truncate">
-                    {asAny.municipio || asAny.uf}
+                    {rowData.municipio || rowData.uf}
                   </h4>
                   <p className="text-xs text-[#717680] leading-relaxed truncate">
-                    {asAny.uf ? `UF: ${asAny.uf}` : 'Município'}
+                    {rowData.uf ? `UF: ${rowData.uf}` : 'Município'}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-3.5">
                   <div className="flex items-center justify-between py-2">
                     <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">Matrículas</span>
-                    <span className={`text-sm font-bold text-[#181d27]`}>{integer.format(asAny.matriculas ?? 0)}</span>
+                    <span className={`text-sm font-bold text-[#181d27]`}>{integer.format(rowData.matriculas ?? 0)}</span>
                   </div>
 
                   <div className="flex items-center justify-between py-2 border-t border-[#f0f0f0]">
                     <span className="text-xs font-medium text-[#717680] uppercase tracking-wide">Receita total</span>
-                    <span className={`text-sm font-semibold text-[#535861]`}>{currency.format(asAny.receita_total ?? 0)}</span>
+                    <span className={`text-sm font-semibold text-[#535861]`}>{currency.format(rowData.receita_total ?? 0)}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#e9eeb]">
                   <span className="text-xs font-medium text-[#717680]">Detalhe</span>
-                  <span className={`text-sm font-semibold text-[#535861]`}>{asAny.source ?? ''}</span>
+                  <span className={`text-sm font-semibold text-[#535861]`}>{rowData.source ?? ''}</span>
                 </div>
               </CardContent>
             </Card>

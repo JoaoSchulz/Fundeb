@@ -58,7 +58,7 @@ export const EditarSimulacao = (): JSX.Element => {
         
         // Prefill: map simulation.dadosEntrada into form hooks (categories/items)
         try {
-          const entrada = (simulation.dadosEntrada ?? {}) as any;
+          const entrada = simulation.dadosEntrada ?? {};
           
           console.log('Dados da simulação:', simulation);
           console.log('Dados de entrada:', entrada);

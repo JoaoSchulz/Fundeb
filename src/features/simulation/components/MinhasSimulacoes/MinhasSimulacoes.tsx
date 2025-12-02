@@ -5,9 +5,10 @@ import { Search, FileX } from "lucide-react";
 import { EmptyState } from "../../../../components/common";
 import { useSimulation } from "../../hooks";
 import { SimulationService } from "../../services/simulationService";
-import type { SimulationSummary } from "../../types/simulation";
+import type { SimulationSummary, MunicipioIndicadores, SimulationWithDates } from "../../types/simulation";
 import { Input } from "../../../../components/ui/input";
 import { normalizeCreatedAt, calculateReferencePeriod, extractLocationData } from "../../../../utils/simulationHelpers";
+import { FUNDEB_CONSTANTS } from "../../../../utils/constants";
 import {
   SimulationsListHeader,
   SimulationsTable,
@@ -16,13 +17,13 @@ import {
 
 type SimulationListItem = SimulationSummary;
 
-const ITEMS_PER_PAGE = 10;
+const { ITEMS_PER_PAGE } = FUNDEB_CONSTANTS.PAGINATION;
 const IS_DEV = import.meta.env.DEV;
 
 // Cache para indicadores (evitar buscar 6000 registros toda vez)
-let indicatorsCache: any[] | null = null;
+let indicatorsCache: MunicipioIndicadores[] | null = null;
 let indicatorsCacheTime: number | null = null;
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+const { INDICATORS_DURATION: CACHE_DURATION } = FUNDEB_CONSTANTS.CACHE;
 
 export const MinhasSimulacoes = (): JSX.Element => {
   const navigate = useNavigate();
@@ -42,9 +43,9 @@ export const MinhasSimulacoes = (): JSX.Element => {
     SimulationService.getSimulations()
       .then((list) => {
         if (!mounted) return;
-        setSimulations(list as any);
-        setDisplayedSimulations((list as any).slice(0, ITEMS_PER_PAGE));
-        setHasMore((list as any).length > ITEMS_PER_PAGE);
+        setSimulations(list as SimulationSummary[]);
+        setDisplayedSimulations(list.slice(0, ITEMS_PER_PAGE) as SimulationSummary[]);
+        setHasMore(list.length > ITEMS_PER_PAGE);
       })
       .catch((e) => {
         if (!mounted) return;
@@ -117,7 +118,7 @@ export const MinhasSimulacoes = (): JSX.Element => {
     return () => scrollContainer.removeEventListener("scroll", handleScroll);
   }, [loadMoreSimulations]);
 
-  const handleViewSimulation = async (simulation: SimulationListItem) => {
+  const handleViewSimulation = async (simulation: SimulationWithDates) => {
     const rawCreated = simulation.createdAt ?? simulation.date ?? new Date().toISOString();
     const createdAt = normalizeCreatedAt(rawCreated);
     const modifiedAt = simulation.modifiedAt ?? String(simulation.date ?? createdAt);
@@ -143,7 +144,7 @@ export const MinhasSimulacoes = (): JSX.Element => {
       
       // Calcular receita própria (20% da receita total contribuída ao FUNDEB)
       const repasseOriginal = simulation.repasseOriginal || 0;
-      const receitaPropria = repasseOriginal * 0.20; // 20% vai pro FUNDEB
+      const receitaPropria = repasseOriginal * FUNDEB_CONSTANTS.REVENUE.CONTRIBUTION_PERCENTAGE;
       
       // Buscar indicadores do município se codMun estiver disponível
       let complementacaoVAAF = 0;
@@ -170,16 +171,16 @@ export const MinhasSimulacoes = (): JSX.Element => {
           }
           
           // Buscar município com comparação case-insensitive e normalizada
-          const municipioData = indicatorsCache.find((m: any) => {
+          const municipioData = indicatorsCache.find((m) => {
             const nomeMunicipio = m.municipio?.toLowerCase().trim() || '';
             const nomeComparar = municipioNome.toLowerCase().trim();
             return nomeMunicipio === nomeComparar;
           });
           
           if (municipioData) {
-            complementacaoVAAF = (municipioData as any).indicadores_vaaf || 0;
-            complementacaoVAAT = (municipioData as any).indicadores_vaat || 0;
-            complementacaoVAAR = (municipioData as any).indicadores_vaar || 0;
+            complementacaoVAAF = municipioData.indicadores_vaaf || 0;
+            complementacaoVAAT = municipioData.indicadores_vaat || 0;
+            complementacaoVAAR = municipioData.indicadores_vaar || 0;
             
             if (IS_DEV) {
               console.log('✅ Indicadores encontrados:', {
@@ -194,21 +195,21 @@ export const MinhasSimulacoes = (): JSX.Element => {
             
             if (IS_DEV) {
               // Buscar municípios do AC para debug
-              const municipiosAC = indicatorsCache.filter((m: any) => m.uf === 'AC');
+              const municipiosAC = indicatorsCache.filter((m) => m.uf === 'AC');
               console.log('🔍 Total municípios do AC no backend:', municipiosAC.length);
               console.log('🔍 Primeiros 10 municípios do AC:', 
-                municipiosAC.slice(0, 10).map((m: any) => m.municipio)
+                municipiosAC.slice(0, 10).map((m) => m.municipio)
               );
               
               // Buscar variações do nome
-              const variacoes = indicatorsCache.filter((m: any) => 
+              const variacoes = indicatorsCache.filter((m) => 
                 m.municipio?.toLowerCase().includes('acreland') || 
                 m.municipio?.toLowerCase().includes('acrelân')
               );
-              console.log('🔍 Variações de ACRELANDIA encontradas:', variacoes.map((m: any) => m.municipio));
+              console.log('🔍 Variações de ACRELANDIA encontradas:', variacoes.map((m) => m.municipio));
               
               console.log('📋 Primeiros 5 municípios disponíveis:', 
-                indicatorsCache.slice(0, 5).map((m: any) => ({ 
+                indicatorsCache.slice(0, 5).map((m) => ({ 
                   nome: m.municipio, 
                   uf: m.uf,
                   vaat: m.indicadores_vaat,
@@ -219,14 +220,14 @@ export const MinhasSimulacoes = (): JSX.Element => {
             }
             
             // FALLBACK TEMPORÁRIO: Se não encontrar, usar primeiro município com dados não-zero
-            const municipioComDados = indicatorsCache.find((m: any) => 
+            const municipioComDados = indicatorsCache.find((m) => 
               (m.indicadores_vaaf || 0) + (m.indicadores_vaat || 0) + (m.indicadores_vaar || 0) > 0
             );
             
             if (municipioComDados) {
-              complementacaoVAAF = (municipioComDados as any).indicadores_vaaf || 0;
-              complementacaoVAAT = (municipioComDados as any).indicadores_vaat || 0;
-              complementacaoVAAR = (municipioComDados as any).indicadores_vaar || 0;
+              complementacaoVAAF = municipioComDados.indicadores_vaaf || 0;
+              complementacaoVAAT = municipioComDados.indicadores_vaat || 0;
+              complementacaoVAAR = municipioComDados.indicadores_vaar || 0;
               if (IS_DEV) {
                 console.log('🔄 Usando dados do município:', municipioComDados.municipio, 'como exemplo temporário');
               }
@@ -262,7 +263,7 @@ export const MinhasSimulacoes = (): JSX.Element => {
     } catch (error) {
       console.error('Erro ao buscar dados completos da simulação:', error);
       // Fallback: usar cálculo estimado
-      const receitaPropria = (simulation.repasseOriginal || 0) * 0.20;
+      const receitaPropria = (simulation.repasseOriginal || 0) * FUNDEB_CONSTANTS.REVENUE.CONTRIBUTION_PERCENTAGE;
       
       setSelectedSimulation({
         ...simulation,

@@ -71,6 +71,23 @@ export const COLORS = {
   BG_NEUTRAL: "#fcfcfc",
 } as const;
 
+export const FUNDEB_CONSTANTS = {
+  REFERENCE_PERIOD: {
+    START_DAY: 9,
+    START_MONTH: 11, // dezembro (JavaScript Date usa índice 0-11)
+    DURATION_YEARS: 2,
+  },
+  REVENUE: {
+    CONTRIBUTION_PERCENTAGE: 0.20, // 20% da receita vai pro FUNDEB
+  },
+  CACHE: {
+    INDICATORS_DURATION: 5 * 60 * 1000, // 5 minutos em milissegundos
+  },
+  PAGINATION: {
+    ITEMS_PER_PAGE: 10,
+  },
+} as const;
+
 export const ESTADOS = [
   { value: "AC", label: "Acre" },
   { value: "AL", label: "Alagoas" },
