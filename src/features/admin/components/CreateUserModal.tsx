@@ -153,13 +153,17 @@ export const CreateUserModal = ({ isOpen, onClose, onSuccess }: CreateUserModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby="dialog-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <User className="w-5 h-5" />
             Criar Novo Usuário
           </DialogTitle>
         </DialogHeader>
+
+        <div id="dialog-description" className="sr-only">
+          Formulário para criar um novo usuário no sistema com informações básicas, contato, localização e organização.
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
           {/* Informações Básicas */}
