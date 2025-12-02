@@ -478,7 +478,7 @@ Período de Vigência: 09/12/2024 a 09/12/2026
 
 #### **Dados de Matrículas (Atuais):**
 - **Fonte:** INEP (Instituto Nacional de Estudos e Pesquisas Educacionais)
-- **Base:** Censo Escolar 2023
+- **Base:** Censo Escolar 2024
 - **Periodicidade:** Anual
 - **Formato:** CSV processado e importado para o banco de dados
 - **Tabela:** `municipios_dados_reais`

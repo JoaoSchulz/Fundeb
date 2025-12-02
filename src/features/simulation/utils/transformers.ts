@@ -29,8 +29,8 @@ const FUNDEB_FACTORS = {
   "Atendimento Educacional Especializado": 1.2
 };
 
-// Valor anual mínimo por aluno (exemplo)
-const VALOR_ALUNO_ANO = 4000;
+// Valor anual mínimo por aluno (2024)
+const VALOR_ALUNO_ANO = 5648.91;
 
 export const transformEnrollmentData = (data: EnrollmentData[]): SimulationRow[] => {
   // Primeiro: agregue (some) os dados de todos os municípios
@@ -309,8 +309,8 @@ export const transformSimulationCategoriasToRows = (categorias: Record<string, {
     const matriculas = value.matriculas || 0;
     
     // Usar valores salvos se existirem (inclusive 0), caso contrário calcular
-    const repasseOriginal = value.repasseOriginal !== undefined ? value.repasseOriginal : (matriculas * 4000 * mapping.factor);
-    const repasseSimulado = value.repasseSimulado !== undefined ? value.repasseSimulado : (value.repasse !== undefined ? value.repasse : (matriculas * 4000 * mapping.factor));
+    const repasseOriginal = value.repasseOriginal !== undefined ? value.repasseOriginal : (matriculas * VALOR_ALUNO_ANO * mapping.factor);
+    const repasseSimulado = value.repasseSimulado !== undefined ? value.repasseSimulado : (value.repasse !== undefined ? value.repasse : (matriculas * VALOR_ALUNO_ANO * mapping.factor));
     
     const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
     

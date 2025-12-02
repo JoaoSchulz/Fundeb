@@ -3,7 +3,7 @@
  * Centraliza fatores, categorias e mapeamentos usados em todo o sistema
  */
 
-export const VALOR_ALUNO_ANO = 4000;
+export const VALOR_ALUNO_ANO = 5648.91;
 
 export interface FundebCategory {
   id: string;
