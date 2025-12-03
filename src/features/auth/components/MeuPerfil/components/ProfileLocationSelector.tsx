@@ -27,7 +27,7 @@ export const ProfileLocationSelector = ({
   useEffect(() => {
     SimulationService.getUFs()
       .then((data) => setUfs(data))
-      .catch((e) => console.error('Erro ao carregar UFs:', e));
+      .catch(() => {});
   }, []);
 
   // Carregar municípios quando UF mudar
@@ -47,8 +47,7 @@ export const ProfileLocationSelector = ({
           onMunicipioChange('');
         }
       })
-      .catch((e) => {
-        console.error('Erro ao carregar municípios:', e);
+      .catch(() => {
         setMunicipios([]);
       })
       .finally(() => setMunicipiosLoading(false));
