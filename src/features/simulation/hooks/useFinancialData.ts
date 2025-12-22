@@ -51,7 +51,7 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
               return;
             }
           } catch (e) {
-            console.error('Erro ao carregar dados da simulação:', e);
+            // Erro silencioso
           }
         }
         // Se não conseguiu carregar, deixar vazio

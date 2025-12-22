@@ -1,5 +1,13 @@
 import { http } from "../../../services/http/client";
-import { EnrollmentData, RevenueData, IndicatorData, Municipio } from "../../../types/api";
+import { 
+  EnrollmentData, 
+  RevenueData, 
+  IndicatorData, 
+  Municipio,
+  MunicipalRealData,
+  MatriculasAgregadas,
+  CompareOfficialResponse,
+} from "../../../types/api";
 import type { SimulationRow, RevenueRow, IndicatorRow, TabType } from "../types/simulation";
 import { transformEnrollmentData, transformRevenueData, transformIndicatorData } from "../utils/transformers";
 import type { SimulationSummary } from "../types/simulation";
@@ -57,10 +65,23 @@ export class SimulationService {
     return data;
   }
 
-  static async getMunicipiosByUF(uf: string): Promise<Municipio[]> {
+  static async getMunicipiosByUF(uf: string, ano?: number): Promise<Municipio[]> {
+    const queryParams: { uf: string; ano?: number } = { uf };
+    if (ano) {
+      queryParams.ano = ano;
+    }
     const { data } = await http.get<Municipio[]>(`/localidades/municipios`, {
-      query: { uf }
+      query: queryParams
     });
+    return data;
+  }
+
+  /**
+   * Busca os anos disponíveis no banco de dados
+   * GET /localidades/anos-disponiveis
+   */
+  static async getAnosDisponiveis(): Promise<number[]> {
+    const { data } = await http.get<number[]>("/localidades/anos-disponiveis");
     return data;
   }
 
@@ -103,6 +124,44 @@ export class SimulationService {
 
   static async updateSimulation(id: string, payload: { nome?: string; dadosEntrada?: any }) {
     const { data } = await http.put<any>(`/simulations/${id}`, payload);
+    return data;
+  }
+
+  // Cálculos Oficiais do FUNDEB (Sprint 3)
+
+  /**
+   * Busca dados reais completos de um município
+   * GET /localidades/dados-reais/:uf/:municipio?ano=YYYY
+   */
+  static async getDadosReaisMunicipio(uf: string, municipio: string, ano?: number): Promise<MunicipalRealData> {
+    const queryParams: { ano?: number } = {};
+    if (ano) {
+      queryParams.ano = ano;
+    }
+    const { data } = await http.get<MunicipalRealData>(
+      `/localidades/dados-reais/${encodeURIComponent(uf)}/${encodeURIComponent(municipio)}`,
+      { query: queryParams }
+    );
+    return data;
+  }
+
+  /**
+   * Compara matrículas simuladas com cálculos oficiais do FUNDEB
+   * POST /simulations/compare-official
+   */
+  static async compareWithOfficial(
+    uf: string,
+    municipio: string,
+    matriculasSimuladas: MatriculasAgregadas
+  ): Promise<CompareOfficialResponse> {
+    const { data } = await http.post<CompareOfficialResponse>(
+      `/simulations/compare-official`,
+      {
+        uf,
+        municipio,
+        matriculasSimuladas,
+      }
+    );
     return data;
   }
 }

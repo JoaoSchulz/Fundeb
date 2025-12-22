@@ -3,9 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../../../../components/ui/button";
 import { useAuth } from "../../../../../features/auth/hooks";
 import { LAYOUT_CONSTANTS } from "../../../../../utils/constants";
+import { useAnosDisponiveis } from "../../../hooks";
 
 export const SimulationsListHeader = (): JSX.Element => {
   const navigate = useNavigate();
+  const { anoMaisRecente, anoCensoEscolar, isLoading } = useAnosDisponiveis();
+  
+  // Formatar texto dinâmico baseado no ano de referência dos dados
+  const formatarTextoAtualizacao = () => {
+    if (isLoading) {
+      return "Carregando informações de atualização...";
+    }
+    
+    // Usar o ano de referência dos dados (ano mais recente disponível no banco)
+    const anoReferencia = anoMaisRecente || new Date().getFullYear();
+    
+    // O Censo Escolar geralmente é publicado com 2 anos de atraso
+    // Se temos dados de 2025, o Censo Escolar base é de 2023
+    const anoCenso = anoCensoEscolar || (anoReferencia - 2);
+    
+    return `Última atualização dos dados: ${anoReferencia} com base no Censo Escolar ${anoCenso} e projeções do FNDE`;
+  };
 
   return (
     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 w-full max-w-[1400px] mx-auto">
@@ -15,7 +33,7 @@ export const SimulationsListHeader = (): JSX.Element => {
           <span className="text-2xl">👋</span>
         </h1>
         <p className="font-['Inter',Helvetica] font-normal text-[#535861] text-sm tracking-[0] leading-[20px] whitespace-nowrap">
-          Última atualização dos dados: Abril/2025 com base no Censo Escolar 2023 e projeções do FNDE
+          {formatarTextoAtualizacao()}
         </p>
       </div>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">

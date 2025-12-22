@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SimulationService } from "../../services/simulationService";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { formatCurrency } from "../../../../utils/formatters";
 import { FUNDEB_CATEGORIES } from "../../../../utils/constants/fundeb";
 import {
@@ -23,6 +24,7 @@ export const EditarSimulacao = (): JSX.Element => {
   const [simulationName, setSimulationName] = useState("Simulação 05/05/2025");
   const [baseYear, setBaseYear] = useState("2027");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { categories, handleChange: handleEnrollmentChange, setCategories } =
@@ -169,6 +171,8 @@ export const EditarSimulacao = (): JSX.Element => {
       },
     };
 
+    setIsSaving(true);
+
     if (id) {
       SimulationService.updateSimulation(id, payload)
         .then(() => {
@@ -181,6 +185,9 @@ export const EditarSimulacao = (): JSX.Element => {
           console.error('Error updating simulation', e);
           toast.error("Erro ao atualizar simulação");
           throw e;
+        })
+        .finally(() => {
+          setIsSaving(false);
         });
     } else {
       // Fallback: criar nova simulação se id não estiver presente
@@ -195,6 +202,9 @@ export const EditarSimulacao = (): JSX.Element => {
           console.error('Error creating simulation (fallback)', e);
           toast.error("Erro ao criar simulação");
           throw e;
+        })
+        .finally(() => {
+          setIsSaving(false);
         });
     }
   };
@@ -206,7 +216,8 @@ export const EditarSimulacao = (): JSX.Element => {
   if (isLoading) {
     return (
       <section className="flex flex-col items-center justify-center gap-8 pt-8 pb-12 px-0 w-full bg-[linear-gradient(180deg,rgba(255,255,255,1)_0%,rgba(239,246,255,1)_50%,rgba(236,238,243,1)_100%)] min-h-screen">
-        <div className="text-center">
+        <div className="text-center flex items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
           <p className="text-lg text-gray-600">Carregando simulação...</p>
         </div>
       </section>
@@ -257,7 +268,7 @@ export const EditarSimulacao = (): JSX.Element => {
               />
             )}
 
-            <FormActions onCancel={handleCancel} onSave={handleSave} />
+            <FormActions onCancel={handleCancel} onSave={handleSave} isSaving={isSaving} />
           </div>
         </div>
       </div>

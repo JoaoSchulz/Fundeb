@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BarChart3, Home, LogOut as LogOutIcon, User as UserIcon, Shield } from "lucide-react";
+import { BarChart3, Home, LogOut as LogOutIcon, User as UserIcon, Shield, Calculator, Database } from "lucide-react";
 import { useAuth } from "../../../features/auth/hooks";
 import { SolicitacoesService } from "../../../services/solicitacoesService";
 import {
@@ -28,6 +28,12 @@ const navigationItems = [
     icon: BarChart3,
     label: "Simulações",
     path: "/app/simulacoes",
+    isLogout: false,
+  },
+  {
+    icon: Calculator,
+    label: "Calculadoras",
+    path: "/app/calculadoras",
     isLogout: false,
   },
   {
@@ -78,7 +84,7 @@ export const Navigation = ({
   const filteredNavigationItems = React.useMemo(() => {
     const items = [...navigationItems];
     
-    // Se for admin, adicionar item de Solicitações antes do perfil
+    // Se for admin, adicionar itens administrativos antes do perfil
     if (user?.role === 'admin') {
       const perfilIndex = items.findIndex(item => item.path === '/app/perfil');
       items.splice(perfilIndex, 0, {
@@ -87,6 +93,12 @@ export const Navigation = ({
         path: "/app/admin/solicitacoes",
         isLogout: false,
         badge: pendingCount > 0 ? pendingCount : undefined,
+      });
+      items.splice(perfilIndex + 1, 0, {
+        icon: Database,
+        label: "Atualizar Dados",
+        path: "/app/admin/atualizar",
+        isLogout: false,
       });
     }
     

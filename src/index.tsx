@@ -14,8 +14,9 @@ import { DashboardPor } from "./features/simulation/components/DashboardPor/Dash
 import { MinhasSimulacoes } from "./features/simulation/components/MinhasSimulacoes/MinhasSimulacoes";
 import { NovaSimulacao } from "./features/simulation/components/NovaSimulacao/NovaSimulacao";
 import { EditarSimulacao } from "./features/simulation/components/EditarSimulacao";
-import { GerenciarSolicitacoes } from "./features/admin";
+import { GerenciarSolicitacoes, AtualizarDados } from "./features/admin";
 import { NotFound } from "./pages/NotFound";
+import { CalculadorasPage } from "./pages/Calculadoras";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -86,6 +87,16 @@ createRoot(document.getElementById("app") as HTMLElement).render(
               </PrivateRoute>
             }
           />
+          <Route
+            path="/app/calculadoras"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <CalculadorasPage />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
           
           {/* Rota Admin - Protegida para role admin */}
           <Route
@@ -94,6 +105,16 @@ createRoot(document.getElementById("app") as HTMLElement).render(
               <AdminRoute>
                 <Layout>
                   <GerenciarSolicitacoes />
+                </Layout>
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/app/admin/atualizar"
+            element={
+              <AdminRoute>
+                <Layout>
+                  <AtualizarDados />
                 </Layout>
               </AdminRoute>
             }

@@ -19,6 +19,9 @@ interface SimulationFormFieldsProps {
   onMunicipioChange: (value: string) => void;
   municipios: Array<{ id: string; municipio: string; uf: string }>;
   isLoadingMunicipios: boolean;
+  canEditLocation?: boolean;
+  anosDisponiveis: number[];
+  isLoadingAnos?: boolean;
 }
 
 export const SimulationFormFields = ({
@@ -33,8 +36,21 @@ export const SimulationFormFields = ({
   onMunicipioChange,
   municipios,
   isLoadingMunicipios,
-}: SimulationFormFieldsProps): JSX.Element => (
+  canEditLocation = true,
+  anosDisponiveis,
+  isLoadingAnos = false,
+}: SimulationFormFieldsProps): JSX.Element => {
+  const selectedMunicipio = municipios.find(m => m.id === municipioId);
+  
+  return (
   <div className="flex flex-col gap-4 mb-6">
+    {!canEditLocation && (
+      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <p className="text-sm text-blue-800">
+          <span className="font-semibold">ℹ️ Informação:</span> Suas simulações são restritas ao seu município cadastrado.
+        </p>
+      </div>
+    )}
     <div className="flex flex-col md:flex-row gap-4">
       <div className="flex flex-col gap-2 flex-1">
         <label className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">
@@ -50,16 +66,18 @@ export const SimulationFormFields = ({
         <label className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">
           Ano-base
         </label>
-        <Select value={baseYear} onValueChange={onYearChange}>
+        <Select value={baseYear || undefined} onValueChange={onYearChange} disabled={isLoadingAnos || anosDisponiveis.length === 0}>
           <SelectTrigger className="h-11 border-[#d0d3d9]">
-            <SelectValue />
+            <SelectValue placeholder={isLoadingAnos ? "Carregando..." : anosDisponiveis.length === 0 ? "Nenhum ano disponível" : "Selecione"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="2024">2024</SelectItem>
-            <SelectItem value="2025">2025</SelectItem>
-            <SelectItem value="2026">2026</SelectItem>
-            <SelectItem value="2027">2027</SelectItem>
-            <SelectItem value="2028">2028</SelectItem>
+            {anosDisponiveis.length > 0 ? (
+              anosDisponiveis.map((ano) => (
+                <SelectItem key={ano} value={String(ano)}>
+                  {ano}
+                </SelectItem>
+              ))
+            ) : null}
           </SelectContent>
         </Select>
       </div>
@@ -69,41 +87,54 @@ export const SimulationFormFields = ({
         <label className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">
           UF *
         </label>
-        <Select value={uf} onValueChange={onUfChange}>
-          <SelectTrigger className="h-11 border-[#d0d3d9]">
-            <SelectValue placeholder="Selecione" />
-          </SelectTrigger>
-          <SelectContent>
-            {ufs.map((u) => (
-              <SelectItem key={u} value={u}>
-                {u}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {canEditLocation ? (
+          <Select value={uf} onValueChange={onUfChange}>
+            <SelectTrigger className="h-11 border-[#d0d3d9]">
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              {ufs.map((u) => (
+                <SelectItem key={u} value={u}>
+                  {u}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="h-11 px-3 flex items-center border border-[#d0d3d9] rounded-md bg-gray-100 text-gray-700">
+            {uf || 'Não definido'}
+          </div>
+        )}
       </div>
       <div className="flex flex-col gap-2 flex-1">
         <label className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">
           Município *
         </label>
-        <Select
-          value={municipioId}
-          onValueChange={onMunicipioChange}
-          disabled={!uf || isLoadingMunicipios}
-        >
-          <SelectTrigger className="h-11 border-[#d0d3d9]">
-            <SelectValue placeholder={isLoadingMunicipios ? "Carregando..." : "Selecione"} />
-          </SelectTrigger>
-          <SelectContent>
-            {municipios.map((m) => (
-              <SelectItem key={m.id} value={m.id}>
-                {m.municipio}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {canEditLocation ? (
+          <Select
+            value={municipioId}
+            onValueChange={onMunicipioChange}
+            disabled={!uf || isLoadingMunicipios}
+          >
+            <SelectTrigger className="h-11 border-[#d0d3d9]">
+              <SelectValue placeholder={isLoadingMunicipios ? "Carregando..." : "Selecione"} />
+            </SelectTrigger>
+            <SelectContent>
+              {municipios.map((m) => (
+                <SelectItem key={m.id} value={m.id}>
+                  {m.municipio}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="h-11 px-3 flex items-center border border-[#d0d3d9] rounded-md bg-gray-100 text-gray-700">
+            {selectedMunicipio?.municipio || 'Não definido'}
+          </div>
+        )}
       </div>
     </div>
   </div>
-);
+  );
+};
 

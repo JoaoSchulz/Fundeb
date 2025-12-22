@@ -25,14 +25,22 @@ export const StatsCards = ({ cards }: StatsCardsProps): JSX.Element => {
             </h2>
             <div className="inline-flex items-center gap-2">
               <div className="inline-flex items-center justify-center gap-1">
-                <TrendingUp className="w-4 h-4 text-white" />
-                <span className={`font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-white text-[length:var(--text-sm-medium-font-size)] text-center tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)]`}>
-                  {card.trend}
-                </span>
+                {/* Só mostra o ícone de tendência se houver dados (trend não está vazio e não começa com "dados de") */}
+                {card.trend && card.trend.trim() !== '' && !card.trend.startsWith('dados de') && (
+                  <TrendingUp className="w-4 h-4 text-white" />
+                )}
+                {card.trend && card.trend.trim() !== '' && (
+                  <span className={`font-text-sm-medium font-[number:var(--text-sm-medium-font-weight)] text-white text-[length:var(--text-sm-medium-font-size)] text-center tracking-[var(--text-sm-medium-letter-spacing)] leading-[var(--text-sm-medium-line-height)] [font-style:var(--text-sm-medium-font-style)]`}>
+                    {card.trend}
+                  </span>
+                )}
               </div>
-              <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-white text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
-                {card.trendLabel}
-              </span>
+              {/* Só mostra "vs ano passado" se houver dados (trend não está vazio e não começa com "dados de") */}
+              {card.trend && card.trend.trim() !== '' && !card.trend.startsWith('dados de') && (
+                <span className="font-text-sm-regular font-[number:var(--text-sm-regular-font-weight)] text-white text-[length:var(--text-sm-regular-font-size)] tracking-[var(--text-sm-regular-letter-spacing)] leading-[var(--text-sm-regular-line-height)] [font-style:var(--text-sm-regular-font-style)]">
+                  {card.trendLabel}
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>

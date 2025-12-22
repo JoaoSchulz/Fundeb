@@ -4,6 +4,7 @@ import { CardContent } from "../../../../components/ui/card";
 import { ProfileHeader, ProfileAvatar, ProfileForm } from "./components";
 import { useAuth } from "../../hooks";
 import { AuthService } from "../../services/authService";
+import type { UpdateProfilePayload } from "../../../../types/api";
 
 interface UserProfile {
   name: string;
@@ -104,14 +105,14 @@ export const MeuPerfil = (): JSX.Element => {
 
     setIsSaving(true);
     try {
-      const payload = {
-        nome: editedProfile.name.trim(),
-        email: editedProfile.email.trim(),
+      const payload: UpdateProfilePayload = {
+        nome: editedProfile.name,
+        email: editedProfile.email,
         telefone: editedProfile.phone?.trim() || null,
         municipio: editedProfile.municipio?.trim() || null,
         uf: editedProfile.uf?.trim().toUpperCase() || null,
         organizacao: editedProfile.organization?.trim() || null,
-        role: editedProfile.role || "cliente",
+        role: (editedProfile.role || "cliente") as 'admin' | 'cliente',
       };
 
       await AuthService.updateProfile(payload);

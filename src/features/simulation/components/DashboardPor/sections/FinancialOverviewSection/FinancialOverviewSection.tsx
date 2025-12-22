@@ -45,6 +45,14 @@ export const FinancialOverviewSection = (): JSX.Element => {
   const [isViewModeChanging, setIsViewModeChanging] = useState(false);
   const [isExpandedModalOpen, setIsExpandedModalOpen] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [dadosAnoAnterior, setDadosAnoAnterior] = useState<{
+    repasseOriginal: number;
+    repasseSimulado: number;
+    ano: number | null;
+  } | null>(null);
+  const [dadosAnoAtual, setDadosAnoAtual] = useState<{
+    receitaTotal: number;
+  } | null>(null);
 
   const activeTab = tabs.find((tab) => tab.active)?.id || "todos";
 
@@ -64,9 +72,79 @@ export const FinancialOverviewSection = (): JSX.Element => {
     isLoading,
   });
 
+  // Buscar dados do ano anterior quando a simulação mudar
+  useEffect(() => {
+    const buscarDadosAnoAnterior = async () => {
+      if (!selectedSimulation?.dadosEntrada?.uf || !selectedSimulation?.dadosEntrada?.municipio || !selectedSimulation?.dadosEntrada?.anoBase) {
+        setDadosAnoAnterior(null);
+        return;
+      }
+
+      const anoAtual = selectedSimulation.dadosEntrada.anoBase;
+      const anoAnterior = anoAtual - 1;
+      const uf = selectedSimulation.dadosEntrada.uf;
+      const municipio = selectedSimulation.dadosEntrada.municipio;
+
+      try {
+        // Buscar dados do ano anterior e do ano atual
+        const [dadosAnterior, dadosAtual] = await Promise.all([
+          SimulationService.getDadosReaisMunicipio(uf, municipio, anoAnterior).catch(() => null),
+          SimulationService.getDadosReaisMunicipio(uf, municipio, anoAtual).catch(() => null),
+        ]);
+        
+        if (dadosAnterior) {
+          // O repasse do FUNDEB está relacionado à receita_total
+          // Usaremos a receita_total como aproximação do repasse oficial
+          const repasseAnterior = dadosAnterior.receitaTotal || 0;
+
+          setDadosAnoAnterior({
+            repasseOriginal: repasseAnterior,
+            repasseSimulado: repasseAnterior, // No ano anterior, não há simulação
+            ano: anoAnterior,
+          });
+        } else {
+          setDadosAnoAnterior(null);
+        }
+
+        if (dadosAtual) {
+          const receitaTotal = dadosAtual.receitaTotal || 0;
+          
+          // Debug: Log para verificar o que está vindo
+          if (IS_DEV) {
+            console.log('[FinancialOverview] Dados do ano atual:', {
+              anoAtual,
+              dadosAtual,
+              receitaTotal,
+              receitaContribuicao: dadosAtual.receitaContribuicao,
+            });
+          }
+          
+          setDadosAnoAtual({
+            receitaTotal,
+          });
+        } else {
+          if (IS_DEV) {
+            console.warn('[FinancialOverview] Dados do ano atual não encontrados:', {
+              anoAtual,
+              uf,
+              municipio,
+            });
+          }
+          setDadosAnoAtual(null);
+        }
+      } catch (error) {
+        // Se não encontrar dados, definir como null para mostrar mensagem
+        setDadosAnoAnterior(null);
+        setDadosAnoAtual(null);
+      }
+    };
+
+    buscarDadosAnoAnterior();
+  }, [selectedSimulation?.dadosEntrada?.uf, selectedSimulation?.dadosEntrada?.municipio, selectedSimulation?.dadosEntrada?.anoBase]);
+
   // Calcular cards dinamicamente com base nos dados da simulação
   const statsCards: StatsCard[] = useMemo(() => {
-    // Calcular soma do repasse original (projeção 2025)
+    // Calcular soma do repasse original (projeção do ano atual)
     const totalRepasseOriginal = tableData.reduce((acc, row) => acc + row.repasseOriginal, 0);
     
     // Calcular soma do repasse simulado (recurso potencial)
@@ -77,19 +155,118 @@ export const FinancialOverviewSection = (): JSX.Element => {
       ? ((totalRepasseSimulado - totalRepasseOriginal) / totalRepasseOriginal) * 100 
       : 0;
 
+    // Obter ano base da simulação
+    const anoBase = selectedSimulation?.dadosEntrada?.anoBase || new Date().getFullYear();
+    const anoAnterior = anoBase - 1;
+
+    // Calcular comparação com ano anterior
+    const calcularComparacaoAnoAnterior = (valorAtual: number, valorAnterior: number): string => {
+      if (!dadosAnoAnterior || dadosAnoAnterior.repasseOriginal === 0) {
+        return `dados de ${anoAnterior} ausentes`;
+      }
+      if (valorAnterior === 0) {
+        return `dados de ${anoAnterior} ausentes`;
+      }
+      
+      // Calcular percentual de variação
+      const percentual = ((valorAtual - valorAnterior) / valorAnterior) * 100;
+      
+      // Arredondar para 1 casa decimal, mas limitar a exibição se for muito grande
+      // (para evitar porcentagens exageradas que podem indicar erro de dados)
+      const percentualArredondado = Math.round(percentual * 10) / 10;
+      
+      return `${percentualArredondado >= 0 ? '+' : ''}${percentualArredondado.toFixed(1)}%`;
+    };
+
+    // Para comparar corretamente, SEMPRE usar receitaTotal vs receitaTotal
+    // O totalRepasseOriginal é apenas a soma das categorias da simulação, que pode ser menor que o total real
+    const repasseAnterior = dadosAnoAnterior?.repasseOriginal || 0;
+    const receitaTotalAtual = dadosAnoAtual?.receitaTotal || 0;
+    
+    // Para o card 1 (Projeção de repasse), usar receitaTotal atual se disponível, senão usar totalRepasseOriginal
+    // A comparação SEMPRE pode ser feita se temos dados do ano anterior
+    // - Se receitaTotalAtual > 0: comparamos total oficial vs total oficial (comparação exata)
+    // - Se receitaTotalAtual = 0: comparamos simulação vs total oficial (comparação aproximada)
+    const valorAtualCard1 = receitaTotalAtual > 0 ? receitaTotalAtual : totalRepasseOriginal;
+    
+    // Sempre comparar se temos dados do ano anterior
+    const comparacaoRepasseOriginal = dadosAnoAnterior && repasseAnterior > 0
+      ? calcularComparacaoAnoAnterior(valorAtualCard1, repasseAnterior)
+      : `dados de ${anoAnterior} ausentes`;
+    
+    // Para o card 2 (Recurso potencial), comparar o recurso potencial atual com o do ano anterior
+    // O recurso potencial do ano anterior é o mesmo que o repasse original (não há simulação)
+    // Precisamos calcular o recurso potencial atual proporcional ao total, se necessário
+    let valorAtualCard2 = totalRepasseSimulado;
+    let valorExibidoCard2 = totalRepasseSimulado;
+    
+    // Se temos receitaTotalAtual e totalRepasseOriginal, calcular a proporção correta
+    if (receitaTotalAtual > 0 && totalRepasseOriginal > 0) {
+      // Proporção do repasse simulado em relação ao original da simulação
+      const proporcaoSimulacao = totalRepasseSimulado / totalRepasseOriginal;
+      // Aplicar a mesma proporção à receita total atual para ter o valor equivalente ao total
+      valorAtualCard2 = receitaTotalAtual * proporcaoSimulacao;
+      // O valor exibido deve ser o valor simulado proporcional ao total
+      valorExibidoCard2 = valorAtualCard2;
+    }
+    
+    // Comparar o recurso potencial atual (proporcional) com o recurso potencial do ano anterior
+    // No ano anterior, o recurso potencial é igual ao repasse original (não há simulação)
+    // Se temos receitaTotalAtual, usar proporção correta
+    // Se não temos, comparar diretamente totalRepasseSimulado com repasseAnterior (aproximação)
+    let comparacaoRepasseSimulado: string;
+    if (dadosAnoAnterior && repasseAnterior > 0) {
+      if (receitaTotalAtual > 0) {
+        // Usar proporção correta quando temos dados oficiais
+        comparacaoRepasseSimulado = calcularComparacaoAnoAnterior(valorAtualCard2, repasseAnterior);
+      } else {
+        // Comparar diretamente quando não temos dados oficiais (aproximação)
+        comparacaoRepasseSimulado = calcularComparacaoAnoAnterior(totalRepasseSimulado, repasseAnterior);
+      }
+    } else {
+      comparacaoRepasseSimulado = `dados de ${anoAnterior} ausentes`;
+    }
+    
+    // Debug: Log dos valores para verificar se a comparação está correta
+    if (IS_DEV) {
+      console.log('[FinancialOverview] Comparação de valores:', {
+        repasseAnterior,
+        receitaTotalAtual,
+        totalRepasseOriginal,
+        totalRepasseSimulado,
+        valorAtualCard1,
+        valorAtualCard2,
+        comparacaoRepasseOriginal,
+        comparacaoRepasseSimulado,
+      });
+    }
+    
+    // Para o card de percentual de aumento, não faz sentido comparar com o ano anterior
+    // porque o percentual de aumento já é uma métrica relativa (simulado vs original)
+    // e o ano anterior não tem simulação. Vamos mostrar apenas o valor sem comparação.
+    // Alternativamente, podemos calcular a diferença entre o percentual de aumento atual
+    // e o que seria se aplicássemos a mesma simulação ao ano anterior (mas isso seria complexo).
+    // Por enquanto, vamos ocultar a comparação para este card específico.
+    const comparacaoPercentualAumento = ""; // Não mostrar comparação para percentual de aumento
+
+    // Para o card 1, usar receitaTotal se disponível, senão usar totalRepasseOriginal
+    // Se receitaTotalAtual for 0, significa que os dados oficiais do ano atual não estão no banco
+    // Mas ainda podemos usar totalRepasseOriginal (da simulação) para exibição e comparação
+    const valorCard1 = receitaTotalAtual > 0 ? receitaTotalAtual : totalRepasseOriginal;
+    
     return [
       {
-        title: "Projeção de repasse 2025",
-        value: formatCurrency(totalRepasseOriginal),
-        trend: "6.0%",
+        title: `Projeção de repasse ${anoBase}`,
+        value: formatCurrency(valorCard1),
+        trend: comparacaoRepasseOriginal,
         trendLabel: "vs ano passado",
         gradient:
           "bg-[linear-gradient(45deg,rgba(90,105,255,1)_0%,rgba(150,68,255,1)_50%,rgba(145,171,255,1)_100%)]",
       },
       {
         title: "Recurso potencial com simulações",
-        value: formatCurrency(totalRepasseSimulado),
-        trend: "6.0%",
+        value: formatCurrency(valorExibidoCard2),
+        trend: comparacaoRepasseSimulado,
         trendLabel: "vs ano passado",
         gradient:
           "bg-[linear-gradient(45deg,rgba(55,196,255,1)_0%,rgba(16,132,255,1)_50%,rgba(31,177,255,1)_100%)]",
@@ -97,13 +274,13 @@ export const FinancialOverviewSection = (): JSX.Element => {
       {
         title: "Potencial percentual de aumento",
         value: `${percentualAumento >= 0 ? '+' : ''}${percentualAumento.toFixed(1)}%`,
-        trend: "6.0%",
+        trend: comparacaoPercentualAumento,
         trendLabel: "vs ano passado",
         gradient:
           "bg-[linear-gradient(135deg,rgba(255,157,88,1)_0%,rgba(255,117,43,1)_50%,rgba(255,175,106,1)_100%)]",
       },
     ];
-  }, [tableData]);
+  }, [tableData, selectedSimulation?.dadosEntrada?.anoBase, dadosAnoAnterior, dadosAnoAtual]);
 
   // Forçar viewMode para "table" quando não estiver em "todos"
   useEffect(() => {
@@ -199,20 +376,8 @@ export const FinancialOverviewSection = (): JSX.Element => {
     setCurrentSimulationId(value);
     const selectedSim = simulationsList.find((sim) => sim.id.toString() === value);
     
-    if (IS_DEV) {
-      console.log('🔄 Trocando simulação:', {
-        id: value,
-        name: selectedSim?.name,
-        found: !!selectedSim
-      });
-    }
-    
     if (selectedSim) {
       try {
-        if (IS_DEV) {
-          console.log('📡 Buscando dados completos da simulação ID:', selectedSim.id);
-        }
-        
         const fullSimulation = await SimulationService.getSimulationById(selectedSim.id);
         
         if (!fullSimulation) {
@@ -224,18 +389,6 @@ export const FinancialOverviewSection = (): JSX.Element => {
         }
         
         const dadosEntrada = fullSimulation.dadosEntrada;
-        
-        if (IS_DEV) {
-          console.log('✅ Dados completos recebidos:', {
-            id: selectedSim.id,
-            name: selectedSim.name,
-            dadosEntrada: {
-              uf: dadosEntrada.uf,
-              municipio: dadosEntrada.municipio,
-              anoBase: dadosEntrada.anoBase
-            }
-          });
-        }
         
         const rawCreated = selectedSim.createdAt ?? selectedSim.date ?? new Date().toISOString();
         const createdAt = normalizeCreatedAt(rawCreated);
@@ -252,16 +405,6 @@ export const FinancialOverviewSection = (): JSX.Element => {
           state: location.uf,
           dadosEntrada,
         };
-        
-        if (IS_DEV) {
-          console.log('💾 Atualizando simulação selecionada:', {
-            id: updatedSimulation.id,
-            name: updatedSimulation.name,
-            city: updatedSimulation.city,
-            state: updatedSimulation.state,
-            referencePeriod: updatedSimulation.referencePeriod
-          });
-        }
 
         setSelectedSimulation(updatedSimulation);
         toast.success("Simulação atualizada", {

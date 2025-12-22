@@ -2,9 +2,28 @@ import { http } from "../../../services/http/client";
 import type { MunicipioCategorias } from "../../../types/api";
 
 export class LocalidadesService {
-  static async getMunicipiosByUF(uf: string): Promise<MunicipioCategorias[]> {
+  /**
+   * Busca os anos disponíveis no banco de dados (anos que têm dados)
+   */
+  static async getAnosDisponiveis(): Promise<number[]> {
+    try {
+      const { data } = await http.get<number[]>(`/localidades/anos-disponiveis`);
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error('Erro ao buscar anos disponíveis:', error);
+      // Retornar anos padrão em caso de erro
+      return [2025, 2024];
+    }
+  }
+
+  static async getMunicipiosByUF(uf: string, ano?: number): Promise<MunicipioCategorias[]> {
+    const queryParams: { uf: string; ano?: number } = { uf };
+    if (ano) {
+      queryParams.ano = ano;
+    }
+    
     const { data } = await http.get<MunicipioCategorias[]>(`/localidades/municipios`, {
-      query: { uf },
+      query: queryParams,
     });
     
     // Ensure data is an array
@@ -20,8 +39,15 @@ export class LocalidadesService {
     }));
   }
 
-  static async getMunicipioCategorias(id: string): Promise<MunicipioCategorias> {
-    const { data } = await http.get<MunicipioCategorias>(`/localidades/municipios/${id}/categorias`);
+  static async getMunicipioCategorias(id: string, ano?: number): Promise<MunicipioCategorias> {
+    const queryParams: { ano?: number } = {};
+    if (ano) {
+      queryParams.ano = ano;
+    }
+    
+    const { data } = await http.get<MunicipioCategorias>(`/localidades/municipios/${id}/categorias`, {
+      query: queryParams,
+    });
     return { ...data, matriculas_por_categoria: data.matriculas_por_categoria ?? {} };
   }
 }

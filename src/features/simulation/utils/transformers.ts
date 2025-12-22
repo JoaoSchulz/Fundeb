@@ -2,7 +2,7 @@ import { EnrollmentData, IndicatorData, RevenueData } from "../../../types/api";
 import { IndicatorRow, RevenueRow, SimulationRow } from "../types/simulation";
 import { EDUCATION_CATEGORIES } from "../constants";
 import { normalizeCategoryKey, normalizeCategoriasObject } from "../../../utils/normalizers";
-import { CATEGORY_MAPPING } from "../../../utils/constants/fundeb";
+import { CATEGORIAS_AGREGADAS } from "../../../utils/constants/fundeb";
 import { HistoricoService } from "../services/historicoService";
 
 // Função auxiliar para calcular a diferença e cor
@@ -253,36 +253,30 @@ export const enriquecerIndicadoresComHistorico = async (
 };
 
 /**
- * Transforma um objeto de categorias (chaves normalizadas -> matrículas)
+ * Transforma um objeto de categorias (8 categorias agregadas do backend)
  * em SimulationRow[] para exibir na tabela "Por Matrículas".
  */
-export const transformMunicipioCategoriasToRows = (normalized: Record<string, number | null>): SimulationRow[] => {
+export const transformMunicipioCategoriasToRows = (categorias: Record<string, number | null>): SimulationRow[] => {
   const rows: SimulationRow[] = [];
-  // Work on a shallow copy so we can remove keys we consume
-  const remaining = { ...normalized } as Record<string, number | null>;
 
-  Object.entries(EDUCATION_CATEGORIES).forEach(([_, category]) => {
-    Object.entries(category.subcategories).forEach(([_, subcategory]) => {
-      const key = normalizeCategoryKey(subcategory);
+  // Iterar pelas 8 categorias agregadas
+  Object.entries(CATEGORIAS_AGREGADAS).forEach(([categoryId, categoryConfig]) => {
+    const matriculas = categorias[categoryId] ?? 0;
+    
+    const factor = categoryConfig.factor;
+    const repasseOriginal = (matriculas || 0) * VALOR_ALUNO_ANO * factor;
+    // Quando carrega dados reais do município, simulado = original (sem mudanças ainda)
+    const repasseSimulado = repasseOriginal;
+    const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
 
-      const matriculas = remaining[key] ?? 0;
-      // Remove consumed key to track leftovers
-      if (remaining[key] !== undefined) delete remaining[key];
-
-      const factor = FUNDEB_FACTORS[subcategory as keyof typeof FUNDEB_FACTORS] || 1.0;
-      const repasseOriginal = (matriculas || 0) * VALOR_ALUNO_ANO * factor;
-      const repasseSimulado = repasseOriginal * 1.1;
-      const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
-
-      rows.push({
-        category: category.name,
-        subcategory,
-        matriculas: Math.round(matriculas || 0),
-        repasseOriginal,
-        repasseSimulado,
-        diferenca,
-        diferencaColor,
-      });
+    rows.push({
+      category: categoryConfig.label,
+      subcategory: categoryConfig.description,
+      matriculas: Math.round(matriculas || 0),
+      repasseOriginal,
+      repasseSimulado,
+      diferenca,
+      diferencaColor,
     });
   });
 
@@ -290,36 +284,91 @@ export const transformMunicipioCategoriasToRows = (normalized: Record<string, nu
 };
 
 /**
+ * Mapeamento de categorias detalhadas (snake_case) para categorias agregadas (camelCase)
+ * Compatível com o backend - sincronizado com simulations.controller.ts
+ */
+const CATEGORIA_MAPPING: Record<string, string> = {
+  // Educação Infantil
+  'creche_parcial': 'educacaoInfantil',
+  'creche_integral': 'educacaoInfantil',
+  'pre_escola': 'educacaoInfantil',
+  
+  // Anos Iniciais Fundamental
+  'series_iniciais_urbano': 'anosIniciaisFund',
+  'series_iniciais_campo': 'anosIniciaisFund',
+  
+  // Anos Finais Fundamental
+  'series_finais_urbano': 'anosFinaisFund',
+  'series_finais_campo': 'anosFinaisFund',
+  
+  // Ensino Médio Integral
+  'tempo_integral': 'ensinoMedioIntegral',
+  
+  // Ensino Médio Parcial
+  'ensino_medio_parcial': 'ensinoMedioParcial',
+  'tempo_parcial': 'ensinoMedioParcial', // Variante
+  
+  // EJA
+  'eja_anos_iniciais': 'eja',
+  'eja_anos_finais': 'eja',
+  'ensino_noturno': 'eja',
+  
+  // Educação Especial
+  'atendimento_educacional_especializado': 'educacaoEspecial',
+  
+  // Educação Profissional
+  'formacao_integrada': 'educacaoProfissional',
+  'educacao_profissional': 'educacaoProfissional'
+};
+
+/**
  * Transforma dados de categorias de uma simulação salva em linhas de tabela
- * Formato esperado: { categoria_key: { matriculas: number, repasse: number } }
+ * Agora usa as 8 categorias agregadas (educacaoInfantil, anosIniciaisFund, etc.)
  */
 export const transformSimulationCategoriasToRows = (categorias: Record<string, { matriculas: number; repasseOriginal?: number; repasseSimulado?: number; repasse?: number }>): SimulationRow[] => {
-  const rows: SimulationRow[] = [];
+  // Primeiro, agregar categorias detalhadas em categorias agregadas
+  const categoriasAgregadas: Record<string, { matriculas: number; repasseOriginal: number; repasseSimulado: number }> = {};
   
-  // Iterar sobre as categorias da simulação
   Object.entries(categorias).forEach(([key, value]) => {
-    // As keys já vêm normalizadas do banco (ex: creche_parcial)
-    // Não precisa normalizar novamente
-    const mapping = CATEGORY_MAPPING[key];
+    // Verificar se é uma categoria detalhada que precisa ser convertida
+    const categoriaAgregada = CATEGORIA_MAPPING[key] || key;
     
-    if (!mapping) {
-      return;
+    // Inicializar categoria agregada se não existir
+    if (!categoriasAgregadas[categoriaAgregada]) {
+      categoriasAgregadas[categoriaAgregada] = {
+        matriculas: 0,
+        repasseOriginal: 0,
+        repasseSimulado: 0
+      };
     }
     
-    const matriculas = value.matriculas || 0;
+    // Somar valores à categoria agregada
+    categoriasAgregadas[categoriaAgregada].matriculas += value.matriculas || 0;
+    categoriasAgregadas[categoriaAgregada].repasseOriginal += value.repasseOriginal || 0;
+    categoriasAgregadas[categoriaAgregada].repasseSimulado += value.repasseSimulado || (value.repasse || 0);
+  });
+  
+  const rows: SimulationRow[] = [];
+  
+  // Iterar sobre TODAS as 8 categorias agregadas possíveis (não apenas as que têm dados)
+  // Isso garante que todas as categorias sejam exibidas, mesmo com 0 matrículas
+  Object.entries(CATEGORIAS_AGREGADAS).forEach(([key, categoryConfig]) => {
+    // Buscar os valores agregados, ou usar zeros se não houver dados
+    const value = categoriasAgregadas[key] || {
+      matriculas: 0,
+      repasseOriginal: 0,
+      repasseSimulado: 0
+    };
     
-    // Usar valores salvos se existirem (inclusive 0), caso contrário calcular
-    const repasseOriginal = value.repasseOriginal !== undefined ? value.repasseOriginal : (matriculas * VALOR_ALUNO_ANO * mapping.factor);
-    const repasseSimulado = value.repasseSimulado !== undefined ? value.repasseSimulado : (value.repasse !== undefined ? value.repasse : (matriculas * VALOR_ALUNO_ANO * mapping.factor));
     
-    const { value: diferenca, color: diferencaColor } = calculateDifference(repasseOriginal, repasseSimulado);
+    const { value: diferenca, color: diferencaColor } = calculateDifference(value.repasseOriginal, value.repasseSimulado);
     
     rows.push({
-      category: mapping.name,
-      subcategory: mapping.subtitle,
-      matriculas: Math.round(matriculas),
-      repasseOriginal,
-      repasseSimulado,
+      category: categoryConfig.label,
+      subcategory: categoryConfig.description,
+      matriculas: Math.round(value.matriculas),
+      repasseOriginal: value.repasseOriginal,
+      repasseSimulado: value.repasseSimulado,
       diferenca,
       diferencaColor,
     });

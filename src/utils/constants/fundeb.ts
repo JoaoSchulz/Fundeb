@@ -5,6 +5,29 @@
 
 export const VALOR_ALUNO_ANO = 5648.91;
 
+/**
+ * Valores mínimos nacionais do FUNDEB 2024 (Lei nº 14.113/2020)
+ * Usados nos cálculos oficiais de complementação da União
+ */
+export const VAAF_MIN = 5447.98; // Valor Aluno Ano Fundeb Mínimo Nacional
+export const VAAT_MIN = 6500.0;  // Valor Aluno Ano Total Mínimo (estimado)
+export const VAAR_MIN = 500.0;   // Valor Aluno Ano de Resultado Mínimo (estimado)
+
+/**
+ * Ponderações agregadas por modalidade principal (Lei nº 14.113/2020, Art. 15)
+ * Usadas quando agregamos as 70+ subcategorias do JSONB em 8 modalidades
+ */
+export const PONDERACOES_AGREGADAS = {
+  CRECHE: 1.2,
+  PRE_ESCOLA: 1.1,
+  ANOS_INICIAIS: 1.0,
+  ANOS_FINAIS: 1.1,
+  ENSINO_MEDIO: 1.25,
+  EJA: 0.9,
+  EDUCACAO_ESPECIAL: 1.2,
+  EDUCACAO_INDIGENA_QUILOMBOLA: 1.2,
+} as const;
+
 export interface FundebCategory {
   id: string;
   name: string;
@@ -236,6 +259,66 @@ export const SIMULATION_DISPLAY_CATEGORIES: Array<{
     factor: FUNDEB_CATEGORIES.atendimento_educacional_especializado.factor
   }
 ];
+
+/**
+ * 8 Categorias agregadas do FUNDEB (alinhadas com backend categoriasMapping.ts)
+ * Usadas na página de Nova Simulação e Dashboard
+ */
+export const CATEGORIAS_AGREGADAS = {
+  educacaoInfantil: {
+    id: 'educacaoInfantil',
+    label: 'Educação Infantil',
+    description: 'Creches e Pré-escolas (todas as modalidades)',
+    factor: 1.2, // Média ponderada creche/pré-escola
+  },
+  anosIniciaisFund: {
+    id: 'anosIniciaisFund',
+    label: 'Anos Iniciais do Ensino Fundamental',
+    description: '1º ao 5º ano (urbano, campo, indígena e quilombola)',
+    factor: 1.0,
+  },
+  anosFinaisFund: {
+    id: 'anosFinaisFund',
+    label: 'Anos Finais do Ensino Fundamental',
+    description: '6º ao 9º ano (urbano, campo, indígena e quilombola)',
+    factor: 1.1,
+  },
+  ensinoMedioIntegral: {
+    id: 'ensinoMedioIntegral',
+    label: 'Ensino Médio Integral',
+    description: 'Tempo integral (urbano, campo, indígena e quilombola)',
+    factor: 1.3,
+  },
+  ensinoMedioParcial: {
+    id: 'ensinoMedioParcial',
+    label: 'Ensino Médio Parcial',
+    description: 'Tempo parcial (urbano, campo, indígena e quilombola)',
+    factor: 1.2,
+  },
+  eja: {
+    id: 'eja',
+    label: 'EJA',
+    description: 'Educação de Jovens e Adultos (todas as modalidades)',
+    factor: 0.8,
+  },
+  educacaoEspecial: {
+    id: 'educacaoEspecial',
+    label: 'Educação Especial',
+    description: 'Atendimento especializado e inclusão',
+    factor: 1.2,
+  },
+  educacaoProfissional: {
+    id: 'educacaoProfissional',
+    label: 'Educação Profissional',
+    description: 'Educação profissional e técnica',
+    factor: 1.3,
+  },
+} as const;
+
+/**
+ * Array ordenado das 8 categorias para exibição em formulários
+ */
+export const CATEGORIAS_AGREGADAS_ARRAY = Object.values(CATEGORIAS_AGREGADAS);
 
 /**
  * Mapeamento legado para compatibilidade
