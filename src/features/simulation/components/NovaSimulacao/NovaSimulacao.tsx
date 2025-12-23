@@ -380,34 +380,23 @@ export const NovaSimulacao = (): JSX.Element => {
     LocalidadesService.getAnosDisponiveis()
       .then((anos) => {
         setAnosDisponiveis(anos);
-        // Definir o primeiro ano (mais recente) como padrão se ainda não tiver selecionado
-        if (!baseYear && anos.length > 0) {
-          setBaseYear(String(anos[0]));
-        }
+        // Não auto-selecionar ano - usuário deve escolher manualmente
       })
       .catch((e) => {
-
         toast.error("Erro ao carregar anos disponíveis");
         // Fallback para anos padrão
         setAnosDisponiveis([2025, 2024]);
-        if (!baseYear) {
-          setBaseYear("2025");
-        }
       })
       .finally(() => setIsLoadingAnos(false));
   }, []);
 
-  // Auto-selecionar UF e município para usuários não-admin
+  // Auto-selecionar UF e município para usuários não-admin (apenas quando houver ano-base selecionado)
   useEffect(() => {
-    if (!canEditLocation && user?.uf && user?.municipio) {
-
-
-
-      
+    if (!canEditLocation && user?.uf && user?.municipio && baseYear) {
       setUf(user.uf);
       
-      // Carregar municípios da UF do usuário do ano selecionado (ou mais recente se não tiver ano)
-      const anoSelecionado = baseYear ? parseInt(baseYear, 10) : undefined;
+      // Carregar municípios da UF do usuário do ano selecionado
+      const anoSelecionado = parseInt(baseYear, 10);
       SimulationService.getMunicipiosByUF(user.uf, anoSelecionado)
         .then((data) => {
           const municipiosData = data.map((m: any) => ({ 
@@ -423,17 +412,18 @@ export const NovaSimulacao = (): JSX.Element => {
           );
           
           if (userMunicipio) {
-
             setMunicipioId(userMunicipio.id);
           } else {
-
             toast.warning(`Município "${user.municipio}" não encontrado. Atualize seu perfil.`);
           }
         })
         .catch((e) => {
-
           toast.error("Erro ao carregar municípios");
         });
+    } else if (!canEditLocation && (!baseYear || !user?.uf || !user?.municipio)) {
+      // Limpar município selecionado se não houver ano-base ou dados do usuário
+      setMunicipioId("");
+      setMunicipios([]);
     }
   }, [user, canEditLocation, baseYear]);
 
@@ -466,7 +456,8 @@ export const NovaSimulacao = (): JSX.Element => {
   }, [uf, baseYear]);
 
   useEffect(() => {
-    if (!municipioId) {
+    // Não carregar categorias se não houver município OU se não houver ano-base selecionado
+    if (!municipioId || !baseYear) {
       setCategories([]);
       setCalculosFundeb(null);
       setDadosOriginais(null);
@@ -475,8 +466,12 @@ export const NovaSimulacao = (): JSX.Element => {
       setSelectedMunicipioData(null);
       initializeItems(0); // Limpar itens de receita
       isFirstLoadRef.current = true;
-      lastMunicipioIdRef.current = "";
-      lastBaseYearRef.current = "";
+      if (!municipioId) {
+        lastMunicipioIdRef.current = "";
+      }
+      if (!baseYear) {
+        lastBaseYearRef.current = "";
+      }
       return;
     }
     
@@ -507,7 +502,7 @@ export const NovaSimulacao = (): JSX.Element => {
     setIsLoadingCategorias(true);
     
     // Buscar dados reais do município (receita, complementações) do ano selecionado
-    const anoSelecionado = baseYear ? parseInt(baseYear, 10) : undefined;
+    const anoSelecionado = parseInt(baseYear, 10);
 
     LocalidadesService.getMunicipioCategorias(municipioId, anoSelecionado)
       .then((data) => {
