@@ -19,6 +19,16 @@ import { useAuth } from "../../../auth/hooks";
 import type { TabType } from "./types/simulationForm";
 import type { EnrollmentCategory } from "./types/simulationForm";
 
+// Função para normalizar nome de município (remover acentos e converter para lowercase)
+const normalizarNomeMunicipio = (nome: string): string => {
+  if (!nome) return "";
+  return nome
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+    .toLowerCase()
+    .trim();
+};
+
 // Constantes FUNDEB para cálculos oficiais - Lei nº 14.113/2020, Anexo I
 const VAAF_MINIMO_2024 = 5447.98; // Valor mínimo nacional por aluno/ano
 const PONDERACOES = {
@@ -411,9 +421,10 @@ export const NovaSimulacao = (): JSX.Element => {
             }));
             setMunicipios(municipiosData);
             
-            // Encontrar e selecionar o município do usuário
+            // Encontrar e selecionar o município do usuário (usando normalização para lidar com acentos)
+            const userMunicipioNormalizado = normalizarNomeMunicipio(user.municipio || "");
             const userMunicipio = municipiosData.find(
-              (m) => m.municipio.toLowerCase() === user.municipio?.toLowerCase()
+              (m) => normalizarNomeMunicipio(m.municipio) === userMunicipioNormalizado
             );
             
             if (userMunicipio) {
