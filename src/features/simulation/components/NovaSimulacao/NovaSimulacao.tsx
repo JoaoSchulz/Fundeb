@@ -379,8 +379,13 @@ export const NovaSimulacao = (): JSX.Element => {
     setIsLoadingAnos(true);
     LocalidadesService.getAnosDisponiveis()
       .then((anos) => {
-        setAnosDisponiveis(anos);
-        // Não auto-selecionar ano - usuário deve escolher manualmente
+        if (anos && anos.length > 0) {
+          setAnosDisponiveis(anos);
+        } else {
+          // Se não retornar anos, usar fallback
+          setAnosDisponiveis([2025, 2024]);
+          toast.warning("Nenhum ano disponível no servidor. Usando anos padrão.");
+        }
       })
       .catch((e) => {
         toast.error("Erro ao carregar anos disponíveis");
@@ -390,40 +395,43 @@ export const NovaSimulacao = (): JSX.Element => {
       .finally(() => setIsLoadingAnos(false));
   }, []);
 
-  // Auto-selecionar UF e município para usuários não-admin (apenas quando houver ano-base selecionado)
+  // Auto-selecionar UF e município para usuários não-admin (preencher UF imediatamente, município quando houver ano-base)
   useEffect(() => {
-    if (!canEditLocation && user?.uf && user?.municipio && baseYear) {
+    if (!canEditLocation && user?.uf && user?.municipio) {
+      // Sempre preencher UF imediatamente
       setUf(user.uf);
       
-      // Carregar municípios da UF do usuário do ano selecionado
-      const anoSelecionado = parseInt(baseYear, 10);
-      SimulationService.getMunicipiosByUF(user.uf, anoSelecionado)
-        .then((data) => {
-          const municipiosData = data.map((m: any) => ({ 
-            id: String(m.id), 
-            municipio: m.municipio, 
-            uf: m.uf 
-          }));
-          setMunicipios(municipiosData);
-          
-          // Encontrar e selecionar o município do usuário
-          const userMunicipio = municipiosData.find(
-            (m) => m.municipio.toLowerCase() === user.municipio?.toLowerCase()
-          );
-          
-          if (userMunicipio) {
-            setMunicipioId(userMunicipio.id);
-          } else {
-            toast.warning(`Município "${user.municipio}" não encontrado. Atualize seu perfil.`);
-          }
-        })
-        .catch((e) => {
-          toast.error("Erro ao carregar municípios");
-        });
-    } else if (!canEditLocation && (!baseYear || !user?.uf || !user?.municipio)) {
-      // Limpar município selecionado se não houver ano-base ou dados do usuário
-      setMunicipioId("");
-      setMunicipios([]);
+      // Se houver ano-base selecionado, carregar e selecionar município
+      if (baseYear) {
+        const anoSelecionado = parseInt(baseYear, 10);
+        SimulationService.getMunicipiosByUF(user.uf, anoSelecionado)
+          .then((data) => {
+            const municipiosData = data.map((m: any) => ({ 
+              id: String(m.id), 
+              municipio: m.municipio, 
+              uf: m.uf 
+            }));
+            setMunicipios(municipiosData);
+            
+            // Encontrar e selecionar o município do usuário
+            const userMunicipio = municipiosData.find(
+              (m) => m.municipio.toLowerCase() === user.municipio?.toLowerCase()
+            );
+            
+            if (userMunicipio) {
+              setMunicipioId(userMunicipio.id);
+            } else {
+              toast.warning(`Município "${user.municipio}" não encontrado. Atualize seu perfil.`);
+            }
+          })
+          .catch((e) => {
+            toast.error("Erro ao carregar municípios");
+          });
+      } else {
+        // Sem ano-base, limpar município selecionado mas manter UF
+        setMunicipioId("");
+        setMunicipios([]);
+      }
     }
   }, [user, canEditLocation, baseYear]);
 
