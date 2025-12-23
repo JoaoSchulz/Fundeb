@@ -5,6 +5,7 @@ import { Input } from "../../../../../components/ui/input";
 import { LAYOUT_CONSTANTS } from "../../../../../utils/constants";
 import { ProfileField } from "./ProfileField";
 import { ProfileLocationSelector } from "./ProfileLocationSelector";
+import { useAuth } from "../../../hooks";
 
 interface UserProfile {
   name: string;
@@ -34,7 +35,12 @@ export const ProfileForm = ({
   onSave,
   onCancel,
   onEdit,
-}: ProfileFormProps): JSX.Element => (
+}: ProfileFormProps): JSX.Element => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const canEditRole = isAdmin; // Apenas admin pode editar o nível de acesso
+  
+  return (
   <div className="flex-1 space-y-6">
     <div className="relative">
       <div className="flex items-center justify-between mb-4">
@@ -127,12 +133,17 @@ export const ProfileForm = ({
             <select
               value={profile.role}
               onChange={(e) => onChange("role", e.target.value)}
-              disabled={!isEditing}
+              disabled={!isEditing || !canEditRole}
               className="flex h-10 w-full rounded-md border border-[#d0d3d9] bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[#858d9d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="cliente">Usuário</option>
               <option value="admin">Administrador</option>
             </select>
+            {!canEditRole && isEditing && (
+              <p className="text-xs text-gray-500 mt-1">
+                Apenas administradores podem alterar o nível de acesso.
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -163,5 +174,6 @@ export const ProfileForm = ({
       </>
     )}
   </div>
-);
+  );
+};
 

@@ -103,6 +103,15 @@ export const MeuPerfil = (): JSX.Element => {
       return;
     }
 
+    // Validação: usuários não-admin não podem alterar seu próprio nível de acesso
+    const isAdmin = user?.role === 'admin';
+    if (!isAdmin && editedProfile.role !== profile.role) {
+      toast.error("Você não tem permissão para alterar o nível de acesso");
+      // Restaurar o role original
+      setEditedProfile((prev) => ({ ...prev, role: profile.role }));
+      return;
+    }
+
     setIsSaving(true);
     try {
       const payload: UpdateProfilePayload = {
@@ -112,7 +121,8 @@ export const MeuPerfil = (): JSX.Element => {
         municipio: editedProfile.municipio?.trim() || null,
         uf: editedProfile.uf?.trim().toUpperCase() || null,
         organizacao: editedProfile.organization?.trim() || null,
-        role: (editedProfile.role || "cliente") as 'admin' | 'cliente',
+        // Se não for admin, manter o role original do perfil
+        role: (isAdmin ? (editedProfile.role || "cliente") : (profile.role || "cliente")) as 'admin' | 'cliente',
       };
 
       await AuthService.updateProfile(payload);
