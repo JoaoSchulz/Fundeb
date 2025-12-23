@@ -22,6 +22,7 @@ interface SimulationFormFieldsProps {
   canEditLocation?: boolean;
   anosDisponiveis: number[];
   isLoadingAnos?: boolean;
+  userMunicipio?: string; // Nome do município do perfil do usuário
 }
 
 export const SimulationFormFields = ({
@@ -39,8 +40,11 @@ export const SimulationFormFields = ({
   canEditLocation = true,
   anosDisponiveis,
   isLoadingAnos = false,
+  userMunicipio,
 }: SimulationFormFieldsProps): JSX.Element => {
   const selectedMunicipio = municipios.find(m => m.id === municipioId);
+  // Para usuários não-admin, mostrar o município do perfil se não houver município selecionado na lista
+  const displayedMunicipio = selectedMunicipio?.municipio || userMunicipio || 'Não definido';
   
   return (
   <div className="flex flex-col gap-4 mb-6">
@@ -129,7 +133,7 @@ export const SimulationFormFields = ({
           </Select>
         ) : (
           <div className="h-11 px-3 flex items-center border border-[#d0d3d9] rounded-md bg-gray-100 text-gray-700">
-            {selectedMunicipio?.municipio || 'Não definido'}
+            {displayedMunicipio}
           </div>
         )}
       </div>

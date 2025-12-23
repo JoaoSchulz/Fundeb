@@ -382,14 +382,12 @@ export const NovaSimulacao = (): JSX.Element => {
         if (anos && anos.length > 0) {
           setAnosDisponiveis(anos);
         } else {
-          // Se não retornar anos, usar fallback
+          // Se não retornar anos, usar fallback sem mostrar aviso (pode ser normal em desenvolvimento)
           setAnosDisponiveis([2025, 2024]);
-          toast.warning("Nenhum ano disponível no servidor. Usando anos padrão.");
         }
       })
       .catch((e) => {
-        toast.error("Erro ao carregar anos disponíveis");
-        // Fallback para anos padrão
+        // Em caso de erro, usar fallback sem mostrar toast (evitar poluir a interface)
         setAnosDisponiveis([2025, 2024]);
       })
       .finally(() => setIsLoadingAnos(false));
@@ -689,6 +687,7 @@ export const NovaSimulacao = (): JSX.Element => {
               canEditLocation={canEditLocation}
               anosDisponiveis={anosDisponiveis}
               isLoadingAnos={isLoadingAnos}
+              userMunicipio={user?.municipio}
             />
 
             <TabSelector activeTab={activeTab} onTabChange={setActiveTab} />
