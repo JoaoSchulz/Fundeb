@@ -49,7 +49,7 @@ export const MinhasSimulacoes = (): JSX.Element => {
       })
       .catch((e) => {
         if (!mounted) return;
-        console.error('Error fetching simulations list', e);
+
         // Re-throw so the error appears in the browser console and can be handled upstream
         throw e;
       })
@@ -129,14 +129,7 @@ export const MinhasSimulacoes = (): JSX.Element => {
       const dadosEntrada = fullSimulation.dadosEntrada || {};
       
       if (IS_DEV) {
-        console.log('📋 Dados da simulação completa:', {
-          id: simulation.id,
-          name: simulation.name,
-          dadosEntrada,
-          uf: dadosEntrada.uf,
-          municipio: dadosEntrada.municipio,
-          anoBase: dadosEntrada.anoBase
-        });
+
       }
       
       const referencePeriod = calculateReferencePeriod(dadosEntrada.anoBase);
@@ -160,14 +153,14 @@ export const MinhasSimulacoes = (): JSX.Element => {
             indicatorsCache = await SimulationService.getRawIndicatorsData();
             indicatorsCacheTime = now;
           } else if (IS_DEV) {
-            console.log('⚡ Usando cache de indicadores');
+
           }
           
           const municipioNome = dadosEntrada.municipio || simulation.city || '';
           
           if (IS_DEV) {
-            console.log('🔍 Buscando indicadores para município:', municipioNome);
-            console.log('📊 Total de municípios no cache:', indicatorsCache.length);
+
+
           }
           
           // Buscar município com comparação case-insensitive e normalizada
@@ -183,20 +176,14 @@ export const MinhasSimulacoes = (): JSX.Element => {
             complementacaoVAAR = municipioData.indicadores_vaar || 0;
             
             if (IS_DEV) {
-              console.log('✅ Indicadores encontrados:', {
-                municipio: municipioNome,
-                vaaf: complementacaoVAAF,
-                vaat: complementacaoVAAT,
-                vaar: complementacaoVAAR
-              });
+
             }
           } else if (IS_DEV) {
-            console.warn('⚠️ Município não encontrado nos indicadores:', municipioNome);
-            
+
             if (IS_DEV) {
               // Buscar municípios do AC para debug
               const municipiosAC = indicatorsCache.filter((m) => m.uf === 'AC');
-              console.log('🔍 Total municípios do AC no backend:', municipiosAC.length);
+
               console.log('🔍 Primeiros 10 municípios do AC:', 
                 municipiosAC.slice(0, 10).map((m) => m.municipio)
               );
@@ -229,15 +216,15 @@ export const MinhasSimulacoes = (): JSX.Element => {
               complementacaoVAAT = municipioComDados.indicadores_vaat || 0;
               complementacaoVAAR = municipioComDados.indicadores_vaar || 0;
               if (IS_DEV) {
-                console.log('🔄 Usando dados do município:', municipioComDados.municipio, 'como exemplo temporário');
+
               }
             }
           }
         } catch (error) {
-          console.error('❌ Erro ao buscar indicadores do município:', error);
+
         }
       } else if (IS_DEV) {
-        console.warn('⚠️ Simulação sem município identificado');
+
       }
 
       const finalLocation = extractLocationData({ ...simulation, dadosEntrada });
@@ -261,7 +248,7 @@ export const MinhasSimulacoes = (): JSX.Element => {
       });
       navigate("/app", { state: { scrollToTable: true } });
     } catch (error) {
-      console.error('Erro ao buscar dados completos da simulação:', error);
+
       // Fallback: usar cálculo estimado
       const receitaPropria = (simulation.repasseOriginal || 0) * FUNDEB_CONSTANTS.REVENUE.CONTRIBUTION_PERCENTAGE;
       

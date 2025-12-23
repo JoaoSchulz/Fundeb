@@ -107,7 +107,7 @@ export function CalculadoraReceita() {
         });
       })
       .catch((error) => {
-        console.error('Erro ao buscar dados:', error);
+
         setError("Erro ao buscar dados do município");
       })
       .finally(() => {

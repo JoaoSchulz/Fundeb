@@ -246,7 +246,7 @@ export const enriquecerIndicadoresComHistorico = async (
       return ind;
     });
   } catch (error) {
-    console.error('Erro ao enriquecer indicadores com histórico:', error);
+
     // Em caso de erro, retornar indicadores originais
     return indicadores;
   }

@@ -51,7 +51,7 @@ export class HistoricoService {
       );
       return data;
     } catch (error) {
-      console.error('Erro ao buscar histórico do município:', error);
+
       // Retornar resposta vazia em caso de erro
       return {
         historico: [],

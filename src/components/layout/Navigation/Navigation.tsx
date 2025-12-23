@@ -68,7 +68,7 @@ export const Navigation = ({
           const solicitacoes = await SolicitacoesService.getSolicitacoes('pendente');
           setPendingCount(solicitacoes.length);
         } catch (error) {
-          console.error('Erro ao buscar solicitações pendentes:', error);
+
         }
       };
 

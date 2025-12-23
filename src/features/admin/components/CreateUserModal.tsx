@@ -49,7 +49,7 @@ export const CreateUserModal = ({ isOpen, onClose, onSuccess }: CreateUserModalP
         const data = await LocalidadesService.getMunicipiosByUF(formData.uf!);
         setMunicipios(data);
       } catch (error) {
-        console.error("Erro ao carregar municípios:", error);
+
         toast.error("Erro ao carregar municípios");
         setMunicipios([]);
       } finally {

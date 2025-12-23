@@ -19,7 +19,7 @@ export const LocationSelectorDialog = (): JSX.Element => {
     SimulationService.getUFs()
       .then((data) => setUfs(data))
       .catch((e) => {
-        console.error('Error fetching UFs', e);
+
       });
   }, []);
 
@@ -39,7 +39,7 @@ export const LocationSelectorDialog = (): JSX.Element => {
         })));
       })
       .catch((e) => {
-        console.error('Error fetching municipios for UF', selectedUf, e);
+
         setMunicipios([]);
       })
       .finally(() => setMunicipiosLoading(false));

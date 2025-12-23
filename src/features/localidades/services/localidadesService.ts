@@ -10,7 +10,7 @@ export class LocalidadesService {
       const { data } = await http.get<number[]>(`/localidades/anos-disponiveis`);
       return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error('Erro ao buscar anos disponíveis:', error);
+
       // Retornar anos padrão em caso de erro
       return [2025, 2024];
     }

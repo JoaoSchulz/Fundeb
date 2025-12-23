@@ -28,7 +28,7 @@ export const GerenciarSolicitacoes = (): JSX.Element => {
       const data = await SolicitacoesService.getSolicitacoes(status);
       setSolicitacoes(data);
     } catch (error) {
-      console.error('Erro ao carregar solicitações:', error);
+
       toast.error("Erro ao carregar solicitações");
     } finally {
       setIsLoading(false);

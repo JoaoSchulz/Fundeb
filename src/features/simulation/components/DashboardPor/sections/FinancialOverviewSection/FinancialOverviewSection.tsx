@@ -109,27 +109,10 @@ export const FinancialOverviewSection = (): JSX.Element => {
         if (dadosAtual) {
           const receitaTotal = dadosAtual.receitaTotal || 0;
           
-          // Debug: Log para verificar o que está vindo
-          if (IS_DEV) {
-            console.log('[FinancialOverview] Dados do ano atual:', {
-              anoAtual,
-              dadosAtual,
-              receitaTotal,
-              receitaContribuicao: dadosAtual.receitaContribuicao,
-            });
-          }
-          
           setDadosAnoAtual({
             receitaTotal,
           });
         } else {
-          if (IS_DEV) {
-            console.warn('[FinancialOverview] Dados do ano atual não encontrados:', {
-              anoAtual,
-              uf,
-              municipio,
-            });
-          }
           setDadosAnoAtual(null);
         }
       } catch (error) {
@@ -227,14 +210,6 @@ export const FinancialOverviewSection = (): JSX.Element => {
       comparacaoRepasseSimulado = `dados de ${anoAnterior} ausentes`;
     }
     
-    // Debug: Log dos valores para verificar se a comparação está correta
-    if (IS_DEV) {
-      console.log('[FinancialOverview] Comparação de valores:', {
-        repasseAnterior,
-        receitaTotalAtual,
-        totalRepasseOriginal,
-        totalRepasseSimulado,
-        valorAtualCard1,
         valorAtualCard2,
         comparacaoRepasseOriginal,
         comparacaoRepasseSimulado,
@@ -327,7 +302,6 @@ export const FinancialOverviewSection = (): JSX.Element => {
         });
         setCurrentSimulationId(firstSim.id.toString());
       } catch (error) {
-        console.error('Erro ao carregar dados completos da primeira simulação:', error);
         // Fallback para dados básicos
         const rawCreated = firstSim.createdAt ?? firstSim.date ?? new Date().toISOString();
         const createdAt = normalizeCreatedAt(rawCreated);
@@ -357,7 +331,6 @@ export const FinancialOverviewSection = (): JSX.Element => {
       })
       .catch((e) => {
         if (!mounted) return;
-        console.error('Error loading simulations list', e);
         throw e;
       });
     return () => { mounted = false };
@@ -411,7 +384,6 @@ export const FinancialOverviewSection = (): JSX.Element => {
           description: `Visualizando dados de "${selectedSim.name}"`,
         });
       } catch (error) {
-        console.error('❌ Erro ao carregar dados completos da simulação:', error);
         const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
         toast.error("Erro ao carregar simulação", {
           description: errorMessage
@@ -479,7 +451,6 @@ export const FinancialOverviewSection = (): JSX.Element => {
 
       toast.success("PDF gerado com sucesso!");
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
       toast.error("Erro ao gerar PDF", {
         description: "Ocorreu um erro ao gerar o arquivo PDF",
       });

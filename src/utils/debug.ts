@@ -19,13 +19,13 @@ export const debugLog = (message: string, options: DebugOptions = {}): void => {
 
   switch (type) {
     case 'warn':
-      console.warn(`${prefix} ${message}`, data || '');
+
       break;
     case 'error':
-      console.error(`${prefix} ${message}`, data || '');
+
       break;
     default:
-      console.log(`${prefix} ${message}`, data || '');
+
   }
 };
 

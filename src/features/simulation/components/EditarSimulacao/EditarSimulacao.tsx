@@ -61,11 +61,9 @@ export const EditarSimulacao = (): JSX.Element => {
         // Prefill: map simulation.dadosEntrada into form hooks (categories/items)
         try {
           const entrada = simulation.dadosEntrada ?? {};
-          
-          console.log('Dados da simulação:', simulation);
-          console.log('Dados de entrada:', entrada);
-          console.log('Categorias do entrada:', entrada.categorias);
-          
+
+
+
           // Usar as categorias exatamente como vieram do backend (não gerar todas do sistema)
           if (entrada.categorias && Array.isArray(entrada.categorias) && entrada.categorias.length > 0) {
             const mapped = entrada.categorias.map((c: any, idx: number) => {
@@ -81,7 +79,7 @@ export const EditarSimulacao = (): JSX.Element => {
                 simulatedTransfer: formatCurrency(c.repasseSimulado || c.simulatedTransfer || 0),
               };
             });
-            console.log('Categorias mapeadas:', mapped);
+
             setCategories(mapped);
           } else if (entrada.categorias && typeof entrada.categorias === 'object' && !Array.isArray(entrada.categorias)) {
             // Formato objeto (formato antigo) - converter para array
@@ -103,11 +101,10 @@ export const EditarSimulacao = (): JSX.Element => {
                 });
               }
             });
-            
-            console.log('Categorias do objeto convertidas:', categoriesArray);
+
             setCategories(categoriesArray);
           } else {
-            console.warn('Formato de categorias não reconhecido');
+
             setCategories([]);
           }
           
@@ -124,7 +121,7 @@ export const EditarSimulacao = (): JSX.Element => {
             setItems([]);
           }
         } catch (err) {
-          console.error("Erro ao mapear dados da simulação:", err);
+
           setError("Erro ao carregar dados da simulação");
           toast.error("Erro ao carregar dados da simulação");
         }
@@ -133,7 +130,7 @@ export const EditarSimulacao = (): JSX.Element => {
       })
       .catch((e) => {
         if (!mounted) return;
-        console.error('Error fetching simulation by id', e);
+
         setError("Erro ao buscar simulação");
         toast.error("Erro ao buscar simulação");
         setIsLoading(false);
@@ -182,7 +179,7 @@ export const EditarSimulacao = (): JSX.Element => {
           }, 1000);
         })
         .catch((e) => {
-          console.error('Error updating simulation', e);
+
           toast.error("Erro ao atualizar simulação");
           throw e;
         })

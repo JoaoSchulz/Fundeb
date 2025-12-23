@@ -41,7 +41,7 @@ export const SolicitacaoDetailModal = ({ solicitacao, isOpen, onClose, onSuccess
       onSuccess();
       onClose();
     } catch (error: any) {
-      console.error('Erro ao aprovar solicitação:', error);
+
       toast.error(error?.message || "Erro ao aprovar solicitação");
     } finally {
       setIsProcessing(false);
@@ -59,7 +59,7 @@ export const SolicitacaoDetailModal = ({ solicitacao, isOpen, onClose, onSuccess
       onSuccess();
       onClose();
     } catch (error: any) {
-      console.error('Erro ao negar solicitação:', error);
+
       toast.error(error?.message || "Erro ao negar solicitação");
     } finally {
       setIsProcessing(false);

@@ -41,10 +41,9 @@ export function useRealMunicipalData(): UseRealMunicipalDataReturn {
    * Carrega dados reais do município do backend
    */
   const loadDadosReais = useCallback(async (uf: string, municipio: string) => {
-    console.log('[useRealMunicipalData] 🔍 Iniciando carregamento de dados reais:', { uf, municipio });
-    
+
     if (!uf || !municipio) {
-      console.log('[useRealMunicipalData] ⚠️ UF ou município não fornecidos');
+
       setError('UF e município são obrigatórios');
       return;
     }
@@ -53,19 +52,19 @@ export function useRealMunicipalData(): UseRealMunicipalDataReturn {
     setError(null);
 
     try {
-      console.log('[useRealMunicipalData] 📡 Chamando API getDadosReaisMunicipio...');
+
       const data = await SimulationService.getDadosReaisMunicipio(uf, municipio);
-      console.log('[useRealMunicipalData] ✅ Dados recebidos da API:', data);
+
       setDadosReais(data);
       setError(null);
-      console.log('[useRealMunicipalData] 💾 Dados salvos no estado com sucesso');
+
     } catch (err: any) {
-      console.error('[useRealMunicipalData] ❌ Erro ao carregar dados:', err);
+
       const errorMessage = err?.response?.data?.error || err?.message || 'Erro ao carregar dados do município';
       setError(errorMessage);
       setDadosReais(null);
-      console.log('[useRealMunicipalData] 📝 Error message:', errorMessage);
-      console.error('Erro ao carregar dados reais:', err);
+
+
     } finally {
       setIsLoading(false);
     }
@@ -94,10 +93,10 @@ export function useRealMunicipalData(): UseRealMunicipalDataReturn {
  */
 export function useMatriculasFromRealData(dadosReais: MunicipalRealData | null): MatriculasAgregadas | null {
   if (!dadosReais) {
-    console.log('[useMatriculasFromRealData] ⚠️ Nenhum dado disponível');
+
     return null;
   }
-  console.log('[useMatriculasFromRealData] 🔄 Retornando matrículas agregadas:', dadosReais.matriculasAgregadas);
+
   return dadosReais.matriculasAgregadas;
 }
 

@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         navigate("/app");
       })
       .catch((e) => {
-        console.error('Login error', e);
+
         toast.error("Credenciais inválidas");
         // Re-throw so error is visible in console and can be handled by dev tooling
         throw e;
@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const updatedUser = await AuthService.getProfile();
       setUser(updatedUser);
     } catch (error) {
-      console.error('Error refreshing user', error);
+
     }
   };
 

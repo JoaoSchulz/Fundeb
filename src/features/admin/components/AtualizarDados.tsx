@@ -79,7 +79,7 @@ export const AtualizarDados = (): JSX.Element => {
             // Processo ainda está rodando, manter isUpdating = true
           }
         } catch (error) {
-          console.error('Erro ao processar log:', error);
+
         }
       };
 
@@ -87,7 +87,7 @@ export const AtualizarDados = (): JSX.Element => {
       eventSource.onopen = () => {
         isConnected = true;
         reconnectAttempts = 0;
-        console.log('✅ SSE conectado');
+
       };
 
       // Listener para erros de conexão
@@ -104,7 +104,7 @@ export const AtualizarDados = (): JSX.Element => {
         
         // Se excedeu tentativas ou conexão foi fechada intencionalmente
         if (eventSource.readyState === EventSource.CLOSED) {
-          console.log('🔌 Conexão SSE fechada');
+
           // Não fechar manualmente, deixar EventSource gerenciar
         }
       };
@@ -116,7 +116,6 @@ export const AtualizarDados = (): JSX.Element => {
       addLog(`Iniciando atualização de dados para o ano ${year}...`, 'info');
 
       const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/admin/fundeb/${year}/update`;
-      console.log('🔗 Chamando API:', apiUrl);
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -125,8 +124,6 @@ export const AtualizarDados = (): JSX.Element => {
           Authorization: `Bearer ${AuthService.getToken()}`,
         },
       });
-
-      console.log('📥 Status da resposta:', response.status, response.statusText);
 
       // Verificar se a resposta tem conteúdo antes de tentar parsear JSON
       const contentType = response.headers.get('content-type');
@@ -138,7 +135,7 @@ export const AtualizarDados = (): JSX.Element => {
           try {
             data = JSON.parse(text);
           } catch (e) {
-            console.error('Erro ao parsear JSON:', text);
+
             throw new Error('Resposta inválida do servidor');
           }
         }

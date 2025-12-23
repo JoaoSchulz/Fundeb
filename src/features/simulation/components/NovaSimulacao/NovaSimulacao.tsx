@@ -112,9 +112,6 @@ export const NovaSimulacao = (): JSX.Element => {
   
   // Função para calcular matrículas ponderadas
   const calcularMatriculasPonderadas = (cats: EnrollmentCategory[]): number => {
-    console.log('🔢 [calcularMatriculasPonderadas] Iniciando cálculo...');
-    console.log('📋 [calcularMatriculasPonderadas] Categorias recebidas:', cats);
-    
     let total = 0;
     
     cats.forEach((cat) => {
@@ -125,26 +122,24 @@ export const NovaSimulacao = (): JSX.Element => {
       const factor = categoryConfig?.factor || 1.0;
       
       const ponderada = matriculas * factor;
-      console.log(`   - ${cat.name}: ${matriculas} × ${factor} = ${ponderada}`);
       total += ponderada;
     });
     
-    console.log(`✨ [calcularMatriculasPonderadas] Total ponderado: ${total}`);
     return total;
   };
   
   // Função para calcular VAAF, VAAT, VAAR e repasse total
   // Implementação baseada no simuladorfundeb oficial (fundeb-official-rules.js)
   const calcularFundeb = (cats: EnrollmentCategory[], isBaseline: boolean = false) => {
-    console.log('💰 [calcularFundeb] Iniciando cálculo FUNDEB OFICIAL...');
-    console.log(`   Modo: ${isBaseline ? 'BASELINE (Dados Originais)' : 'SIMULAÇÃO'}`);
+
+' : 'SIMULAÇÃO'}`);
     
     setIsCalculating(true);
     
     const matriculasPonderadas = calcularMatriculasPonderadas(cats);
     
     if (matriculasPonderadas === 0) {
-      console.log('⚠️ [calcularFundeb] Matrículas ponderadas = 0, limpando cálculos');
+
       setCalculosFundeb(null);
       if (isBaseline) {
         setDadosOriginais(null);
@@ -159,7 +154,7 @@ export const NovaSimulacao = (): JSX.Element => {
     
     // Se não temos dados reais do município, usar cálculo simplificado
     if (!dadosReaisMunicipio) {
-      console.log('⚠️ [calcularFundeb] Sem dados reais, usando VAAF mínimo');
+
       const vaafCalculado = VAAF_MINIMO_2024;
       const repasseTotal = matriculasPonderadas * vaafCalculado;
       
@@ -186,13 +181,13 @@ export const NovaSimulacao = (): JSX.Element => {
       return;
     }
     
-    console.log('📊 [calcularFundeb] Usando CÁLCULOS OFICIAIS (baseado em simuladorfundeb)');
+');
     
     // 1. CALCULAR VAAF (Valor Aluno Ano Fundeb)
     // VAAF = Receita Contribuição / Matrículas Ponderadas
     const vaafReal = dadosReaisMunicipio.receitaContribuicao / matriculasPonderadas;
-    console.log(`   VAAF Real calculado: R$ ${vaafReal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
-    console.log(`   VAAF Mínimo: R$ ${VAAF_MINIMO_2024.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+}`);
+}`);
     
     // Verificar se precisa complementação VAAF
     const needsVAAF = vaafReal < VAAF_MINIMO_2024;
@@ -201,15 +196,15 @@ export const NovaSimulacao = (): JSX.Element => {
     if (needsVAAF) {
       // Complementação = (VAAF-MIN - VAAF_atual) × Matrículas_Ponderadas
       complementacaoVAAF = (VAAF_MINIMO_2024 - vaafReal) * matriculasPonderadas;
-      console.log(`   ⚠️ Precisa complementação VAAF: R$ ${complementacaoVAAF.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+}`);
     } else if (!isBaseline) {
       // Se não é baseline e está acima do mínimo, escala proporcionalmente
       complementacaoVAAF = dadosReaisMunicipio.complementacaoVAAF * (matriculasPonderadas / (dadosReaisMunicipio.receitaContribuicao / vaafReal));
-      console.log(`   ✅ Acima do mínimo, complementação proporcional: R$ ${complementacaoVAAF.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+}`);
     } else {
       // Baseline usa valor real do banco
       complementacaoVAAF = dadosReaisMunicipio.complementacaoVAAF;
-      console.log(`   📌 Baseline: usando complementação real do banco: R$ ${complementacaoVAAF.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+}`);
     }
     
     // VAAF final = maior entre VAAF real e VAAF mínimo
@@ -225,8 +220,8 @@ export const NovaSimulacao = (): JSX.Element => {
       (dadosReaisMunicipio.receitaContribuicao * 0.1); // +10% estimado (Salário-Educação, etc.)
     
     const vaatCalculado = receitaTotalEducacao / matriculasPonderadas;
-    console.log(`   VAAT calculado: R$ ${vaatCalculado.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
-    console.log(`   VAAT Mínimo: R$ 6500.00`);
+}`);
+
     
     // Verificar se precisa complementação VAAT
     const needsVAAT = vaatCalculado < 6500.00;
@@ -234,16 +229,16 @@ export const NovaSimulacao = (): JSX.Element => {
     
     if (needsVAAT) {
       complementacaoVAAT = (6500.00 - vaatCalculado) * matriculasPonderadas;
-      console.log(`   ⚠️ Precisa complementação VAAT: R$ ${complementacaoVAAT.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+}`);
     } else if (!isBaseline && dadosReaisMunicipio.complementacaoVAAT > 0) {
       // Se já está acima mas recebe VAAT nos dados reais, mantém proporcional
       // Implementação do simuladorfundeb (fundeb-official-rules.js, linha 119)
       const matriculasPonderadasReais = dadosReaisMunicipio.receitaContribuicao / vaafReal;
       complementacaoVAAT = dadosReaisMunicipio.complementacaoVAAT * (matriculasPonderadas / matriculasPonderadasReais);
-      console.log(`   ✅ Mantém VAAT proporcional: R$ ${complementacaoVAAT.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+}`);
     } else {
       complementacaoVAAT = isBaseline ? dadosReaisMunicipio.complementacaoVAAT : 0;
-      console.log(`   📌 Complementação VAAT: R$ ${complementacaoVAAT.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+}`);
     }
     
     // 3. CALCULAR VAAR (Valor Aluno Ano de Resultado)
@@ -262,12 +257,12 @@ export const NovaSimulacao = (): JSX.Element => {
         complementacaoVAAR = dadosReaisMunicipio.complementacaoVAAR;
       }
       vaarCalculado = complementacaoVAAR / totalMatriculas;
-      console.log(`   VAAR: R$ ${vaarCalculado.toLocaleString('pt-BR', {minimumFractionDigits: 2})} por aluno`);
-      console.log(`   Complementação VAAR: R$ ${complementacaoVAAR.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+} por aluno`);
+}`);
     } else {
       complementacaoVAAR = 0;
       vaarCalculado = 0;
-      console.log(`   Município não recebe VAAR`);
+
     }
     
     // 4. CALCULAR REPASSE TOTAL
@@ -278,12 +273,12 @@ export const NovaSimulacao = (): JSX.Element => {
       complementacaoVAAT + 
       complementacaoVAAR;
     
-    console.log(`💵 [calcularFundeb] COMPOSIÇÃO DO REPASSE:`);
-    console.log(`   Receita Base: R$ ${dadosReaisMunicipio.receitaContribuicao.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
-    console.log(`   + VAAF: R$ ${complementacaoVAAF.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
-    console.log(`   + VAAT: R$ ${complementacaoVAAT.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
-    console.log(`   + VAAR: R$ ${complementacaoVAAR.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
-    console.log(`   = Total: R$ ${repasseTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`);
+
+}`);
+}`);
+}`);
+}`);
+}`);
     
     const resultado = {
       matriculasPonderadas,
@@ -298,7 +293,7 @@ export const NovaSimulacao = (): JSX.Element => {
     
     // Se for baseline, salvar como dados originais
     if (isBaseline) {
-      console.log('📌 [calcularFundeb] Salvando como BASELINE');
+
       setDadosOriginais({
         totalMatriculas,
         matriculasPonderadas,
@@ -311,10 +306,10 @@ export const NovaSimulacao = (): JSX.Element => {
       const variacaoPonderadas = ((matriculasPonderadas - dadosOriginais.matriculasPonderadas) / dadosOriginais.matriculasPonderadas) * 100;
       const variacaoFinanceira = ((repasseTotal - dadosOriginais.repasseTotal) / dadosOriginais.repasseTotal) * 100;
       
-      console.log('📊 [calcularFundeb] VARIAÇÕES CALCULADAS:');
-      console.log(`   Matrículas: ${variacaoMatriculas.toFixed(2)}%`);
-      console.log(`   Ponderadas: ${variacaoPonderadas.toFixed(2)}%`);
-      console.log(`   Financeira: ${variacaoFinanceira.toFixed(2)}%`);
+
+}%`);
+}%`);
+}%`);
       
       setVariacoes({
         matriculas: variacaoMatriculas,
@@ -323,22 +318,22 @@ export const NovaSimulacao = (): JSX.Element => {
       });
     }
     
-    console.log('✅ [calcularFundeb] Resultado final:', resultado);
+
     setCalculosFundeb(resultado);
     setIsCalculating(false);
   };
 
   const handleEnrollmentChange = (id: string, value: string): void => {
-    console.log('🎯 [handleEnrollmentChange] Matrícula alterada!');
-    console.log(`   ID: ${id}`);
-    console.log(`   Novo valor: ${value}`);
+
+
+
     
     const newCategories = categories.map((cat) => {
       if (cat.id !== id) {
         return cat;
       }
       
-      console.log(`   📝 Categoria sendo atualizada: ${cat.name}`);
+
       
       // Buscar fator da categoria pelo ID (educacaoInfantil, anosIniciaisFund, etc.)
       const categoryConfig = CATEGORIAS_AGREGADAS[id as keyof typeof CATEGORIAS_AGREGADAS];
@@ -346,8 +341,8 @@ export const NovaSimulacao = (): JSX.Element => {
       const matriculas = Number(value.replace(/\D/g, "")) || 0;
       const repasseSimulado = matriculas * VALOR_ALUNO_ANO * factor;
       
-      console.log(`   💵 Repasse simulado calculado: ${matriculas} × ${VALOR_ALUNO_ANO} × ${factor} = R$ ${repasseSimulado.toLocaleString('pt-BR')}`);
-      console.log(`   💵 Repasse original mantido: ${cat.originalTransfer}`);
+}`);
+
       
       return {
         ...cat,
@@ -357,12 +352,12 @@ export const NovaSimulacao = (): JSX.Element => {
       };
     });
     
-    console.log('📦 [handleEnrollmentChange] Atualizando estado com novas categorias...');
+
     setCategories(newCategories);
     
-    console.log('🔄 [handleEnrollmentChange] Chamando calcularFundeb em modo SIMULAÇÃO...');
+
     calcularFundeb(newCategories, false);
-    console.log('✅ [handleEnrollmentChange] Processo concluído!\n');
+
   };
   
   // Recalcular FUNDEB quando as categorias, dados reais ou ano mudarem
@@ -370,31 +365,31 @@ export const NovaSimulacao = (): JSX.Element => {
     // Marcar como montado após primeira renderização
     if (!isMountedRef.current) {
       isMountedRef.current = true;
-      console.log('🎬 [useEffect categories] Componente montado, ignorando primeira execução');
+
       return;
     }
     
-    console.log('🔄 [useEffect categories] Disparado');
-    console.log(`   Quantidade de categorias: ${categories.length}`);
-    console.log(`   municipioId: ${municipioId || 'não selecionado'}`);
-    console.log(`   baseYear: ${baseYear || 'não selecionado'}`);
-    console.log(`   dadosReaisMunicipio: ${dadosReaisMunicipio ? 'presente' : 'ausente'}`);
-    console.log(`   isFirstLoadRef: ${isFirstLoadRef.current}`);
+
+
+
+
+
+
     
     // Não calcular se não há município selecionado
     if (!municipioId) {
-      console.log('⚠️ [useEffect categories] Sem município selecionado, ignorando');
+
       return;
     }
     
     // Não calcular se não há dados reais (ainda carregando)
     if (!dadosReaisMunicipio) {
-      console.log('⚠️ [useEffect categories] Aguardando dados reais do município...');
+
       return;
     }
     
     if (categories.length === 0) {
-      console.log('⚠️ [useEffect categories] Sem categorias, limpando cálculos');
+
       setCalculosFundeb(null);
       setDadosOriginais(null);
       setVariacoes(null);
@@ -403,11 +398,11 @@ export const NovaSimulacao = (): JSX.Element => {
     
     // Se é primeira carga do município OU ano mudou, salvar como baseline
     if (isFirstLoadRef.current) {
-      console.log('📊 [useEffect categories] PRIMEIRA CARGA - Salvando baseline');
+
       isFirstLoadRef.current = false;
       calcularFundeb(categories, true);
     } else {
-      console.log('🔄 [useEffect categories] Recalculando (modo simulação)');
+');
       calcularFundeb(categories, false);
     }
   }, [categories.length, municipioId, baseYear, dadosReaisMunicipio]); // Monitorar baseYear e dadosReaisMunicipio também
@@ -417,7 +412,7 @@ export const NovaSimulacao = (): JSX.Element => {
     SimulationService.getUFs()
       .then((data) => setUfs(data))
       .catch((e) => {
-        console.error("Error loading UFs", e);
+
         toast.error("Erro ao carregar UFs");
       });
   }, []);
@@ -434,7 +429,7 @@ export const NovaSimulacao = (): JSX.Element => {
         }
       })
       .catch((e) => {
-        console.error("Error loading anos disponíveis", e);
+
         toast.error("Erro ao carregar anos disponíveis");
         // Fallback para anos padrão
         setAnosDisponiveis([2025, 2024]);
@@ -448,9 +443,9 @@ export const NovaSimulacao = (): JSX.Element => {
   // Auto-selecionar UF e município para usuários não-admin
   useEffect(() => {
     if (!canEditLocation && user?.uf && user?.municipio) {
-      console.log('👤 [useEffect user] Usuário não-admin, setando UF e município do perfil');
-      console.log('   UF:', user.uf);
-      console.log('   Município:', user.municipio);
+
+
+
       
       setUf(user.uf);
       
@@ -471,15 +466,15 @@ export const NovaSimulacao = (): JSX.Element => {
           );
           
           if (userMunicipio) {
-            console.log('   ✅ Município encontrado:', userMunicipio.municipio);
+
             setMunicipioId(userMunicipio.id);
           } else {
-            console.log('   ⚠️ Município não encontrado na lista');
+
             toast.warning(`Município "${user.municipio}" não encontrado. Atualize seu perfil.`);
           }
         })
         .catch((e) => {
-          console.error("Error loading municipios", e);
+
           toast.error("Erro ao carregar municípios");
         });
     }
@@ -507,7 +502,7 @@ export const NovaSimulacao = (): JSX.Element => {
         setMunicipios(data.map((m: any) => ({ id: String(m.id), municipio: m.municipio, uf: m.uf })));
       })
       .catch((e) => {
-        console.error("Error loading municipios", e);
+
         toast.error("Erro ao carregar municípios");
       })
       .finally(() => setIsLoadingMunicipios(false));
@@ -535,10 +530,10 @@ export const NovaSimulacao = (): JSX.Element => {
     
     if (municipioOuAnoMudou) {
       if (municipioMudou) {
-        console.log('🔄 [useEffect municipioId] Município mudou, resetando baseline');
+
       }
       if (anoMudou) {
-        console.log(`🔄 [useEffect municipioId] Ano mudou de ${lastBaseYearRef.current} para ${baseYear}, resetando baseline`);
+
       }
       isFirstLoadRef.current = true;
       lastMunicipioIdRef.current = municipioId;
@@ -556,10 +551,10 @@ export const NovaSimulacao = (): JSX.Element => {
     
     // Buscar dados reais do município (receita, complementações) do ano selecionado
     const anoSelecionado = baseYear ? parseInt(baseYear, 10) : undefined;
-    console.log(`📅 [useEffect municipioId] Buscando dados para ano: ${anoSelecionado || 'não especificado'}`);
+
     LocalidadesService.getMunicipioCategorias(municipioId, anoSelecionado)
       .then((data) => {
-        console.log(`📦 [useEffect municipioId] Dados recebidos do banco para ano ${anoSelecionado}:`, data);
+
         
         // Extrair dados reais de receita
         if (data.receita_contribuicao || data.complementacao_vaaf || data.complementacao_vaat || data.complementacao_vaar) {
@@ -570,13 +565,13 @@ export const NovaSimulacao = (): JSX.Element => {
             complementacaoVAAR: data.complementacao_vaar || 0,
             totalReceitasPrevistas: data.total_receitas_previstas || 0,
           };
-          console.log('💰 [useEffect municipioId] Dados reais de receita encontrados:', dadosReais);
+
           setDadosReaisMunicipio(dadosReais);
           
           // Inicializar os itens de receita com os dados reais
           initializeItems(dadosReais.receitaContribuicao);
         } else {
-          console.log('⚠️ [useEffect municipioId] Sem dados de receita no banco');
+
           setDadosReaisMunicipio(null);
           
           // Inicializar com valores vazios se não houver dados
@@ -585,7 +580,7 @@ export const NovaSimulacao = (): JSX.Element => {
         
         const cats = data.matriculas_por_categoria || {};
         
-        console.log(`📊 [useEffect municipioId] Matrículas por categoria para ano ${anoSelecionado}:`, cats);
+
         
         // Usar as 8 categorias agregadas do backend
         const mappedCategories: EnrollmentCategory[] = CATEGORIAS_AGREGADAS_ARRAY
@@ -604,12 +599,12 @@ export const NovaSimulacao = (): JSX.Element => {
             };
           });
         
-        console.log(`📦 [useEffect municipioId] Categorias carregadas para ano ${anoSelecionado}, setando estado`);
-        console.log(`📊 [useEffect municipioId] Total de matrículas: ${mappedCategories.reduce((sum, cat) => sum + (parseBrazilianInteger(cat.enrollments) || 0), 0)}`);
+
+=> sum + (parseBrazilianInteger(cat.enrollments) || 0), 0)}`);
         setCategories(mappedCategories);
       })
       .catch((e) => {
-        console.error("Error loading categorias", e);
+
         toast.error("Erro ao carregar categorias do município");
       })
       .finally(() => {
@@ -685,7 +680,7 @@ export const NovaSimulacao = (): JSX.Element => {
       },
     };
 
-    console.log("Payload a ser enviado:", JSON.stringify(payload, null, 2));
+);
 
     SimulationService.createSimulation(payload)
       .then(() => {
@@ -695,15 +690,15 @@ export const NovaSimulacao = (): JSX.Element => {
         }, 1000);
       })
       .catch((e: any) => {
-        console.error("Error creating simulation", e);
-        console.error("Payload enviado:", JSON.stringify(payload, null, 2));
+
+);
         const status = e?.response?.status || e?.status;
         if (status === 401) {
           toast.error("Sessão expirada. Faça login novamente.");
           setTimeout(() => navigate("/login"), 1500);
         } else if (status === 400) {
           const errorMsg = e?.response?.data?.error || e?.response?.data?.message || e?.message || "Dados inválidos";
-          console.error("Erro 400:", errorMsg);
+
           toast.error(`Erro de validação: ${errorMsg}`);
         } else {
           toast.error("Erro no servidor. Tente novamente mais tarde.");

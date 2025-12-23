@@ -38,7 +38,7 @@ export const ContactSection = (): JSX.Element => {
           setFormData(prev => ({ ...prev, municipio: "" })); // Limpar município ao trocar UF
         })
         .catch((error) => {
-          console.error("Erro ao carregar municípios:", error);
+
           toast.error("Erro ao carregar municípios");
           setMunicipios([]);
         })
@@ -66,7 +66,7 @@ export const ContactSection = (): JSX.Element => {
       toast.success("Solicitação enviada com sucesso! Aguarde a aprovação de um administrador.");
       setFormData({ name: "", email: "", uf: "", municipio: "", organization: "", message: "" });
     } catch (error: any) {
-      console.error('Erro ao enviar solicitação:', error);
+
       const errorMessage = error?.message || "Erro ao enviar solicitação. Tente novamente.";
       toast.error(errorMessage);
     } finally {

@@ -38,7 +38,7 @@ export const useAnosDisponiveis = () => {
         
         setError(null);
       } catch (err) {
-        console.error("Erro ao buscar anos disponíveis:", err);
+
         setError(err instanceof Error ? err : new Error("Erro desconhecido"));
         
         // Fallback em caso de erro

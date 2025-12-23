@@ -71,11 +71,10 @@ export function useOfficialFundebCalculation({
    */
   const calculate = useCallback(
     async (matriculasSimuladas: MatriculasAgregadas) => {
-      console.log('[useOfficialFundebCalculation] 🧮 Iniciando cálculo oficial:', { uf, municipio });
-      console.log('[useOfficialFundebCalculation] 📊 Matrículas simuladas:', matriculasSimuladas);
-      
+
+
       if (!uf || !municipio) {
-        console.log('[useOfficialFundebCalculation] ⚠️ UF ou município não fornecidos');
+
         setError('UF e município são obrigatórios para cálculo');
         return;
       }
@@ -86,7 +85,7 @@ export function useOfficialFundebCalculation({
       );
 
       if (hasInvalidValue) {
-        console.log('[useOfficialFundebCalculation] ⚠️ Matrículas inválidas:', matriculasSimuladas);
+
         setError('Matrículas simuladas contêm valores inválidos');
         return;
       }
@@ -96,20 +95,19 @@ export function useOfficialFundebCalculation({
       setLastMatriculas(matriculasSimuladas);
 
       try {
-        console.log('[useOfficialFundebCalculation] 📡 Chamando API compareWithOfficial...');
+
         const response = await SimulationService.compareWithOfficial(
           uf,
           municipio,
           matriculasSimuladas
         );
-        console.log('[useOfficialFundebCalculation] ✅ Resposta da API:', response);
 
         setResponseCompleta(response);
         setResultado(response.resultado);
         setError(null);
-        console.log('[useOfficialFundebCalculation] 💾 Resultado salvo no estado');
+
       } catch (err: any) {
-        console.error('[useOfficialFundebCalculation] ❌ Erro no cálculo:', err);
+
         const errorMessage =
           err?.response?.data?.error ||
           err?.response?.data?.details ||
@@ -119,9 +117,8 @@ export function useOfficialFundebCalculation({
         setError(errorMessage);
         setResultado(null);
         setResponseCompleta(null);
-        console.log('[useOfficialFundebCalculation] 📝 Error message:', errorMessage);
-        
-        console.error('Erro ao calcular oficial:', err);
+
+
       } finally {
         setIsCalculating(false);
       }
