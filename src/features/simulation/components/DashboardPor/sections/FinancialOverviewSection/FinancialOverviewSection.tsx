@@ -142,7 +142,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
 
   // Calcular cards dinamicamente com base nos dados da simulação
   const statsCards: StatsCard[] = useMemo(() => {
-    // Se não há simulação selecionada, mostrar apenas o card 1 (Projeção de repasse) com dados oficiais
+    // Se não há simulação selecionada, mostrar os 3 cards com valores zerados
     if (!selectedSimulation) {
       const anoBase = new Date().getFullYear();
       const anoAnterior = anoBase - 1;
@@ -168,14 +168,31 @@ export const FinancialOverviewSection = (): JSX.Element => {
         ? calcularComparacaoAnoAnterior(valorCard1, repasseAnterior)
         : '';
       
+      // Retornar os 3 cards sempre, mas com valores zerados quando não há simulação
       return [
         {
           title: `Projeção de repasse ${anoBase}`,
           value: formatCurrency(valorCard1),
           trend: comparacaoRepasseOriginal,
-          trendLabel: "vs ano passado",
+          trendLabel: comparacaoRepasseOriginal ? "vs ano passado" : "",
           gradient:
             "bg-[linear-gradient(45deg,rgba(90,105,255,1)_0%,rgba(150,68,255,1)_50%,rgba(145,171,255,1)_100%)]",
+        },
+        {
+          title: "Recurso potencial com simulações",
+          value: formatCurrency(0),
+          trend: "",
+          trendLabel: "",
+          gradient:
+            "bg-[linear-gradient(45deg,rgba(55,196,255,1)_0%,rgba(16,132,255,1)_50%,rgba(31,177,255,1)_100%)]",
+        },
+        {
+          title: "Potencial percentual de aumento",
+          value: "0.0%",
+          trend: "",
+          trendLabel: "",
+          gradient:
+            "bg-[linear-gradient(135deg,rgba(255,157,88,1)_0%,rgba(255,117,43,1)_50%,rgba(255,175,106,1)_100%)]",
         },
       ];
     }
