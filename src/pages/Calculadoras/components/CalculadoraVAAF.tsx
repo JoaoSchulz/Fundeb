@@ -6,7 +6,7 @@ import { Card } from "../../../components/ui/card";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { Calculator, CheckCircle, XCircle } from "lucide-react";
 import { FUNDEB_2024_MINIMUMS } from "../../../utils/fundeb/constants";
-import { formatCurrency, parseBrazilianNumber } from "../../../utils/formatters";
+import { formatCurrency, parseBrazilianNumber, formatBrazilianNumberInput } from "../../../utils/formatters";
 
 interface VAAFResult {
   matriculasPonderadas: number;
@@ -99,7 +99,10 @@ export function CalculadoraVAAF() {
             type="text"
             placeholder="Ex: 50.000"
             value={matriculas}
-            onChange={(e) => setMatriculas(e.target.value)}
+            onChange={(e) => {
+              const formatted = formatBrazilianNumberInput(e.target.value);
+              setMatriculas(formatted);
+            }}
           />
           <p className="text-xs text-muted-foreground">
             Total de matrículas aplicando as ponderações oficiais
@@ -113,7 +116,10 @@ export function CalculadoraVAAF() {
             type="text"
             placeholder="Ex: 250.000.000,00"
             value={receita}
-            onChange={(e) => setReceita(e.target.value)}
+            onChange={(e) => {
+              const formatted = formatBrazilianNumberInput(e.target.value);
+              setReceita(formatted);
+            }}
           />
           <p className="text-xs text-muted-foreground">
             20% dos impostos vinculados ao FUNDEB
@@ -127,7 +133,10 @@ export function CalculadoraVAAF() {
             type="text"
             placeholder="Ex: 5447,98"
             value={vaafMin}
-            onChange={(e) => setVaafMin(e.target.value)}
+            onChange={(e) => {
+              const formatted = formatBrazilianNumberInput(e.target.value);
+              setVaafMin(formatted);
+            }}
           />
           <p className="text-xs text-muted-foreground">
             Valor mínimo por aluno definido nacionalmente

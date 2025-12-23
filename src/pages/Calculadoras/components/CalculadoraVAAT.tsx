@@ -6,7 +6,7 @@ import { Card } from "../../../components/ui/card";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { Calculator, CheckCircle, XCircle } from "lucide-react";
 import { FUNDEB_2024_MINIMUMS } from "../../../utils/fundeb/constants";
-import { formatCurrency, parseBrazilianNumber } from "../../../utils/formatters";
+import { formatCurrency, parseBrazilianNumber, formatBrazilianNumberInput } from "../../../utils/formatters";
 
 interface VAATResult {
   matriculasPonderadas: number;
@@ -90,10 +90,13 @@ export function CalculadoraVAAT() {
           <Label htmlFor="matriculas-vaat">Matrículas Ponderadas</Label>
           <Input
             id="matriculas-vaat"
-            type="number"
-            placeholder="Ex: 50000"
+            type="text"
+            placeholder="Ex: 50.000"
             value={matriculas}
-            onChange={(e) => setMatriculas(e.target.value)}
+            onChange={(e) => {
+              const formatted = formatBrazilianNumberInput(e.target.value);
+              setMatriculas(formatted);
+            }}
           />
           <p className="text-xs text-muted-foreground">
             Total de matrículas aplicando as ponderações oficiais
@@ -104,10 +107,13 @@ export function CalculadoraVAAT() {
           <Label htmlFor="vaatMin">VAAT Mínimo Nacional (R$)</Label>
           <Input
             id="vaatMin"
-            type="number"
-            placeholder="Ex: 7000"
+            type="text"
+            placeholder="Ex: 7.000,00"
             value={vaatMin}
-            onChange={(e) => setVaatMin(e.target.value)}
+            onChange={(e) => {
+              const formatted = formatBrazilianNumberInput(e.target.value);
+              setVaatMin(formatted);
+            }}
           />
           <p className="text-xs text-muted-foreground">
             Valor mínimo por aluno definido nacionalmente
@@ -123,10 +129,13 @@ export function CalculadoraVAAT() {
             <Label htmlFor="receita25">25% dos Impostos (R$)</Label>
             <Input
               id="receita25"
-              type="number"
-              placeholder="Ex: 350000000"
+              type="text"
+              placeholder="Ex: 350.000.000,00"
               value={receita25}
-              onChange={(e) => setReceita25(e.target.value)}
+              onChange={(e) => {
+                const formatted = formatBrazilianNumberInput(e.target.value);
+                setReceita25(formatted);
+              }}
             />
             <p className="text-xs text-muted-foreground">
               25% vinculados constitucionalmente
@@ -137,10 +146,13 @@ export function CalculadoraVAAT() {
             <Label htmlFor="receitaFundeb">Receita FUNDEB (R$)</Label>
             <Input
               id="receitaFundeb"
-              type="number"
-              placeholder="Ex: 280000000"
+              type="text"
+              placeholder="Ex: 280.000.000,00"
               value={receitaFundeb}
-              onChange={(e) => setReceitaFundeb(e.target.value)}
+              onChange={(e) => {
+                const formatted = formatBrazilianNumberInput(e.target.value);
+                setReceitaFundeb(formatted);
+              }}
             />
             <p className="text-xs text-muted-foreground">
               Contribuição + complementação VAAF
@@ -151,10 +163,13 @@ export function CalculadoraVAAT() {
             <Label htmlFor="outrasReceitas">Outras Receitas (R$)</Label>
             <Input
               id="outrasReceitas"
-              type="number"
-              placeholder="Ex: 28000000"
+              type="text"
+              placeholder="Ex: 28.000.000,00"
               value={outrasReceitas}
-              onChange={(e) => setOutrasReceitas(e.target.value)}
+              onChange={(e) => {
+                const formatted = formatBrazilianNumberInput(e.target.value);
+                setOutrasReceitas(formatted);
+              }}
             />
             <p className="text-xs text-muted-foreground">
               Salário-educação, programas federais, etc.

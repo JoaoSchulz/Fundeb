@@ -6,7 +6,7 @@ import { Card } from "../../../components/ui/card";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { Checkbox } from "../../../components/ui/checkbox";
 import { Calculator, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-import { formatCurrency, parseBrazilianNumber } from "../../../utils/formatters";
+import { formatCurrency, parseBrazilianNumber, formatBrazilianNumberInput, formatDecimalInput } from "../../../utils/formatters";
 
 interface VAARResult {
   matriculasPonderadas: number;
@@ -63,9 +63,10 @@ export function CalculadoraVAAR() {
     setResultado(null);
 
     const matriculasPonderadas = parseBrazilianNumber(matriculas);
-    const indAtendimento = parseFloat(indicadorAtendimento);
-    const indAprendizagem = parseFloat(indicadorAprendizagem);
-    const indDesigualdade = parseFloat(indicadorDesigualdade);
+    // Aceitar vírgula como separador decimal nos indicadores
+    const indAtendimento = parseBrazilianNumber(indicadorAtendimento);
+    const indAprendizagem = parseBrazilianNumber(indicadorAprendizagem);
+    const indDesigualdade = parseBrazilianNumber(indicadorDesigualdade);
 
     if (!matriculasPonderadas || matriculasPonderadas <= 0) {
       setError("Por favor, insira um valor válido para matrículas.");
@@ -143,10 +144,13 @@ export function CalculadoraVAAR() {
           <Label htmlFor="matriculas-vaar">Matrículas Elegíveis VAAR</Label>
           <Input
             id="matriculas-vaar"
-            type="number"
-            placeholder="Ex: 150000"
+            type="text"
+            placeholder="Ex: 150.000"
             value={matriculas}
-            onChange={(e) => setMatriculas(e.target.value)}
+            onChange={(e) => {
+              const formatted = formatBrazilianNumberInput(e.target.value);
+              setMatriculas(formatted);
+            }}
           />
           <p className="text-xs text-muted-foreground">
             Apenas entes que cumpriram condicionalidades
@@ -207,16 +211,16 @@ export function CalculadoraVAAR() {
             <Label htmlFor="indAtendimento">Indicador de Atendimento</Label>
             <Input
               id="indAtendimento"
-              type="number"
-              step="0.01"
-              min="0"
-              max="1"
-              placeholder="Ex: 0.85"
+              type="text"
+              placeholder="Ex: 0,85"
               value={indicadorAtendimento}
-              onChange={(e) => setIndicadorAtendimento(e.target.value)}
+              onChange={(e) => {
+                const formatted = formatDecimalInput(e.target.value);
+                setIndicadorAtendimento(formatted);
+              }}
             />
             <p className="text-xs text-muted-foreground">
-              Universalização do acesso
+              Universalização do acesso (0 a 1)
             </p>
           </div>
 
@@ -224,16 +228,16 @@ export function CalculadoraVAAR() {
             <Label htmlFor="indAprendizagem">Indicador de Aprendizagem</Label>
             <Input
               id="indAprendizagem"
-              type="number"
-              step="0.01"
-              min="0"
-              max="1"
-              placeholder="Ex: 0.70"
+              type="text"
+              placeholder="Ex: 0,70"
               value={indicadorAprendizagem}
-              onChange={(e) => setIndicadorAprendizagem(e.target.value)}
+              onChange={(e) => {
+                const formatted = formatDecimalInput(e.target.value);
+                setIndicadorAprendizagem(formatted);
+              }}
             />
             <p className="text-xs text-muted-foreground">
-              Resultados no SAEB
+              Resultados no SAEB (0 a 1)
             </p>
           </div>
 
@@ -241,13 +245,13 @@ export function CalculadoraVAAR() {
             <Label htmlFor="indDesigualdade">Indicador de Desigualdades</Label>
             <Input
               id="indDesigualdade"
-              type="number"
-              step="0.01"
-              min="0"
-              max="1"
-              placeholder="Ex: 0.75"
+              type="text"
+              placeholder="Ex: 0,75"
               value={indicadorDesigualdade}
-              onChange={(e) => setIndicadorDesigualdade(e.target.value)}
+              onChange={(e) => {
+                const formatted = formatDecimalInput(e.target.value);
+                setIndicadorDesigualdade(formatted);
+              }}
             />
             <p className="text-xs text-muted-foreground">
               Redução de desigualdades

@@ -164,3 +164,103 @@ export const formatDifference = (value: string): {
     isZero,
   };
 };
+
+/**
+ * Formata um número enquanto o usuário digita, adicionando pontos de milhar e vírgula decimal
+ * Exemplos:
+ * - "50000" → "50.000"
+ * - "250000000" → "250.000.000"
+ * - "544798" → "544.798"
+ * - "544798,98" → "544.798,98"
+ * - "544798,9" → "544.798,9"
+ */
+export const formatBrazilianNumberInput = (value: string): string => {
+  if (!value) return "";
+  
+  // Remove tudo exceto dígitos, vírgulas e pontos
+  let cleaned = value.replace(/[^\d,]/g, "");
+  
+  // Se não há nada, retorna vazio
+  if (!cleaned) return "";
+  
+  // Verifica se tem vírgula (decimal)
+  const hasComma = cleaned.includes(",");
+  
+  // Separa parte inteira e decimal
+  let integerPart = cleaned;
+  let decimalPart = "";
+  
+  if (hasComma) {
+    const parts = cleaned.split(",");
+    integerPart = parts[0] || "";
+    // Permite até 2 casas decimais
+    decimalPart = parts[1] ? parts[1].substring(0, 2) : "";
+  }
+  
+  // Remove todos os pontos da parte inteira (para reformatar)
+  integerPart = integerPart.replace(/\./g, "");
+  
+  // Se a parte inteira está vazia, retorna apenas vírgula se houver
+  if (!integerPart && hasComma) {
+    return ",";
+  }
+  
+  // Formata a parte inteira com pontos de milhar
+  // Reverte a string, agrupa de 3 em 3, adiciona pontos, e reverte novamente
+  const formattedInteger = integerPart
+    .split("")
+    .reverse()
+    .join("")
+    .replace(/(\d{3})(?=\d)/g, "$1.")
+    .split("")
+    .reverse()
+    .join("");
+  
+  // Monta o resultado
+  if (hasComma) {
+    return decimalPart ? `${formattedInteger},${decimalPart}` : `${formattedInteger},`;
+  }
+  
+  return formattedInteger;
+};
+
+/**
+ * Formata um número decimal (0-1) enquanto o usuário digita, aceitando vírgula como separador decimal
+ * Exemplos:
+ * - "0.85" → "0,85"
+ * - "0,85" → "0,85"
+ * - "1" → "1"
+ * - "0.5" → "0,5"
+ */
+export const formatDecimalInput = (value: string): string => {
+  if (!value) return "";
+  
+  // Remove tudo exceto dígitos, vírgulas e pontos
+  let cleaned = value.replace(/[^\d,.]/g, "");
+  
+  // Se não há nada, retorna vazio
+  if (!cleaned) return "";
+  
+  // Se tem vírgula, substitui ponto por vírgula (se houver)
+  if (cleaned.includes(",")) {
+    cleaned = cleaned.replace(/\./g, "");
+    // Limita a 2 casas decimais após a vírgula
+    const parts = cleaned.split(",");
+    if (parts.length > 1) {
+      return `${parts[0]},${parts[1].substring(0, 2)}`;
+    }
+    return cleaned;
+  }
+  
+  // Se tem ponto, substitui por vírgula
+  if (cleaned.includes(".")) {
+    const parts = cleaned.split(".");
+    // Limita a 2 casas decimais após o ponto
+    if (parts.length > 1) {
+      return `${parts[0]},${parts[1].substring(0, 2)}`;
+    }
+    return cleaned;
+  }
+  
+  return cleaned;
+};
