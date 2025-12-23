@@ -116,8 +116,8 @@ export function CalculadoraVAAF() {
           <Label htmlFor="vaafMin">VAAF Mínimo Nacional (R$)</Label>
           <Input
             id="vaafMin"
-            type="number"
-            placeholder="Ex: 5447.98"
+            type="text"
+            placeholder="Ex: 5447,98"
             value={vaafMin}
             onChange={(e) => setVaafMin(e.target.value)}
           />
