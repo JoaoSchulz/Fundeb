@@ -37,27 +37,31 @@ export const parseBrazilianNumber = (value: string | number | null | undefined):
   
   if (dotCount === 1) {
     const lastDotIndex = s.lastIndexOf(".");
-    // Se o ponto está nas últimas 3 posições, é provavelmente decimal (ex: "5447.98")
-    if (lastDotIndex >= s.length - 3 && lastDotIndex > 0) {
+    const afterDot = s.substring(lastDotIndex + 1);
+    
+    // Se o ponto está nas últimas 3 posições E tem 1-2 dígitos após = decimal (ex: "5447.98")
+    if (lastDotIndex >= s.length - 3 && lastDotIndex > 0 && afterDot.length <= 2) {
       return parseFloat(s) || 0;
     }
-    // Se tem apenas 1 ponto mas não está nas últimas 3 posições
-    // E tem muitos zeros após o ponto (ex: "250.00000000"), pode ser formatação incorreta
-    // Nesse caso, tratar como separador de milhar e remover
-    const afterDot = s.substring(lastDotIndex + 1);
-    if (afterDot.length > 3 && /^0+$/.test(afterDot)) {
-      // Muitos zeros após o ponto = provavelmente separador de milhar mal formatado
+    
+    // Se tem 3 dígitos após o ponto = provavelmente separador de milhar (ex: "50.000", "250.000")
+    // Ou se tem muitos zeros após o ponto = separador de milhar
+    if (afterDot.length === 3 || (afterDot.length > 3 && /^0+$/.test(afterDot))) {
+      // Tratar como separador de milhar, remover ponto
       const normalized = s.replace(/\./g, "");
       return parseFloat(normalized) || 0;
     }
+    
     // Caso contrário, tratar como decimal
     return parseFloat(s) || 0;
   }
   
   // Múltiplos pontos = separador de milhar (formato brasileiro), remover todos
+  // Exemplo: "250.000.000" → "250000000" → 250.000.000
   if (dotCount > 1) {
     const normalized = s.replace(/\./g, "");
-    return parseFloat(normalized) || 0;
+    const parsed = parseFloat(normalized) || 0;
+    return parsed;
   }
   
   // Sem pontos = número inteiro ou número sem separadores

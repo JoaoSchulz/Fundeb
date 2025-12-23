@@ -49,9 +49,16 @@ export function CalculadoraVAAF() {
       return;
     }
 
-    // Calcular VAAF do ente (idêntico ao simuladorfundeb)
+    // Calcular VAAF do ente (idêntico ao simuladorfundeb - linha 300 de fundeb.js)
     // VAAF = Receita do FUNDEB ÷ Matrículas Ponderadas
     const vaafCalculado = receitaEstimada / matriculasPonderadas;
+    
+    // Validação: VAAF não pode ser maior que 1.000.000 (valor irreal)
+    // Se for maior, provavelmente há erro no parsing da receita
+    if (vaafCalculado > 1000000) {
+      setError(`Erro: VAAF calculado (${vaafCalculado.toFixed(2)}) está muito alto. Verifique se a receita foi digitada corretamente. Exemplo: 250.000.000,00 ou 250000000`);
+      return;
+    }
 
     // Verificar se necessita complementação
     const necessitaComplementacao = vaafCalculado < vaafMinimo;
