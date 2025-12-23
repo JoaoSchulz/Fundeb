@@ -73,30 +73,21 @@ export const FinancialOverviewSection = (): JSX.Element => {
     isLoading,
   });
 
-  // Buscar dados do ano anterior quando a simulação mudar ou quando não há simulação (usar perfil do usuário)
+  // Buscar dados do ano anterior quando a simulação mudar
+  // Quando não há simulação selecionada, não buscar dados (mostrar cards zerados)
   useEffect(() => {
     const buscarDadosAnoAnterior = async () => {
-      // Se há simulação, usar dados da simulação
-      // Se não há simulação, usar dados do perfil do usuário
-      let uf: string | undefined;
-      let municipio: string | undefined;
-      let anoAtual: number;
-      
-      if (selectedSimulation?.dadosEntrada?.uf && selectedSimulation?.dadosEntrada?.municipio && selectedSimulation?.dadosEntrada?.anoBase) {
-        uf = selectedSimulation.dadosEntrada.uf;
-        municipio = selectedSimulation.dadosEntrada.municipio;
-        anoAtual = selectedSimulation.dadosEntrada.anoBase;
-      } else if (user?.uf && user?.municipio) {
-        // Usar dados do perfil do usuário quando não há simulação
-        uf = user.uf;
-        municipio = user.municipio;
-        anoAtual = new Date().getFullYear();
-      } else {
-        // Se não há simulação nem dados do usuário, não buscar dados
+      // Se não há simulação selecionada, não buscar dados - mostrar cards zerados
+      if (!selectedSimulation?.dadosEntrada?.uf || !selectedSimulation?.dadosEntrada?.municipio || !selectedSimulation?.dadosEntrada?.anoBase) {
         setDadosAnoAnterior(null);
         setDadosAnoAtual(null);
         return;
       }
+      
+      // Se há simulação, usar dados da simulação
+      const uf = selectedSimulation.dadosEntrada.uf;
+      const municipio = selectedSimulation.dadosEntrada.municipio;
+      const anoAtual = selectedSimulation.dadosEntrada.anoBase;
 
       const anoAnterior = anoAtual - 1;
 
@@ -138,43 +129,21 @@ export const FinancialOverviewSection = (): JSX.Element => {
     };
 
     buscarDadosAnoAnterior();
-  }, [selectedSimulation?.dadosEntrada?.uf, selectedSimulation?.dadosEntrada?.municipio, selectedSimulation?.dadosEntrada?.anoBase, user?.uf, user?.municipio]);
+  }, [selectedSimulation?.dadosEntrada?.uf, selectedSimulation?.dadosEntrada?.municipio, selectedSimulation?.dadosEntrada?.anoBase]);
 
   // Calcular cards dinamicamente com base nos dados da simulação
   const statsCards: StatsCard[] = useMemo(() => {
-    // Se não há simulação selecionada, mostrar os 3 cards com valores zerados
+    // Se não há simulação selecionada, mostrar os 3 cards com valores zerados (sem buscar dados)
     if (!selectedSimulation) {
       const anoBase = new Date().getFullYear();
-      const anoAnterior = anoBase - 1;
-      const repasseAnterior = dadosAnoAnterior?.repasseOriginal || 0;
-      const receitaTotalAtual = dadosAnoAtual?.receitaTotal || 0;
-      
-      const calcularComparacaoAnoAnterior = (valorAtual: number, valorAnterior: number): string => {
-        if (!dadosAnoAnterior || dadosAnoAnterior.repasseOriginal === 0) {
-          return '';
-        }
-        if (valorAnterior === 0) {
-          return '';
-        }
-        
-        const percentual = ((valorAtual - valorAnterior) / valorAnterior) * 100;
-        const percentualArredondado = Math.round(percentual * 10) / 10;
-        
-        return `${percentualArredondado >= 0 ? '+' : ''}${percentualArredondado.toFixed(1)}%`;
-      };
-      
-      const valorCard1 = receitaTotalAtual > 0 ? receitaTotalAtual : 0;
-      const comparacaoRepasseOriginal = dadosAnoAnterior && repasseAnterior > 0
-        ? calcularComparacaoAnoAnterior(valorCard1, repasseAnterior)
-        : '';
       
       // Retornar os 3 cards sempre, mas com valores zerados quando não há simulação
       return [
         {
           title: `Projeção de repasse ${anoBase}`,
-          value: formatCurrency(valorCard1),
-          trend: comparacaoRepasseOriginal,
-          trendLabel: comparacaoRepasseOriginal ? "vs ano passado" : "",
+          value: formatCurrency(0),
+          trend: "",
+          trendLabel: "",
           gradient:
             "bg-[linear-gradient(45deg,rgba(90,105,255,1)_0%,rgba(150,68,255,1)_50%,rgba(145,171,255,1)_100%)]",
         },
