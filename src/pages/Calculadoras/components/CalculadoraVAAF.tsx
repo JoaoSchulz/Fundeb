@@ -49,7 +49,8 @@ export function CalculadoraVAAF() {
       return;
     }
 
-    // Calcular VAAF do ente
+    // Calcular VAAF do ente (idêntico ao simuladorfundeb)
+    // VAAF = Receita do FUNDEB ÷ Matrículas Ponderadas
     const vaafCalculado = receitaEstimada / matriculasPonderadas;
 
     // Verificar se necessita complementação
@@ -88,8 +89,8 @@ export function CalculadoraVAAF() {
           <Label htmlFor="matriculas">Matrículas Ponderadas</Label>
           <Input
             id="matriculas"
-            type="number"
-            placeholder="Ex: 50000"
+            type="text"
+            placeholder="Ex: 50.000"
             value={matriculas}
             onChange={(e) => setMatriculas(e.target.value)}
           />
@@ -102,8 +103,8 @@ export function CalculadoraVAAF() {
           <Label htmlFor="receita">Receita Estimada FUNDEB (R$)</Label>
           <Input
             id="receita"
-            type="number"
-            placeholder="Ex: 280000000"
+            type="text"
+            placeholder="Ex: 250.000.000,00"
             value={receita}
             onChange={(e) => setReceita(e.target.value)}
           />
