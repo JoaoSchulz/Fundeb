@@ -23,7 +23,11 @@ interface VAAFResult {
 export function CalculadoraVAAF() {
   const [matriculas, setMatriculas] = useState("");
   const [receita, setReceita] = useState("");
-  const [vaafMin, setVaafMin] = useState(FUNDEB_2024_MINIMUMS.VAAF_MIN.toString());
+  // Formatar VAAF mínimo com vírgula como separador decimal (formato brasileiro)
+  const formatVAAFMin = (value: number): string => {
+    return value.toString().replace(".", ",");
+  };
+  const [vaafMin, setVaafMin] = useState(formatVAAFMin(FUNDEB_2024_MINIMUMS.VAAF_MIN));
   const [resultado, setResultado] = useState<VAAFResult | null>(null);
   const [error, setError] = useState("");
 
