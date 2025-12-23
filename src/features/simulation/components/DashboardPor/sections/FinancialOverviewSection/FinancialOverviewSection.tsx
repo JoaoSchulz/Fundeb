@@ -12,6 +12,7 @@ import type {
   TabType,
 } from "../../../../types";
 import { useSimulation, useFinancialData, useScrollPosition } from "../../../../hooks";
+import { useAuth } from "../../../../../auth/hooks/useAuth";
 import { SimulationDetailsModal } from "../../components";
 import {
   DashboardHeader,
@@ -35,6 +36,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
   const tableScrollRef = useRef<HTMLDivElement>(null);
   const pageScrollContainerRef = useRef<HTMLDivElement>(null);
   const { selectedSimulation, setSelectedSimulation } = useSimulation();
+  const { user } = useAuth();
   const [tabs, setTabs] = useState<Tab[]>(initialTabs);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSimulationId, setCurrentSimulationId] = useState(
@@ -72,18 +74,32 @@ export const FinancialOverviewSection = (): JSX.Element => {
     isLoading,
   });
 
-  // Buscar dados do ano anterior quando a simulação mudar
+  // Buscar dados do ano anterior quando a simulação mudar ou quando não há simulação (usar perfil do usuário)
   useEffect(() => {
     const buscarDadosAnoAnterior = async () => {
-      if (!selectedSimulation?.dadosEntrada?.uf || !selectedSimulation?.dadosEntrada?.municipio || !selectedSimulation?.dadosEntrada?.anoBase) {
+      // Se há simulação, usar dados da simulação
+      // Se não há simulação, usar dados do perfil do usuário
+      let uf: string | undefined;
+      let municipio: string | undefined;
+      let anoAtual: number;
+      
+      if (selectedSimulation?.dadosEntrada?.uf && selectedSimulation?.dadosEntrada?.municipio && selectedSimulation?.dadosEntrada?.anoBase) {
+        uf = selectedSimulation.dadosEntrada.uf;
+        municipio = selectedSimulation.dadosEntrada.municipio;
+        anoAtual = selectedSimulation.dadosEntrada.anoBase;
+      } else if (user?.uf && user?.municipio) {
+        // Usar dados do perfil do usuário quando não há simulação
+        uf = user.uf;
+        municipio = user.municipio;
+        anoAtual = new Date().getFullYear();
+      } else {
+        // Se não há simulação nem dados do usuário, não buscar dados
         setDadosAnoAnterior(null);
+        setDadosAnoAtual(null);
         return;
       }
 
-      const anoAtual = selectedSimulation.dadosEntrada.anoBase;
       const anoAnterior = anoAtual - 1;
-      const uf = selectedSimulation.dadosEntrada.uf;
-      const municipio = selectedSimulation.dadosEntrada.municipio;
 
       try {
         // Buscar dados do ano anterior e do ano atual
@@ -123,10 +139,48 @@ export const FinancialOverviewSection = (): JSX.Element => {
     };
 
     buscarDadosAnoAnterior();
-  }, [selectedSimulation?.dadosEntrada?.uf, selectedSimulation?.dadosEntrada?.municipio, selectedSimulation?.dadosEntrada?.anoBase]);
+  }, [selectedSimulation?.dadosEntrada?.uf, selectedSimulation?.dadosEntrada?.municipio, selectedSimulation?.dadosEntrada?.anoBase, user?.uf, user?.municipio]);
 
   // Calcular cards dinamicamente com base nos dados da simulação
   const statsCards: StatsCard[] = useMemo(() => {
+    // Se não há simulação selecionada, mostrar apenas o card 1 (Projeção de repasse) com dados oficiais
+    if (!selectedSimulation) {
+      const anoBase = new Date().getFullYear();
+      const anoAnterior = anoBase - 1;
+      const repasseAnterior = dadosAnoAnterior?.repasseOriginal || 0;
+      const receitaTotalAtual = dadosAnoAtual?.receitaTotal || 0;
+      
+      const calcularComparacaoAnoAnterior = (valorAtual: number, valorAnterior: number): string => {
+        if (!dadosAnoAnterior || dadosAnoAnterior.repasseOriginal === 0) {
+          return `dados de ${anoAnterior} ausentes`;
+        }
+        if (valorAnterior === 0) {
+          return `dados de ${anoAnterior} ausentes`;
+        }
+        
+        const percentual = ((valorAtual - valorAnterior) / valorAnterior) * 100;
+        const percentualArredondado = Math.round(percentual * 10) / 10;
+        
+        return `${percentualArredondado >= 0 ? '+' : ''}${percentualArredondado.toFixed(1)}%`;
+      };
+      
+      const valorCard1 = receitaTotalAtual > 0 ? receitaTotalAtual : 0;
+      const comparacaoRepasseOriginal = dadosAnoAnterior && repasseAnterior > 0
+        ? calcularComparacaoAnoAnterior(valorCard1, repasseAnterior)
+        : `dados de ${anoAnterior} ausentes`;
+      
+      return [
+        {
+          title: `Projeção de repasse ${anoBase}`,
+          value: formatCurrency(valorCard1),
+          trend: comparacaoRepasseOriginal,
+          trendLabel: "vs ano passado",
+          gradient:
+            "bg-[linear-gradient(45deg,rgba(90,105,255,1)_0%,rgba(150,68,255,1)_50%,rgba(145,171,255,1)_100%)]",
+        },
+      ];
+    }
+    
     // Calcular soma do repasse original (projeção do ano atual)
     const totalRepasseOriginal = tableData.reduce((acc, row) => acc + row.repasseOriginal, 0);
     
@@ -210,12 +264,6 @@ export const FinancialOverviewSection = (): JSX.Element => {
       comparacaoRepasseSimulado = `dados de ${anoAnterior} ausentes`;
     }
     
-        valorAtualCard2,
-        comparacaoRepasseOriginal,
-        comparacaoRepasseSimulado,
-      });
-    }
-    
     // Para o card de percentual de aumento, não faz sentido comparar com o ano anterior
     // porque o percentual de aumento já é uma métrica relativa (simulado vs original)
     // e o ano anterior não tem simulação. Vamos mostrar apenas o valor sem comparação.
@@ -255,7 +303,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
           "bg-[linear-gradient(135deg,rgba(255,157,88,1)_0%,rgba(255,117,43,1)_50%,rgba(255,175,106,1)_100%)]",
       },
     ];
-  }, [tableData, selectedSimulation?.dadosEntrada?.anoBase, dadosAnoAnterior, dadosAnoAtual]);
+  }, [tableData, selectedSimulation, selectedSimulation?.dadosEntrada?.anoBase, dadosAnoAnterior, dadosAnoAtual]);
 
   // Forçar viewMode para "table" quando não estiver em "todos"
   useEffect(() => {
