@@ -131,9 +131,6 @@ export const NovaSimulacao = (): JSX.Element => {
   // Função para calcular VAAF, VAAT, VAAR e repasse total
   // Implementação baseada no simuladorfundeb oficial (fundeb-official-rules.js)
   const calcularFundeb = (cats: EnrollmentCategory[], isBaseline: boolean = false) => {
-
-' : 'SIMULAÇÃO'}`);
-    
     setIsCalculating(true);
     
     const matriculasPonderadas = calcularMatriculasPonderadas(cats);
@@ -154,7 +151,6 @@ export const NovaSimulacao = (): JSX.Element => {
     
     // Se não temos dados reais do município, usar cálculo simplificado
     if (!dadosReaisMunicipio) {
-
       const vaafCalculado = VAAF_MINIMO_2024;
       const repasseTotal = matriculasPonderadas * vaafCalculado;
       
@@ -181,13 +177,9 @@ export const NovaSimulacao = (): JSX.Element => {
       return;
     }
     
-');
-    
     // 1. CALCULAR VAAF (Valor Aluno Ano Fundeb)
     // VAAF = Receita Contribuição / Matrículas Ponderadas
     const vaafReal = dadosReaisMunicipio.receitaContribuicao / matriculasPonderadas;
-}`);
-}`);
     
     // Verificar se precisa complementação VAAF
     const needsVAAF = vaafReal < VAAF_MINIMO_2024;
@@ -196,15 +188,12 @@ export const NovaSimulacao = (): JSX.Element => {
     if (needsVAAF) {
       // Complementação = (VAAF-MIN - VAAF_atual) × Matrículas_Ponderadas
       complementacaoVAAF = (VAAF_MINIMO_2024 - vaafReal) * matriculasPonderadas;
-}`);
     } else if (!isBaseline) {
       // Se não é baseline e está acima do mínimo, escala proporcionalmente
       complementacaoVAAF = dadosReaisMunicipio.complementacaoVAAF * (matriculasPonderadas / (dadosReaisMunicipio.receitaContribuicao / vaafReal));
-}`);
     } else {
       // Baseline usa valor real do banco
       complementacaoVAAF = dadosReaisMunicipio.complementacaoVAAF;
-}`);
     }
     
     // VAAF final = maior entre VAAF real e VAAF mínimo
@@ -220,8 +209,6 @@ export const NovaSimulacao = (): JSX.Element => {
       (dadosReaisMunicipio.receitaContribuicao * 0.1); // +10% estimado (Salário-Educação, etc.)
     
     const vaatCalculado = receitaTotalEducacao / matriculasPonderadas;
-}`);
-
     
     // Verificar se precisa complementação VAAT
     const needsVAAT = vaatCalculado < 6500.00;
@@ -229,16 +216,13 @@ export const NovaSimulacao = (): JSX.Element => {
     
     if (needsVAAT) {
       complementacaoVAAT = (6500.00 - vaatCalculado) * matriculasPonderadas;
-}`);
     } else if (!isBaseline && dadosReaisMunicipio.complementacaoVAAT > 0) {
       // Se já está acima mas recebe VAAT nos dados reais, mantém proporcional
       // Implementação do simuladorfundeb (fundeb-official-rules.js, linha 119)
       const matriculasPonderadasReais = dadosReaisMunicipio.receitaContribuicao / vaafReal;
       complementacaoVAAT = dadosReaisMunicipio.complementacaoVAAT * (matriculasPonderadas / matriculasPonderadasReais);
-}`);
     } else {
       complementacaoVAAT = isBaseline ? dadosReaisMunicipio.complementacaoVAAT : 0;
-}`);
     }
     
     // 3. CALCULAR VAAR (Valor Aluno Ano de Resultado)
@@ -257,12 +241,9 @@ export const NovaSimulacao = (): JSX.Element => {
         complementacaoVAAR = dadosReaisMunicipio.complementacaoVAAR;
       }
       vaarCalculado = complementacaoVAAR / totalMatriculas;
-} por aluno`);
-}`);
     } else {
       complementacaoVAAR = 0;
       vaarCalculado = 0;
-
     }
     
     // 4. CALCULAR REPASSE TOTAL
@@ -272,13 +253,6 @@ export const NovaSimulacao = (): JSX.Element => {
       complementacaoVAAF + 
       complementacaoVAAT + 
       complementacaoVAAR;
-    
-
-}`);
-}`);
-}`);
-}`);
-}`);
     
     const resultado = {
       matriculasPonderadas,
@@ -293,7 +267,6 @@ export const NovaSimulacao = (): JSX.Element => {
     
     // Se for baseline, salvar como dados originais
     if (isBaseline) {
-
       setDadosOriginais({
         totalMatriculas,
         matriculasPonderadas,
@@ -306,11 +279,6 @@ export const NovaSimulacao = (): JSX.Element => {
       const variacaoPonderadas = ((matriculasPonderadas - dadosOriginais.matriculasPonderadas) / dadosOriginais.matriculasPonderadas) * 100;
       const variacaoFinanceira = ((repasseTotal - dadosOriginais.repasseTotal) / dadosOriginais.repasseTotal) * 100;
       
-
-}%`);
-}%`);
-}%`);
-      
       setVariacoes({
         matriculas: variacaoMatriculas,
         ponderadas: variacaoPonderadas,
@@ -318,31 +286,21 @@ export const NovaSimulacao = (): JSX.Element => {
       });
     }
     
-
     setCalculosFundeb(resultado);
     setIsCalculating(false);
   };
 
   const handleEnrollmentChange = (id: string, value: string): void => {
-
-
-
-    
     const newCategories = categories.map((cat) => {
       if (cat.id !== id) {
         return cat;
       }
-      
-
       
       // Buscar fator da categoria pelo ID (educacaoInfantil, anosIniciaisFund, etc.)
       const categoryConfig = CATEGORIAS_AGREGADAS[id as keyof typeof CATEGORIAS_AGREGADAS];
       const factor = categoryConfig?.factor || 1.0;
       const matriculas = Number(value.replace(/\D/g, "")) || 0;
       const repasseSimulado = matriculas * VALOR_ALUNO_ANO * factor;
-      
-}`);
-
       
       return {
         ...cat,
@@ -402,7 +360,6 @@ export const NovaSimulacao = (): JSX.Element => {
       isFirstLoadRef.current = false;
       calcularFundeb(categories, true);
     } else {
-');
       calcularFundeb(categories, false);
     }
   }, [categories.length, municipioId, baseYear, dadosReaisMunicipio]); // Monitorar baseYear e dadosReaisMunicipio também
@@ -599,8 +556,6 @@ export const NovaSimulacao = (): JSX.Element => {
             };
           });
         
-
-=> sum + (parseBrazilianInteger(cat.enrollments) || 0), 0)}`);
         setCategories(mappedCategories);
       })
       .catch((e) => {
@@ -680,8 +635,6 @@ export const NovaSimulacao = (): JSX.Element => {
       },
     };
 
-);
-
     SimulationService.createSimulation(payload)
       .then(() => {
         toast.success("Simulação salva com sucesso!");
@@ -690,8 +643,6 @@ export const NovaSimulacao = (): JSX.Element => {
         }, 1000);
       })
       .catch((e: any) => {
-
-);
         const status = e?.response?.status || e?.status;
         if (status === 401) {
           toast.error("Sessão expirada. Faça login novamente.");
