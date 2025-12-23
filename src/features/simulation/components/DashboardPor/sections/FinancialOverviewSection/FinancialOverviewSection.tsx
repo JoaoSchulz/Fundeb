@@ -24,7 +24,6 @@ import {
 const initialTabs: Tab[] = [
   { id: "matriculas", label: "Por Matrículas", active: true },
   { id: "receita", label: "Por Receita", active: false },
-  { id: "indicadores", label: "Por Indicadores VAAR", active: false },
 ];
 
 const IS_DEV = import.meta.env.DEV;
@@ -152,10 +151,10 @@ export const FinancialOverviewSection = (): JSX.Element => {
       
       const calcularComparacaoAnoAnterior = (valorAtual: number, valorAnterior: number): string => {
         if (!dadosAnoAnterior || dadosAnoAnterior.repasseOriginal === 0) {
-          return `dados de ${anoAnterior} ausentes`;
+          return '';
         }
         if (valorAnterior === 0) {
-          return `dados de ${anoAnterior} ausentes`;
+          return '';
         }
         
         const percentual = ((valorAtual - valorAnterior) / valorAnterior) * 100;
@@ -167,7 +166,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
       const valorCard1 = receitaTotalAtual > 0 ? receitaTotalAtual : 0;
       const comparacaoRepasseOriginal = dadosAnoAnterior && repasseAnterior > 0
         ? calcularComparacaoAnoAnterior(valorCard1, repasseAnterior)
-        : `dados de ${anoAnterior} ausentes`;
+        : '';
       
       return [
         {
@@ -199,10 +198,10 @@ export const FinancialOverviewSection = (): JSX.Element => {
     // Calcular comparação com ano anterior
     const calcularComparacaoAnoAnterior = (valorAtual: number, valorAnterior: number): string => {
       if (!dadosAnoAnterior || dadosAnoAnterior.repasseOriginal === 0) {
-        return `dados de ${anoAnterior} ausentes`;
+        return '';
       }
       if (valorAnterior === 0) {
-        return `dados de ${anoAnterior} ausentes`;
+        return '';
       }
       
       // Calcular percentual de variação
@@ -229,7 +228,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
     // Sempre comparar se temos dados do ano anterior
     const comparacaoRepasseOriginal = dadosAnoAnterior && repasseAnterior > 0
       ? calcularComparacaoAnoAnterior(valorAtualCard1, repasseAnterior)
-      : `dados de ${anoAnterior} ausentes`;
+      : '';
     
     // Para o card 2 (Recurso potencial), comparar o recurso potencial atual com o do ano anterior
     // O recurso potencial do ano anterior é o mesmo que o repasse original (não há simulação)
@@ -261,7 +260,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
         comparacaoRepasseSimulado = calcularComparacaoAnoAnterior(totalRepasseSimulado, repasseAnterior);
       }
     } else {
-      comparacaoRepasseSimulado = `dados de ${anoAnterior} ausentes`;
+      comparacaoRepasseSimulado = '';
     }
     
     // Para o card de percentual de aumento, não faz sentido comparar com o ano anterior

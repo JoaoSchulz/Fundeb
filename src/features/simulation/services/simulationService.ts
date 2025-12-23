@@ -19,16 +19,11 @@ export class SimulationService {
     const endpoint =
       tabId === "receita"
         ? "/simulations/revenue"
-        : tabId === "indicadores"
-        ? "/simulations/indicators"
         : "/simulations/enrollments";
 
     if (tabId === "receita") {
       const { data } = await http.get<RevenueData[]>(endpoint);
       return transformRevenueData(data);
-    } else if (tabId === "indicadores") {
-      const { data } = await http.get<IndicatorData[]>(endpoint);
-      return transformIndicatorData(data);
     } else {
       const { data } = await http.get<EnrollmentData[]>(endpoint);
       // Transforma os dados brutos no formato esperado pela tabela

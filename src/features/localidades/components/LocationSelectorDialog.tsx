@@ -21,9 +21,15 @@ export const LocationSelectorDialog = (): JSX.Element => {
   const isAdmin = user?.role === 'admin';
   const canEditLocation = isAdmin;
   
-  // Determinar UF e município a serem exibidos (prioridade: simulação > perfil do usuário)
-  const displayedUf = selectedSimulation?.dadosEntrada?.uf || selectedSimulation?.state || user?.uf || undefined;
-  const displayedMunicipio = selectedSimulation?.dadosEntrada?.municipio || selectedSimulation?.city || user?.municipio || undefined;
+  // Determinar UF e município a serem exibidos
+  // Para usuários não-admin: sempre usar dados do perfil do usuário
+  // Para admin: prioridade: simulação > perfil do usuário
+  const displayedUf = canEditLocation 
+    ? (selectedSimulation?.dadosEntrada?.uf || selectedSimulation?.state || user?.uf || undefined)
+    : (user?.uf || undefined);
+  const displayedMunicipio = canEditLocation
+    ? (selectedSimulation?.dadosEntrada?.municipio || selectedSimulation?.city || user?.municipio || undefined)
+    : (user?.municipio || undefined);
 
   useEffect(() => {
     SimulationService.getUFs()

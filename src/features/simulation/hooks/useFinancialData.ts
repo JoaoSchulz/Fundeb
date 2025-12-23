@@ -59,20 +59,6 @@ export const useFinancialData = (activeTab: TabType): UseFinancialDataReturn => 
       } else if (tabId === "receita") {
         const data = await SimulationService.getSimulationsByTab("receita");
         setRevenueData(data as RevenueRow[]);
-      } else if (tabId === "indicadores") {
-        const data = await SimulationService.getSimulationsByTab("indicadores");
-        
-        // Enriquecer indicadores com dados históricos se houver codMun (código IBGE)
-        const codMun = sel?.codMun;
-        if (codMun && Array.isArray(data)) {
-          const enrichedData = await enriquecerIndicadoresComHistorico(
-            data as IndicatorRow[],
-            codMun
-          );
-          setIndicatorsData(enrichedData);
-        } else {
-          setIndicatorsData(data as IndicatorRow[]);
-        }
       }
     } catch (error) {
       // Erro será tratado pelo error boundary

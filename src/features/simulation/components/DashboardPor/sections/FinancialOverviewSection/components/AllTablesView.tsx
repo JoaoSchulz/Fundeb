@@ -1,13 +1,13 @@
 import { Separator } from "../../../../../../../components/ui/separator";
 import { TableSkeleton, CardsSkeleton } from "../../../../../../../components/common";
-import { SimulationTable, SimulationCards, RevenueTable, RevenueCards, IndicatorsTable, IndicatorsCards } from "../../../components";
-import type { IndicatorRow, RevenueRow, SimulationRow } from "../../../../../types";
+import { SimulationTable, SimulationCards, RevenueTable, RevenueCards } from "../../../components";
+import type { RevenueRow, SimulationRow } from "../../../../../types";
 
 interface AllTablesViewProps {
   isLoading: boolean;
   tableData: SimulationRow[];
   revenueData: RevenueRow[];
-  indicatorsData: IndicatorRow[];
+  indicatorsData: any[];
   isModalOpen: boolean;
   onOpenModal: () => void;
   onCloseModal: () => void;
@@ -91,30 +91,6 @@ export const AllTablesView = ({
           </div>
         ) : (
           <RevenueTable data={revenueData} onOpenModal={onOpenModal} />
-        )}
-      </div>
-
-      <Separator className="bg-[#e9e9eb]" />
-
-      {/* Tabela Por Indicadores */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-0.5 px-4 md:px-6">
-          <h3 className="text-lg font-semibold text-[#181d27] tracking-tight">
-            Por Indicadores VAAR
-          </h3>
-          <p className="text-sm font-normal text-[#717680] leading-relaxed">
-            Indicadores educacionais que influenciam a complementação do VAAR
-          </p>
-        </div>
-        {viewMode === "cards" ? (
-          <div className="px-4 md:px-6">
-            <IndicatorsCards
-              data={indicatorsData}
-              onOpenModal={onOpenModal}
-            />
-          </div>
-        ) : (
-          <IndicatorsTable data={indicatorsData} onOpenModal={onOpenModal} />
         )}
       </div>
     </div>

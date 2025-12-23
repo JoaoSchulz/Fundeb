@@ -78,10 +78,6 @@ export const SimulationTableContent = ({
     return <RevenueTable data={revenueData} onOpenModal={onOpenModal} />;
   }
 
-  if (activeTab === "indicadores") {
-    return <IndicatorsTable data={indicatorsData} onOpenModal={onOpenModal} />;
-  }
-
   // Para outras abas, sempre usar tabela
   if (activeTab !== "todos") {
     return (
