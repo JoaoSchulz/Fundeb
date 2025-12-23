@@ -33,20 +33,35 @@ export const parseBrazilianNumber = (value: string | number | null | undefined):
   }
   
   // Se tem ponto mas não vírgula, precisa determinar se é decimal ou milhar
-  // Regra: se tem apenas 1 ponto E está nas últimas 3 posições = decimal
-  // Caso contrário = separador de milhar
   const dotCount = (s.match(/\./g) || []).length;
+  
   if (dotCount === 1) {
     const lastDotIndex = s.lastIndexOf(".");
     // Se o ponto está nas últimas 3 posições, é provavelmente decimal (ex: "5447.98")
     if (lastDotIndex >= s.length - 3 && lastDotIndex > 0) {
       return parseFloat(s) || 0;
     }
+    // Se tem apenas 1 ponto mas não está nas últimas 3 posições
+    // E tem muitos zeros após o ponto (ex: "250.00000000"), pode ser formatação incorreta
+    // Nesse caso, tratar como separador de milhar e remover
+    const afterDot = s.substring(lastDotIndex + 1);
+    if (afterDot.length > 3 && /^0+$/.test(afterDot)) {
+      // Muitos zeros após o ponto = provavelmente separador de milhar mal formatado
+      const normalized = s.replace(/\./g, "");
+      return parseFloat(normalized) || 0;
+    }
+    // Caso contrário, tratar como decimal
+    return parseFloat(s) || 0;
   }
   
-  // Múltiplos pontos ou ponto não nas últimas posições = separador de milhar, remover
-  const normalized = s.replace(/\./g, "");
-  return parseFloat(normalized) || 0;
+  // Múltiplos pontos = separador de milhar (formato brasileiro), remover todos
+  if (dotCount > 1) {
+    const normalized = s.replace(/\./g, "");
+    return parseFloat(normalized) || 0;
+  }
+  
+  // Sem pontos = número inteiro ou número sem separadores
+  return parseFloat(s) || 0;
 };
 
 export const parseBrazilianInteger = (value: string | number | null | undefined): number => {
