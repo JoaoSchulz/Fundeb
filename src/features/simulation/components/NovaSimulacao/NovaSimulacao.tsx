@@ -596,9 +596,9 @@ export const NovaSimulacao = (): JSX.Element => {
         
         setCategories(mappedCategories);
       })
-      .catch((e) => {
-
-        toast.error("Erro ao carregar categorias do município");
+      .catch((e: any) => {
+        const errorMessage = e?.response?.data?.error || e?.response?.data?.message || e?.message || "Erro desconhecido";
+        toast.error(`Erro ao carregar categorias: ${errorMessage}`);
       })
       .finally(() => {
         setIsLoadingCategorias(false);
