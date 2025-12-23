@@ -77,6 +77,7 @@ export const NovaSimulacao = (): JSX.Element => {
   const lastMunicipioIdRef = useRef<string>("");
   const lastBaseYearRef = useRef<string>("");
   const isMountedRef = useRef(false); // Para evitar cálculos na montagem inicial
+  const nomeMunicipioSelecionadoRef = useRef<string | null>(null); // Para preservar nome do município ao trocar ano
   
   // Estados para cálculos FUNDEB oficiais (seguindo simuladorfundeb)
   const [calculosFundeb, setCalculosFundeb] = useState<{
@@ -429,6 +430,7 @@ export const NovaSimulacao = (): JSX.Element => {
             
             if (userMunicipio) {
               setMunicipioId(userMunicipio.id);
+              nomeMunicipioSelecionadoRef.current = userMunicipio.municipio;
             } else {
               toast.warning(`Município "${user.municipio}" não encontrado. Atualize seu perfil.`);
             }
@@ -456,21 +458,45 @@ export const NovaSimulacao = (): JSX.Element => {
       setDadosOriginais(null);
       setVariacoes(null);
       setDadosReaisMunicipio(null);
+      nomeMunicipioSelecionadoRef.current = null;
       return;
     }
+    
+    // Usar o nome do município armazenado no ref (preservado de seleções anteriores)
+    const nomeMunicipioParaPreservar = nomeMunicipioSelecionadoRef.current;
+    
     setIsLoadingMunicipios(true);
     const anoSelecionado = baseYear ? parseInt(baseYear, 10) : undefined;
     SimulationService.getMunicipiosByUF(uf, anoSelecionado)
       .then((data) => {
         // O backend já filtra por ano se fornecido, então apenas mapear os dados
-        setMunicipios(data.map((m: any) => ({ id: String(m.id), municipio: m.municipio, uf: m.uf })));
+        const municipiosData = data.map((m: any) => ({ id: String(m.id), municipio: m.municipio, uf: m.uf }));
+        setMunicipios(municipiosData);
+        
+        // Se havia um município selecionado (armazenado no ref), tentar encontrá-lo na nova lista pelo nome
+        if (nomeMunicipioParaPreservar) {
+          const municipioNormalizado = normalizarNomeMunicipio(nomeMunicipioParaPreservar);
+          const municipioEncontrado = municipiosData.find(
+            (m) => normalizarNomeMunicipio(m.municipio) === municipioNormalizado
+          );
+          
+          if (municipioEncontrado) {
+            // Encontrou o município na nova lista, manter selecionado
+            setMunicipioId(municipioEncontrado.id);
+            nomeMunicipioSelecionadoRef.current = municipioEncontrado.municipio;
+          } else {
+            // Não encontrou pelo nome, limpar seleção
+            setMunicipioId("");
+            nomeMunicipioSelecionadoRef.current = null;
+          }
+        }
       })
       .catch((e) => {
 
         toast.error("Erro ao carregar municípios");
       })
       .finally(() => setIsLoadingMunicipios(false));
-  }, [uf, baseYear]);
+  }, [uf, baseYear, canEditLocation]);
 
   useEffect(() => {
     // Não carregar categorias se não houver município OU se não houver ano-base selecionado
@@ -672,6 +698,14 @@ export const NovaSimulacao = (): JSX.Element => {
       });
   };
 
+  // Handler para mudança de município - atualiza estado e ref
+  const handleMunicipioChange = (newMunicipioId: string): void => {
+    setMunicipioId(newMunicipioId);
+    // Atualizar ref com o nome do município selecionado
+    const municipioSelecionado = municipios.find(m => m.id === newMunicipioId);
+    nomeMunicipioSelecionadoRef.current = municipioSelecionado?.municipio || null;
+  };
+
   const handleCancel = (): void => {
     navigate("/app");
   };
@@ -692,7 +726,7 @@ export const NovaSimulacao = (): JSX.Element => {
               onUfChange={setUf}
               ufs={ufs}
               municipioId={municipioId}
-              onMunicipioChange={setMunicipioId}
+              onMunicipioChange={handleMunicipioChange}
               municipios={municipios}
               isLoadingMunicipios={isLoadingMunicipios}
               canEditLocation={canEditLocation}
