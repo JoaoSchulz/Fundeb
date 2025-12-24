@@ -14,7 +14,7 @@ interface LogEntry {
 }
 
 export const AtualizarDados = (): JSX.Element => {
-  const [year, setYear] = useState<string>(new Date().getFullYear().toString());
+  const [year, setYear] = useState<string>(Math.max(2025, new Date().getFullYear()).toString());
   const [isUpdating, setIsUpdating] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [showLogs, setShowLogs] = useState(false);
@@ -300,8 +300,10 @@ export const AtualizarDados = (): JSX.Element => {
     };
   }, []);
 
+  const startYear = 2025;
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+  const maxYear = Math.max(startYear, currentYear + 5); // Pelo menos 5 anos no futuro
+  const years = Array.from({ length: maxYear - startYear + 1 }, (_, i) => startYear + i);
 
   const getLogColor = (type: LogEntry['type']) => {
     switch (type) {
