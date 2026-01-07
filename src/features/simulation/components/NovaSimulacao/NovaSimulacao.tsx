@@ -67,6 +67,7 @@ export const NovaSimulacao = (): JSX.Element => {
   const [selectedMunicipioData, setSelectedMunicipioData] = useState<{ municipio: string; uf: string } | null>(null);
   const [anosDisponiveis, setAnosDisponiveis] = useState<number[]>([]);
   const [isLoadingAnos, setIsLoadingAnos] = useState(true);
+  const [mostrarApenasEstadual, setMostrarApenasEstadual] = useState(false);
   
   // Verificar se usuário pode editar localização
   const isAdmin = user?.role === 'admin';
@@ -498,6 +499,29 @@ export const NovaSimulacao = (): JSX.Element => {
       .finally(() => setIsLoadingMunicipios(false));
   }, [uf, baseYear, canEditLocation]);
 
+  // Filtrar municípios baseado no checkbox "Estadual"
+  const municipiosFiltrados = municipios.filter((m) => {
+    const isGovernoEstado = m.municipio.toUpperCase().includes('GOVERNO DO ESTADO');
+    if (mostrarApenasEstadual) {
+      // Quando marcado: mostrar apenas GOVERNO DO ESTADO
+      return isGovernoEstado;
+    } else {
+      // Quando desmarcado: excluir GOVERNO DO ESTADO
+      return !isGovernoEstado;
+    }
+  });
+
+  // Limpar seleção de município quando o filtro mudar e o município selecionado não estiver na lista filtrada
+  useEffect(() => {
+    if (municipioId && municipiosFiltrados.length > 0) {
+      const municipioSelecionadoExiste = municipiosFiltrados.some(m => m.id === municipioId);
+      if (!municipioSelecionadoExiste) {
+        setMunicipioId("");
+        nomeMunicipioSelecionadoRef.current = null;
+      }
+    }
+  }, [mostrarApenasEstadual, municipiosFiltrados, municipioId]);
+
   useEffect(() => {
     // Não carregar categorias se não houver município OU se não houver ano-base selecionado
     if (!municipioId || !baseYear) {
@@ -727,12 +751,15 @@ export const NovaSimulacao = (): JSX.Element => {
               ufs={ufs}
               municipioId={municipioId}
               onMunicipioChange={handleMunicipioChange}
-              municipios={municipios}
+              municipios={municipiosFiltrados}
               isLoadingMunicipios={isLoadingMunicipios}
               canEditLocation={canEditLocation}
               anosDisponiveis={anosDisponiveis}
               isLoadingAnos={isLoadingAnos}
               userMunicipio={user?.municipio}
+              mostrarApenasEstadual={mostrarApenasEstadual}
+              onMostrarApenasEstadualChange={setMostrarApenasEstadual}
+              isAdmin={isAdmin}
             />
 
             <TabSelector activeTab={activeTab} onTabChange={setActiveTab} />

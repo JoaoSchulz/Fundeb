@@ -6,6 +6,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../../../../components/ui/select";
+import { Checkbox } from "../../../../../components/ui/checkbox";
+import { Label } from "../../../../../components/ui/label";
 
 interface SimulationFormFieldsProps {
   simulationName: string;
@@ -23,6 +25,9 @@ interface SimulationFormFieldsProps {
   anosDisponiveis: number[];
   isLoadingAnos?: boolean;
   userMunicipio?: string; // Nome do município do perfil do usuário
+  mostrarApenasEstadual?: boolean;
+  onMostrarApenasEstadualChange?: (value: boolean) => void;
+  isAdmin?: boolean;
 }
 
 export const SimulationFormFields = ({
@@ -41,6 +46,9 @@ export const SimulationFormFields = ({
   anosDisponiveis,
   isLoadingAnos = false,
   userMunicipio,
+  mostrarApenasEstadual = false,
+  onMostrarApenasEstadualChange,
+  isAdmin = false,
 }: SimulationFormFieldsProps): JSX.Element => {
   const selectedMunicipio = municipios.find(m => m.id === municipioId);
   // Para usuários não-admin, mostrar o município do perfil se não houver município selecionado na lista
@@ -111,9 +119,30 @@ export const SimulationFormFields = ({
         )}
       </div>
       <div className="flex flex-col gap-2 flex-1">
-        <label className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">
-          Município *
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="font-['Inter',Helvetica] font-medium text-[#181d27] text-sm">
+            Município *
+          </label>
+          {canEditLocation && isAdmin && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="mostrar-estadual"
+                checked={mostrarApenasEstadual}
+                onCheckedChange={(checked) => {
+                  if (onMostrarApenasEstadualChange) {
+                    onMostrarApenasEstadualChange(checked === true);
+                  }
+                }}
+              />
+              <Label
+                htmlFor="mostrar-estadual"
+                className="text-sm font-normal text-[#181d27] cursor-pointer"
+              >
+                Estadual
+              </Label>
+            </div>
+          )}
+        </div>
         {canEditLocation ? (
           <Select
             value={municipioId}
