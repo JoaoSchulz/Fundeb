@@ -23,7 +23,6 @@ import {
 
 const initialTabs: Tab[] = [
   { id: "matriculas", label: "Por Matrículas", active: true },
-  { id: "receita", label: "Por Receita", active: false },
 ];
 
 const IS_DEV = import.meta.env.DEV;
@@ -55,7 +54,8 @@ export const FinancialOverviewSection = (): JSX.Element => {
     receitaTotal: number;
   } | null>(null);
 
-  const activeTab = tabs.find((tab) => tab.active)?.id || "todos";
+  // Sempre usar "matriculas" já que removemos a opção "receita"
+  const activeTab = "matriculas";
 
   // Hook para gerenciar dados financeiros
   const {
@@ -440,6 +440,7 @@ export const FinancialOverviewSection = (): JSX.Element => {
   };
 
   const handleTabChange = async (tabId: string): Promise<void> => {
+    // Não permitir trocar de tab - apenas "Por Matrículas" está disponível
     // Se selecionar "Todos", fazer scroll para o início da div da tabela
     if (tabId === "todos" && tableRef.current) {
       setTimeout(() => {
@@ -450,10 +451,11 @@ export const FinancialOverviewSection = (): JSX.Element => {
       saveScrollPosition();
     }
 
+    // Manter apenas a tab "matriculas" ativa
     setTabs((prevTabs) =>
       prevTabs.map((tab) => ({
         ...tab,
-        active: tab.id === tabId,
+        active: tab.id === "matriculas",
       }))
     );
     // O useEffect no hook useFinancialData vai detectar a mudança de activeTab e chamar loadTableData

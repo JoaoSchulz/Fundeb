@@ -74,10 +74,6 @@ export const SimulationTableContent = ({
     return <TableSkeleton />;
   }
 
-  if (activeTab === "receita") {
-    return <RevenueTable data={revenueData} onOpenModal={onOpenModal} />;
-  }
-
   // Para outras abas, sempre usar tabela
   if (activeTab !== "todos") {
     return (

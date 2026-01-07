@@ -689,7 +689,7 @@ export const NovaSimulacao = (): JSX.Element => {
       nome: simulationName,
       dadosEntrada: {
         anoBase: Number(baseYear),
-        tipo: activeTab === "enrollment" ? "matriculas" : "receita",
+        tipo: "matriculas", // Sempre usar matrículas
         municipioId: municipioId,
         municipio: selectedMunicipioData.municipio,
         uf: selectedMunicipioData.uf,
