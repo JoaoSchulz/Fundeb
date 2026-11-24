@@ -50,6 +50,7 @@ O arquivo `vercel.json` foi criado com as configurações corretas:
 ```
 
 Se ainda não funcionar, verifique no dashboard da Vercel:
+
 - **Settings** → **General**
 - **Build Command**: `npm run build`
 - **Output Directory**: `dist`
@@ -59,11 +60,13 @@ Se ainda não funcionar, verifique no dashboard da Vercel:
 ### 🔍 Verificações Importantes
 
 1. **Branch está atualizada?**
+
    ```bash
    git log origin/main -1
    ```
 
 2. **Build funciona localmente?**
+
    ```bash
    npm run build
    ```
@@ -90,4 +93,3 @@ Se ainda não funcionar, verifique no dashboard da Vercel:
 ---
 
 **Última atualização**: Após adicionar `vercel.json` na branch `main`
-
